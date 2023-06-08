@@ -1,0 +1,158 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "su6-plugin-demo" # <- CHANGE ME
+dynamic = ["version"]
+description = 'Demo plugin for su6-checker' # <- CHANGE ME
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = []
+authors = [
+    { name = "Robin van der Noord", email = "robinvandernoord@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    "su6"
+]
+
+# https://packaging.python.org/en/latest/guides/creating-and-discovering-plugins/#using-package-metadata
+[project.entry-points."su6"]
+demo = "su6_plugin_demo.cli"  # <- CHANGE ME
+
+[template.plugins.default]
+src-layout = true
+
+[project.optional-dependencies]
+dev = [
+    "su6[all]"
+]
+
+[project.urls]
+Documentation = "https://github.com/robinvandernoord/su6-plugin-demo#readme" # <- CHANGE ME
+Issues = "https://github.com/robinvandernoord/su6-plugin-demo/issues" # <- CHANGE ME
+Source = "https://github.com/robinvandernoord/su6-plugin-demo" # <- CHANGE ME
+
+[tool.hatch.version]
+path = "src/su6_plugin_demo/__about__.py" # <- CHANGE ME
+
+[tool.semantic_release]
+branch = "master"
+version_variable = "src/su6_plugin_demo/__about__.py:__version__"  # <- CHANGE ME
+change_log = "CHANGELOG.md"
+upload_to_repository = false
+upload_to_release = false
+build_command = "hatch build"
+
+[tool.su6]
+directory = "src"
+include = []
+exclude = []
+stop-after-first-failure = false
+coverage = 100
+badge = true
+
+[tool.black]
+target-version = ["py311"]
+line-length = 120
+# 'extend-exclude' excludes files or directories in addition to the defaults
+extend-exclude = '''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+(
+  ^.*\.bak\/.+     # ignore every .bak directory
+  ^.*venv.+\/.+    # ignore every venv directory
+  venv.+|.+\.bak   # idk why it suddenly works, let's not touch it
+)
+'''
+
+[tool.mypy]
+python_version = "3.11"
+
+# `some: int = None` looks nicer than `some: int | None = None` and pycharm still understands it
+no_implicit_optional = false  # I guess 'strict_optional' should be true, but disable this one because it's double!
+# same as above (thrown if no_implicit_optional = False)
+# ACTUALLY: not the same! Setting strict_optional = false may miss some type errors like
+# 'Item "None" of "Optional" has no attribute "lower"'
+# 'strict_optional' complains more for class properties and 'no_implicit_optional' for function arguments
+# strict_optional = false
+# 3rd party packages may not be typed, that's not my fault!
+ignore_missing_imports = true
+# kinda hypocritical to disable Optional and still enable strict, but I do agree with some other strict rules.
+strict = true
+# fixes defs with clear return var (doesn't seem to work for __init__ which is the most obvious case)
+# check_untyped_defs = True
+
+exclude = ["venv", ".bak"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+select = [
+    "F", # pyflake error
+    "E", # pycodestyle error
+    "W", # pycodestyle warning
+    "Q", # quotes
+    "A", # builtins
+    # "C4", # comprehensions - NO: doesn't allow dict()
+    # "RET", # return - NO: annoying
+    "SIM", # simplify
+    "ARG", # unused arguments
+    # "COM", # comma's - NO: annoying
+    # "PTH", # use pathlib - NO: annoying
+    "RUF", # ruff rules
+]
+unfixable = [
+    # Don't touch unused imports
+    "F401",
+]
+extend-exclude = ["*.bak/", "venv*/"]
+
+[tool.bandit]
+# bandit -c pyproject.toml -r .
+exclude_dirs = [".bak", "venv"]
+skips = [
+    "B108", # hard coded /tmp/... files are fine for me tbh
+]
+
+[tool.isort]
+profile = "black"
+extend_skip_glob = ["*.bak/*"]
+
+[tool.pydocstyle]
+convention = "google"
+match-dir = '(?!venv)[^\.].*'
+add_select = [
+    "D213", # = Multi-line docstring summary should start at the second line
+    "D416", # = Google-style section name checks.
+    "D417", # = Missing argument descriptions in the docstring
+]
+add_ignore = [
+    "D200", # = One-line docstring should fit on one line with quotes
+    "D212", # = Multi-line docstring summary should start at the first line
+]
+
+### and if it's a project and NOT a package, add this to make it not look for anything buildable: ###
+# make this a meta package: not a library but simply allow me to run `pip install .[dev]`
+#[build-system]
+#build-backend = "setuptools.build_meta"
+#requires = ["setuptools"]
+#
+#[tool.setuptools.packages.find]
+## look nowhere for any code to 'build' since this is just used to manage (dev) dependencies
+#where = []
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src",
+]

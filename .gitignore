@@ -1,0 +1,10 @@
+venv*
+*.bak
+.idea
+*.pyc
+__pycache__
+build
+dist
+*.egg-info
+.coverage
+coverage.json
