@@ -1,0 +1,40 @@
+[tool.first]
+string = "src"
+list_of_string = ["one", "and", "another"]
+list_of_int = [1, 2, 3]
+list_of_float = [1.2, 2.3]
+list_of_numbers = [1, 1.5]
+some-boolean = false
+number = 100
+not_a_number = nan
+datetime = 1979-05-27T07:32:00Z
+datetimes = [1978-05-27T07:32:00Z, 1979-05-27T07:32:00Z]
+
+[tool.first.extra]
+# inline table:
+name = { first = "Tom", last = "Preston-Werner" }
+point = { x = 1, y = 2 }
+animal = { type.name = "pug" }
+
+[tool."second.extra"]
+allowed = true
+
+[[tool.fruits]]
+name = "apple"
+
+[tool.fruits.physical]  # subtable
+color = "red"
+shape = "round"
+
+[[tool.fruits.varieties]]  # nested array of tables
+name = "red delicious"
+
+[[tool.fruits.varieties]]
+name = "granny smith"
+
+
+[[tool.fruits]]
+name = "banana"
+
+[[tool.fruits.varieties]]
+name = "plantain"

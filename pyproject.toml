@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "su6-plugin-demo" # <- CHANGE ME
+name = "typedconfig"
 dynamic = ["version"]
-description = 'Demo plugin for su6-checker' # <- CHANGE ME
+description = 'Load toml/yaml/json config files into classes for a typed config (type hinting etc.)'
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -22,12 +22,8 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-    "su6"
+    "typeguard"
 ]
-
-# https://packaging.python.org/en/latest/guides/creating-and-discovering-plugins/#using-package-metadata
-[project.entry-points."su6"]
-demo = "su6_plugin_demo.cli"  # <- CHANGE ME
 
 [template.plugins.default]
 src-layout = true
@@ -38,16 +34,16 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/robinvandernoord/su6-plugin-demo#readme" # <- CHANGE ME
-Issues = "https://github.com/robinvandernoord/su6-plugin-demo/issues" # <- CHANGE ME
-Source = "https://github.com/robinvandernoord/su6-plugin-demo" # <- CHANGE ME
+Documentation = "https://github.com/robinvandernoord/typedconfig#readme"
+Issues = "https://github.com/robinvandernoord/typedconfig/issues"
+Source = "https://github.com/robinvandernoord/typedconfig"
 
 [tool.hatch.version]
-path = "src/su6_plugin_demo/__about__.py" # <- CHANGE ME
+path = "src/typedconfig/__about__.py"
 
 [tool.semantic_release]
 branch = "master"
-version_variable = "src/su6_plugin_demo/__about__.py:__version__"  # <- CHANGE ME
+version_variable = "src/typedconfig/__about__.py:__version__"
 change_log = "CHANGELOG.md"
 upload_to_repository = false
 upload_to_release = false
