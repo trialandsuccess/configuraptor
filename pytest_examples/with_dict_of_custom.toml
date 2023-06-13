@@ -1,0 +1,5 @@
+[structure.contents]
+# inline table:
+first_point = { x = 1, y = 2 }
+second_point = { x = 123, y = 2124 }
+third_point = { x = 114, y = 212 }

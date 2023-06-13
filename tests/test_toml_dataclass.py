@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from src.typedconfig.helpers import ConfigError
+from src.typedconfig.errors import ConfigError
 from .constants import _load_toml, EMPTY_FILE, EXAMPLE_FILE
 
 import src.typedconfig as typedconfig
@@ -114,4 +114,4 @@ def test_dataclasses():
     tool = typedconfig.load_into(Tool, data)
     first = typedconfig.load_into(First, EXAMPLE_FILE, key="tool.first")
 
-    assert tool.first.extra['name']['first'] == first.extra['name']['first']
+    assert tool.first.extra["name"]["first"] == first.extra["name"]["first"]

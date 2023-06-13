@@ -8,9 +8,9 @@ from pprint import pprint
 import pytest
 
 import src.typedconfig as typedconfig
-from src.typedconfig.helpers import ConfigError
+from src.typedconfig.errors import ConfigError, ConfigErrorInvalidType, ConfigErrorMissingKey
 
-from .constants import _load_toml, EMPTY_FILE, EXAMPLE_FILE
+from .constants import _load_toml, EMPTY_FILE, EXAMPLE_FILE, PYTEST_EXAMPLES
 
 
 def test_example_is_valid_toml():
@@ -86,14 +86,6 @@ class Tool:
     second_extra: SecondExtra
 
 
-# todo: support later
-# class ToolWithInit(Tool):
-#     more_properties: str
-#
-#     def __init__(self, more_properties: str):
-#         self.more_properties = more_properties
-
-
 class Empty:
     default: str = "allowed"
 
@@ -115,4 +107,83 @@ def test_basic_classes():
     tool = typedconfig.load_into(Tool, data)
     first = typedconfig.load_into(First, EXAMPLE_FILE, key="tool.first")
 
-    assert tool.first.extra['name']['first'] == first.extra['name']['first']
+    assert tool.first.extra["name"]["first"] == first.extra["name"]["first"]
+
+
+class Relevant:
+    key: str
+
+
+class OptionalRelevant:
+    key: typing.Optional[str]
+
+
+class Irrelevant:
+    key: dict
+
+
+def test_guess_key_from_multiple_keys():
+    file = str(PYTEST_EXAMPLES / "with_multiple_toplevel_keys.toml")
+    relevant = typedconfig.load_into(Relevant, file)
+    assert relevant and relevant.key == "this one!"
+
+
+def test_guess_key_no_match():
+    file = str(PYTEST_EXAMPLES / "with_multiple_toplevel_keys.toml")
+    # no key and no match by class name:
+    relevant = typedconfig.load_into(Irrelevant, file, key="")
+    assert relevant and relevant.key["value"] == "fallback"
+
+
+class TooLong:
+    type: str
+
+
+def test_invalid_type():
+    file = str(PYTEST_EXAMPLES / "with_multiple_toplevel_keys.toml")
+    with pytest.raises(ConfigErrorInvalidType):
+        # tool.key contains an int instead of a str
+        typedconfig.load_into(Relevant, file, key="tool")
+
+    with pytest.raises(ConfigErrorInvalidType):
+        # complex.type is a long dict but is typed as string.
+        # it will be truncated in the error message
+        try:
+            typedconfig.load_into(TooLong, file, key="complex")
+        except ConfigErrorInvalidType as e:
+            assert "..." in str(e)
+            raise e
+
+
+def test_missing_key():
+    file = str(PYTEST_EXAMPLES / "with_multiple_toplevel_keys.toml")
+    with pytest.raises(ConfigErrorMissingKey):
+        # key.key does not exist
+        try:
+            typedconfig.load_into(Relevant, file, key="key")
+        except ConfigErrorMissingKey as e:
+            assert "Config key 'key'" in str(e)
+            raise e
+
+    # allowed here since 'key' is optional:
+    inst = typedconfig.load_into(OptionalRelevant, file, key="key")
+    assert inst.key is None
+
+
+class Point:
+    x: int
+    y: int
+
+
+class Structure:
+    # contents: dict[str, Point]
+    contents: dict[str, Point]
+
+
+def test_dict_of_custom():
+    file = PYTEST_EXAMPLES / "with_dict_of_custom.toml"
+
+    structure = typedconfig.load_into(Structure, file)
+    for key, value in structure.contents.items():
+        assert isinstance(key, str)
+        assert isinstance(value, Point)

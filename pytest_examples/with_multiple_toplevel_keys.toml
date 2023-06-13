@@ -1,0 +1,11 @@
+[tool]
+key = 0 # not this one
+
+[relevant]
+key = "this one!"
+
+[key]
+value = 'fallback'
+
+[complex]
+type = { just = "a", whole = "lot", of = "useless", information = "no", one = "will", ever = "use" }

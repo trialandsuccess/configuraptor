@@ -1,17 +1,14 @@
 """
-Main example.
-
-Should be removed soon.
+Example with basic classes
 """
 
-from .core import load_into
+from typedconfig import load_into
 
 
 class AbsHasName:
     name: str
 
 
-# @dataclass
 class Two(AbsHasName):
     some_str: str
     some_int: int
@@ -20,7 +17,6 @@ class Two(AbsHasName):
         return f"{self.name=} {self.some_str=} {self.some_int=}"
 
 
-# @dataclass
 class Simple(AbsHasName):
     two: Two
 

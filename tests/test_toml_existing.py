@@ -9,6 +9,7 @@ import pytest
 
 import src.typedconfig as typedconfig
 from src.typedconfig.errors import ConfigError
+
 from .constants import _load_toml, EMPTY_FILE, EXAMPLE_FILE
 
 
@@ -47,7 +48,7 @@ class AbsHasName:
 #     animal: FirstExtraAnimal
 
 
-class First(typedconfig.TypedConfig):
+class First:
     string: str
     list_of_string: list[str]
     list_of_int: list[int]
@@ -58,7 +59,6 @@ class First(typedconfig.TypedConfig):
     not_a_number: math.nan
     datetime: dt.datetime
     datetimes: list[dt.datetime]
-    # extra: typing.Optional[FirstExtra]
     extra: typing.Optional[dict[str, typing.Any]]
 
 
@@ -80,31 +80,38 @@ class SecondExtra:
     allowed: bool
 
 
-class Tool(typedconfig.TypedConfig):
+class Tool:
     first: First
     fruits: list[Fruit]
     second_extra: SecondExtra
 
 
-class Empty(typedconfig.TypedConfig):
-    default: str = "allowed"
+class ToolWithInit(Tool):
+    more_properties: str
+
+    def __init__(self, more_properties: str):
+        self.more_properties = more_properties
 
 
-def test_empty():
-    empty = typedconfig.load_into(Empty, {})
-    assert empty and empty.default == "allowed"
-
-    with pytest.raises(ConfigError):
-        typedconfig.load_into(Tool, {})
-
-    with pytest.raises(ConfigError):
-        typedconfig.load_into(First, EMPTY_FILE, key="tool.first")
-
-
-def test_typedconfig_classes():
+def test_new_instances():
     data = _load_toml()
 
-    tool = Tool.load(data)
-    first = First.load(EXAMPLE_FILE, key="tool.first")
+    tool = typedconfig.load_into(ToolWithInit, data, init=dict(more_properties="more kwargs"))
+    assert tool.more_properties == "more kwargs"
+    assert tool.fruits
 
-    assert tool.first.extra["name"]["first"] == first.extra["name"]["first"]
+
+def test_existing_instances():
+    data = _load_toml()
+
+    inst1 = ToolWithInit("some setup")
+
+    normal_tool = typedconfig.load_into(Tool, data)
+    inst1_extended = typedconfig.load_into(inst1, data)
+
+    assert inst1.fruits
+
+    assert inst1_extended.first.extra["name"]["first"] == normal_tool.first.extra["name"]["first"]
+
+    with pytest.raises(ValueError):
+        typedconfig.load_into(inst1, data, init=dict(more_properties="Should not be allowed!"))
