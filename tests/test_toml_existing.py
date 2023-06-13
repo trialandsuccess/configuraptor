@@ -87,17 +87,17 @@ class Tool:
 
 
 class ToolWithInit(Tool):
-    more_properties: str
+    more_props: str
 
     def __init__(self, more_properties: str):
-        self.more_properties = more_properties
+        self.more_props = more_properties
 
 
 def test_new_instances():
     data = _load_toml()
 
     tool = typedconfig.load_into(ToolWithInit, data, init=dict(more_properties="more kwargs"))
-    assert tool.more_properties == "more kwargs"
+    assert tool.more_props == "more kwargs"
     assert tool.fruits
 
 

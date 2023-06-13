@@ -54,7 +54,10 @@ def _guess_key(clsname: str) -> str:
 
 def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str, typing.Any]:
     """
-    @todo
+    Tries to load the right data from a filename/path or dict, based on a manual key or a classname.
+
+    E.g. class Tool will be mapped to key tool.
+    It also deals with nested keys (tool.extra -> {"tool": {"extra": ...}}
     """
     if isinstance(data, str):
         data = Path(data)
@@ -311,7 +314,11 @@ def _check_and_convert_data(
     _except: typing.Iterable[str],
 ) -> dict[str, typing.Any]:
     """
-    @todo
+    Based on class annotations, this prepares the data for `load_into_recurse`.
+
+    1. convert config-keys to python compatible config_keys
+    2. loads custom class type annotations with the same logic (see also `load_recursive`)
+    3. ensures the annotated types match the actual types after loading the config file.
     """
     annotations = all_annotations(cls, _except=_except)
 
@@ -330,19 +337,23 @@ def load_into_recurse(
     Loads an instance of `cls` filled with `data`.
 
     Uses `load_recursive` to load any fillable annotated properties (see that method for an example).
-    `init` can be used to optionally pass extra __init__ arguments.
+    `init` can be used to optionally pass extra __init__ arguments. \
+        NOTE: This will overwrite a config key with the same name!
     """
     if init is None:
         init = {}
 
     # fixme: cls.__init__ can set other keys than the name is in kwargs!!
-    to_load = _check_and_convert_data(cls, data, init.keys())
 
     if is_dataclass(cls):
+        to_load = _check_and_convert_data(cls, data, init.keys())
+        to_load |= init  # add extra init variables (should not happen for a dataclass but whatev)
+
         # ensure mypy inst is an instance of the cls type (and not a fictuous `DataclassInstance`)
         inst = typing.cast(C, cls(**to_load))
     else:
         inst = cls(**init)
+        to_load = _check_and_convert_data(cls, data, inst.__dict__.keys())
         inst.__dict__.update(**to_load)
 
     return inst
