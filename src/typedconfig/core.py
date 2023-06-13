@@ -2,7 +2,6 @@
 Contains most of the loading logic.
 """
 
-import tomllib
 import types
 import typing
 import warnings
@@ -13,6 +12,7 @@ from pathlib import Path
 from typeguard import TypeCheckError
 from typeguard import check_type as _check_type
 
+from . import loaders
 from .errors import ConfigErrorInvalidType, ConfigErrorMissingKey
 from .helpers import camel_to_snake
 
@@ -64,7 +64,7 @@ def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str
     if isinstance(data, Path):
         # todo: more than toml
         with data.open("rb") as f:
-            data = tomllib.load(f)
+            data = loaders.toml(f)
 
     if not data:
         return {}
