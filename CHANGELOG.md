@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.1 (2023-06-14)
+### Documentation
+* Fix changelog and url in readme ([`59bc18b`](https://github.com/trialandsuccess/configuraptor/commit/59bc18ba5d968b5275253d1637d4f5ef3aa3182b))
+
 ## v1.0.0 (2023-06-14)
 ### BREAKING CHANGE
 * renamed to 'configuraptor'
