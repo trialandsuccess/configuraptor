@@ -1,6 +1,6 @@
 import pytest
 
-from src.typedconfig import Singleton
+from src.configuraptor import Singleton
 
 
 def test_singleton():

@@ -1,5 +1,6 @@
-from src.typedconfig import loaders
 from pathlib import Path
+
+from src.configuraptor import loaders
 
 PYTEST_EXAMPLES = Path("./pytest_examples")
 EXAMPLE_FILE = PYTEST_EXAMPLES / "some.toml"

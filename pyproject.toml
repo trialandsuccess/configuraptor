@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "typedconfig"
+name = "configuraptor"
 dynamic = ["version"]
 description = 'Load toml/yaml/json config files into classes for a typed config (type hinting etc.)'
 readme = "README.md"
@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = "MIT"
 keywords = []
 authors = [
-    { name = "Robin van der Noord", email = "robinvandernoord@gmail.com" },
+    { name = "Robin van der Noord", email = "robin@trialandsuccess.nl" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -36,16 +36,16 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/robinvandernoord/typedconfig#readme"
-Issues = "https://github.com/robinvandernoord/typedconfig/issues"
-Source = "https://github.com/robinvandernoord/typedconfig"
+Documentation = "https://github.com/trialandsuccess/configuraptor#readme"
+Issues = "https://github.com/trialandsuccess/configuraptor/issues"
+Source = "https://github.com/trialandsuccess/configuraptor"
 
 [tool.hatch.version]
-path = "src/typedconfig/__about__.py"
+path = "src/configuraptor/__about__.py"
 
 [tool.semantic_release]
 branch = "master"
-version_variable = "src/typedconfig/__about__.py:__version__"
+version_variable = "src/configuraptor/__about__.py:__version__"
 change_log = "CHANGELOG.md"
 upload_to_repository = false
 upload_to_release = false

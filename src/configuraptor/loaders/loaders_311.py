@@ -5,7 +5,7 @@ import sys
 import typing
 from typing import BinaryIO
 
-if sys.version_info < (3, 11): # pragma: no cover
+if sys.version_info < (3, 11):  # pragma: no cover
     raise EnvironmentError("Wrong Python version!")
 else:
     import tomllib

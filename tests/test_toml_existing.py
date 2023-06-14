@@ -4,7 +4,8 @@ import typing
 
 import pytest
 
-import src.typedconfig as typedconfig
+from src import configuraptor
+
 from .constants import _load_toml
 
 
@@ -91,7 +92,7 @@ class ToolWithInit(Tool):
 def test_new_instances():
     data = _load_toml()
 
-    tool = typedconfig.load_into(ToolWithInit, data, init=dict(more_properties="more kwargs"))
+    tool = configuraptor.load_into(ToolWithInit, data, init=dict(more_properties="more kwargs"))
     assert tool.more_props == "more kwargs"
     assert tool.fruits
 
@@ -101,12 +102,12 @@ def test_existing_instances():
 
     inst1 = ToolWithInit("some setup")
 
-    normal_tool = typedconfig.load_into(Tool, data)
-    inst1_extended = typedconfig.load_into(inst1, data)
+    normal_tool = configuraptor.load_into(Tool, data)
+    inst1_extended = configuraptor.load_into(inst1, data)
 
     assert inst1.fruits
 
     assert inst1_extended.first.extra["name"]["first"] == normal_tool.first.extra["name"]["first"]
 
     with pytest.raises(ValueError):
-        typedconfig.load_into(inst1, data, init=dict(more_properties="Should not be allowed!"))
+        configuraptor.load_into(inst1, data, init=dict(more_properties="Should not be allowed!"))

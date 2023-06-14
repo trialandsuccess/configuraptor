@@ -13,7 +13,6 @@ else:  # pragma: no cover
 
     T_toml = dict[str, typing.Any]
 
-
     def toml(f: BinaryIO) -> T_toml:
         """
         Load a toml file.

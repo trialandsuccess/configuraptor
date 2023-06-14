@@ -1,6 +1,6 @@
 import re
 
-from src.typedconfig.__about__ import __version__
+from src.configuraptor.__about__ import __version__
 
 
 def test_version():

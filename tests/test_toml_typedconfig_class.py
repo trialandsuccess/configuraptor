@@ -4,9 +4,10 @@ import typing
 
 import pytest
 
-import src.typedconfig as typedconfig
-from src.typedconfig.errors import ConfigError
-from .constants import _load_toml, EMPTY_FILE, EXAMPLE_FILE
+from src import configuraptor
+from src.configuraptor.errors import ConfigError
+
+from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
 
 
 def test_example_is_valid_toml():
@@ -44,7 +45,7 @@ class AbsHasName:
 #     animal: FirstExtraAnimal
 
 
-class First(typedconfig.TypedConfig):
+class First(configuraptor.TypedConfig):
     string: str
     list_of_string: list[str]
     list_of_int: list[int]
@@ -77,25 +78,25 @@ class SecondExtra:
     allowed: bool
 
 
-class Tool(typedconfig.TypedConfig):
+class Tool(configuraptor.TypedConfig):
     first: First
     fruits: list[Fruit]
     second_extra: SecondExtra
 
 
-class Empty(typedconfig.TypedConfig):
+class Empty(configuraptor.TypedConfig):
     default: str = "allowed"
 
 
 def test_empty():
-    empty = typedconfig.load_into(Empty, {})
+    empty = configuraptor.load_into(Empty, {})
     assert empty and empty.default == "allowed"
 
     with pytest.raises(ConfigError):
-        typedconfig.load_into(Tool, {})
+        configuraptor.load_into(Tool, {})
 
     with pytest.raises(ConfigError):
-        typedconfig.load_into(First, EMPTY_FILE, key="tool.first")
+        configuraptor.load_into(First, EMPTY_FILE, key="tool.first")
 
 
 def test_typedconfig_classes():

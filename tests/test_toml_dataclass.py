@@ -5,10 +5,10 @@ from dataclasses import dataclass
 
 import pytest
 
-from src.typedconfig.errors import ConfigError
-from .constants import _load_toml, EMPTY_FILE, EXAMPLE_FILE
+from src import configuraptor
+from src.configuraptor.errors import ConfigError
 
-import src.typedconfig as typedconfig
+from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
 
 
 def test_example_is_valid_toml():
@@ -98,20 +98,20 @@ class Empty:
 
 
 def test_empty():
-    empty = typedconfig.load_into(Empty, {})
+    empty = configuraptor.load_into(Empty, {})
     assert empty and empty.default == "allowed"
 
     with pytest.raises(ConfigError):
-        typedconfig.load_into(Tool, {})
+        configuraptor.load_into(Tool, {})
 
     with pytest.raises(ConfigError):
-        typedconfig.load_into(First, EMPTY_FILE, key="tool.first")
+        configuraptor.load_into(First, EMPTY_FILE, key="tool.first")
 
 
 def test_dataclasses():
     data = _load_toml()
 
-    tool = typedconfig.load_into(Tool, data)
-    first = typedconfig.load_into(First, EXAMPLE_FILE, key="tool.first")
+    tool = configuraptor.load_into(Tool, data)
+    first = configuraptor.load_into(First, EXAMPLE_FILE, key="tool.first")
 
     assert tool.first.extra["name"]["first"] == first.extra["name"]["first"]
