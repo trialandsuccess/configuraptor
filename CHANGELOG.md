@@ -3,6 +3,9 @@
 <!--next-version-placeholder-->
 
 ## v1.0.0 (2023-06-14)
+### BREAKING CHANGE
+* renamed to 'configuraptor'
+
 ### Feature
 * **py:** Trying to support python 3.10 ([`9f7b0f7`](https://github.com/trialandsuccess/configuraptor/commit/9f7b0f7b535e44ff95500aa677b3df60e2482bb7))
 

@@ -11,7 +11,7 @@
 
 <div align="center">
     <a href="https://pypi.org/project/configuraptor"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/configuraptor.svg"/></a>
-    <a href="https://pypi.org/project/configuraptor"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/su6.svg"/></a>
+    <a href="https://pypi.org/project/configuraptor"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/configuraptor.svg"/></a>
     <br/>
     <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"/></a>
     <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"/></a>
