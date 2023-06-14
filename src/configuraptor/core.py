@@ -201,6 +201,11 @@ def is_optional(_type: Type | None) -> bool:
         list[str | None] -> False
         list[str] -> False
     """
+    if _type and is_parameterized(_type) and typing.get_origin(_type) in (dict, list):
+        # e.g. list[str]
+        # will crash issubclass to test it first here
+        return False
+
     return (
         _type is None
         or issubclass(types.NoneType, _type)

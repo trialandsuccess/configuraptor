@@ -188,3 +188,15 @@ def test_dict_of_custom():
     for key, value in structure.contents.items():
         assert isinstance(key, str)
         assert isinstance(value, Point)
+
+
+class ShouldHaveListOfString:
+    required: list[str]
+    not_required: typing.Optional[list[str]]
+
+
+def test_missing_required_parameterized():
+    # should go through is_optional -> is_parameterized -> typing.get_origin(_type) in (dict, list) -> False -> Error
+    data = {"not_required": ["list", "of", "string"]}
+    with pytest.raises(ConfigErrorMissingKey):
+        configuraptor.load_into(ShouldHaveListOfString, data, key='')  # empty key to indicate data exists top-level
