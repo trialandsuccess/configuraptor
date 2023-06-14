@@ -1,0 +1,7 @@
+[config]
+name = "Hello World!"
+
+[config.reference]
+number = 42
+numbers = [41, 43]
+string = "42"

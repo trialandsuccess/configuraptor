@@ -42,6 +42,74 @@ pip install configuraptor
 
 ## Usage
 
+Configuraptor can be used to load your config files into structured Python classes.
+
+```toml
+# example_from_docs.toml
+[config]
+name = "Hello World!"
+
+[config.reference]
+number = 42
+numbers = [41, 43]
+string = "42"
+```
+
+Could be loaded into Python classes using the following code:
+```python
+# example_from_docs.py
+from configuraptor import load_into, TypedConfig
+
+######################
+# with basic classes #
+######################
+
+class SomeRegularClass:
+    number: int
+    numbers: list[int]
+    string: str
+
+
+class Config:
+    name: str
+    reference: SomeRegularClass
+
+
+if __name__ == '__main__':
+    my_config = load_into(Config, "example_from_docs.toml")
+
+    print(my_config.name)
+    # Hello World!
+    print(my_config.reference.numbers)
+    # [41, 43]
+
+
+########################
+# alternative notation #
+########################
+
+class SomeOtherRegularClass:
+    number: int
+    numbers: list[int]
+    string: str
+
+
+class OtherConfig(TypedConfig):
+    name: str
+    reference: SomeRegularClass
+
+
+if __name__ == '__main__':
+    my_config = OtherConfig.load("example_from_docs.toml")
+
+    print(my_config.name)
+    # Hello World!
+    print(my_config.reference.numbers)
+    # [41, 43]
+```
+
+More examples will be available soon.
+
 ## License
 
 `edwh` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
