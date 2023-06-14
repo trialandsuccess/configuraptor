@@ -32,7 +32,8 @@ src-layout = true
 
 [project.optional-dependencies]
 dev = [
-    "su6[all]"
+    "su6[all]",
+    "hatch",
 ]
 
 [project.urls]
