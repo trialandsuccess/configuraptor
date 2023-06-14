@@ -315,12 +315,15 @@ def _all_annotations(cls: Type) -> ChainMap[str, Type]:
     return ChainMap(*(c.__annotations__ for c in getattr(cls, "__mro__", []) if "__annotations__" in c.__dict__))
 
 
-def all_annotations(cls: Type, _except: typing.Iterable[str]) -> dict[str, Type]:
+def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str, Type]:
     """
     Wrapper around `_all_annotations` that filters away any keys in _except.
 
     It also flattens the ChainMap to a regular dict.
     """
+    if _except is None:
+        _except = set()
+
     _all = _all_annotations(cls)
     return {k: v for k, v in _all.items() if k not in _except}
 
