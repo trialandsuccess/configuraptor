@@ -3,18 +3,18 @@ Loaders for Python 3.10.
 """
 
 import sys
-import typing
 from typing import BinaryIO
+
+from ._types import T_config, as_tconfig
 
 if sys.version_info > (3, 11):
     raise EnvironmentError("Wrong Python version!")
 else:  # pragma: no cover
     import tomlkit
 
-    T_toml = dict[str, typing.Any]
-
-    def toml(f: BinaryIO) -> T_toml:
+    def toml(f: BinaryIO) -> T_config:
         """
         Load a toml file.
         """
-        return typing.cast(T_toml, tomlkit.load(f))
+        data = tomlkit.load(f)
+        return as_tconfig(data)

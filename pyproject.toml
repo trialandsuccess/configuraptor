@@ -25,6 +25,7 @@ classifiers = [
 dependencies = [
     "typeguard",
     "tomlkit; python_version < '3.11'",
+    "PyYAML",
 ]
 
 [template.plugins.default]
@@ -34,6 +35,7 @@ src-layout = true
 dev = [
     "su6[all]",
     "hatch",
+    "types-PyYAML",
 ]
 
 [project.urls]

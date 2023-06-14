@@ -76,7 +76,7 @@ class Config:
 
 
 if __name__ == '__main__':
-    my_config = load_into(Config, "example_from_docs.toml")
+    my_config = load_into(Config, "example_from_docs.toml")  # or .json, .yaml
 
     print(my_config.name)
     # Hello World!
@@ -100,7 +100,7 @@ class OtherConfig(TypedConfig):
 
 
 if __name__ == '__main__':
-    my_config = OtherConfig.load("example_from_docs.toml")
+    my_config = OtherConfig.load("example_from_docs.toml")  # or .json, .yaml
 
     print(my_config.name)
     # Hello World!

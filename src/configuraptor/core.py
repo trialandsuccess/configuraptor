@@ -62,9 +62,9 @@ def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str
     if isinstance(data, str):
         data = Path(data)
     if isinstance(data, Path):
-        # todo: more than toml
         with data.open("rb") as f:
-            data = loaders.toml(f)
+            loader = loaders.get(data.suffix)
+            data = loader(f)
 
     if not data:
         return {}
