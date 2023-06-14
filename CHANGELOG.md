@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.1 (2023-06-14)
+### Documentation
+* **readme:** Change fixed image height to width for responsiveness ([`4ea3557`](https://github.com/trialandsuccess/configuraptor/commit/4ea3557e4cbb6eb2d3128a871209920f27e033ce))
+
 ## v1.1.0 (2023-06-14)
 ### Feature
 * Added JSON and YAML file loading. ([`e4f920f`](https://github.com/trialandsuccess/configuraptor/commit/e4f920f0ab1ffaebea2b7b5ad64e33f54f034a33))
