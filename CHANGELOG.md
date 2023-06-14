@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.3 (2023-06-14)
+### Fix
+* **core:** Checking for a required parameterized type (e.g. list[str]) crashed for a missing key (with the wrong error) ([`68ccc1c`](https://github.com/trialandsuccess/configuraptor/commit/68ccc1c44e29c940d14acd6ce6b49e9885eaa03a))
+
+### Documentation
+* **readme:** Added first example code ([`da0b13d`](https://github.com/trialandsuccess/configuraptor/commit/da0b13d6e90fb0d26b1f33d804657a21304be745))
+* **changelog:** Manually added changes ([`c1c40ef`](https://github.com/trialandsuccess/configuraptor/commit/c1c40efb568abec30578d38a0a92d97f398fc23b))
+* **image:** Set height ([`78896b8`](https://github.com/trialandsuccess/configuraptor/commit/78896b8a53109c22e8c0875195dd486667a432f0))
+
 ## v1.0.2 (2023-06-14)
 ### Documentation
 * set image size
