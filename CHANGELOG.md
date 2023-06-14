@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.2.1 (2023-06-14)
+### Fix
+* **lib:** Exposed wrong method ([`d57b6df`](https://github.com/trialandsuccess/configuraptor/commit/d57b6df10e85693729ffb87f4ec36a7a932e1a3e))
+
 ## v1.2.0 (2023-06-14)
 ### Feature
 * **lib:** Expose more methods externally + make second arg of all_annotations optional ([`63605ba`](https://github.com/trialandsuccess/configuraptor/commit/63605babb48ac2313e063def86608f82628688b7))
