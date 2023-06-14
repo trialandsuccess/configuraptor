@@ -8,7 +8,7 @@ Exposes TypedConfig and load_into for this library.
 from .cls import TypedConfig  # noqa: F401 imported for library reasons
 from .core import (  # noqa: F401 imported for library reasons
     all_annotations,
-    check_type,
+    convert_config,
     ensure_types,
     load_into,
 )
