@@ -1,9 +1,9 @@
 """
 Example with dataclasses
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from typedconfig import load_into
+from configuraptor import load_into
 
 
 @dataclass
@@ -11,6 +11,7 @@ class Two:
     name: str
     some_str: str
     some_int: int
+    include: list[str] = field(default_factory=list) # <- not required in config file since it has a default value
 
     def __repr__(self) -> str:
         return f"{self.name=} {self.some_str=} {self.some_int=}"

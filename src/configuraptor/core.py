@@ -2,11 +2,11 @@
 Contains most of the loading logic.
 """
 
+import dataclasses as dc
 import types
 import typing
 import warnings
 from collections import ChainMap
-from dataclasses import is_dataclass
 from pathlib import Path
 
 from typeguard import TypeCheckError
@@ -214,6 +214,14 @@ def is_optional(_type: Type | None) -> bool:
     )
 
 
+def dataclass_field(cls: Type, key: str) -> typing.Optional[dc.Field[typing.Any]]:
+    """
+    Get Field info for a dataclass cls.
+    """
+    fields = getattr(cls, "__dataclass_fields__", {})
+    return fields.get(key)
+
+
 def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) -> dict[str, T]:
     """
     For all annotations (recursively gathered from parents with `all_annotations`), \
@@ -286,6 +294,10 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
         elif is_optional(_type):
             # type is optional and not found in __dict__ -> default is None
             value = None
+        elif dc.is_dataclass(cls) and (field := dataclass_field(cls, _key)) and field.default_factory is not dc.MISSING:
+            # could have a default factory
+            # todo: do something with field.default?
+            value = field.default_factory()
         else:
             # todo: exception group?
             raise ConfigErrorMissingKey(_key, cls, _type)
@@ -350,7 +362,7 @@ def load_into_recurse(
 
     # fixme: cls.__init__ can set other keys than the name is in kwargs!!
 
-    if is_dataclass(cls):
+    if dc.is_dataclass(cls):
         to_load = _check_and_convert_data(cls, data, init.keys())
         to_load |= init  # add extra init variables (should not happen for a dataclass but whatev)
 
