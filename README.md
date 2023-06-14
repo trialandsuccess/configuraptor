@@ -1,5 +1,10 @@
 <div align="center">
-    <img align="center" src="https://raw.githubusercontent.com/trialandsuccess/configuraptor/master/_static/configuraptor_circle.png" alt="Classy Configuraptor">
+    <img 
+        align="center" 
+        src="https://raw.githubusercontent.com/trialandsuccess/configuraptor/master/_static/configuraptor_circle.png" 
+        alt="Classy Configuraptor"
+        height="400px"
+        />
     <h1 align="center">Configuraptor</h1>
 </div>
 
