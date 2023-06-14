@@ -3,7 +3,11 @@
 <!--next-version-placeholder-->
 
 ## v1.0.2 (2023-06-14)
+### Documentation
+* set image size
 
+### Build
+* added `hatch` as dev dependency
 
 ## v1.0.1 (2023-06-14)
 ### Documentation
