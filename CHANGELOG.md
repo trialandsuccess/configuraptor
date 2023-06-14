@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.3.0 (2023-06-14)
+### Feature
+* **strict:** Allow strict=False for load_into to ignore types (not recommended) ([`16853bb`](https://github.com/trialandsuccess/configuraptor/commit/16853bb62b88c229ca0d9487692f9688b504bcf2))
+
 ## v1.2.1 (2023-06-14)
 ### Fix
 * **lib:** Exposed wrong method ([`d57b6df`](https://github.com/trialandsuccess/configuraptor/commit/d57b6df10e85693729ffb87f4ec36a7a932e1a3e))
