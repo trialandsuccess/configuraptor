@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.2 (2023-06-14)
+### Fix
+* **dataclass:** Support for default_factory ([`031c68d`](https://github.com/trialandsuccess/configuraptor/commit/031c68d676fd59529e41debc480235a29f206405))
+
+### Documentation
+* **readme:** Wrong package name oops ([`a9f7fad`](https://github.com/trialandsuccess/configuraptor/commit/a9f7fad7483dd55ff76655ec3a8feda9d55beef8))
+
 ## v1.1.1 (2023-06-14)
 ### Documentation
 * **readme:** Change fixed image height to width for responsiveness ([`4ea3557`](https://github.com/trialandsuccess/configuraptor/commit/4ea3557e4cbb6eb2d3128a871209920f27e033ce))
