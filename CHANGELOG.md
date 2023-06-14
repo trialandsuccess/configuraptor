@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (2023-06-14)
+### Feature
+* **py:** Trying to support python 3.10 ([`9f7b0f7`](https://github.com/trialandsuccess/configuraptor/commit/9f7b0f7b535e44ff95500aa677b3df60e2482bb7))
+
+### Documentation
+* **readme:** Fixed urls and extended sections ([`5fecc97`](https://github.com/trialandsuccess/configuraptor/commit/5fecc9728fb3ff1d09198003afbe37683aab6a5c))
+
 ## v0.1.0 (2023-06-13)
 ### Feature
 
