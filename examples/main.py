@@ -2,7 +2,7 @@
 Example with basic classes
 """
 
-from typedconfig import load_into
+from configuraptor import load_into
 
 
 class AbsHasName:

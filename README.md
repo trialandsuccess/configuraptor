@@ -45,7 +45,7 @@ pip install configuraptor
 Configuraptor can be used to load your config files into structured Python classes.
 
 ```toml
-# example_from_docs.toml
+# examples/example_from_readme.toml
 [config]
 name = "Hello World!"
 
@@ -56,9 +56,11 @@ string = "42"
 ```
 
 Could be loaded into Python classes using the following code:
+
 ```python
-# example_from_docs.py
+# examples/example_from_readme.py
 from configuraptor import load_into, TypedConfig
+
 
 ######################
 # with basic classes #
@@ -76,7 +78,7 @@ class Config:
 
 
 if __name__ == '__main__':
-    my_config = load_into(Config, "example_from_docs.toml")  # or .json, .yaml
+    my_config = load_into(Config, "example_from_readme.toml")  # or .json, .yaml
 
     print(my_config.name)
     # Hello World!
@@ -100,7 +102,7 @@ class OtherConfig(TypedConfig):
 
 
 if __name__ == '__main__':
-    my_config = OtherConfig.load("example_from_docs.toml")  # or .json, .yaml
+    my_config = OtherConfig.load("example_from_readme.toml")  # or .json, .yaml
 
     print(my_config.name)
     # Hello World!
@@ -108,7 +110,7 @@ if __name__ == '__main__':
     # [41, 43]
 ```
 
-More examples will be available soon.
+More examples can be round in [examples](https://github.com/trialandsuccess/configuraptor/blob/master/examples).
 
 ## License
 

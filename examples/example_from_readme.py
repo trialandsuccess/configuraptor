@@ -16,7 +16,7 @@ class Config:
 
 
 if __name__ == '__main__':
-    my_config = load_into(Config, "example_from_docs.json")
+    my_config = load_into(Config, "example_from_readme.json")
 
     print(my_config.name)
     # Hello World!
@@ -40,7 +40,7 @@ class OtherConfig(TypedConfig):
 
 
 if __name__ == '__main__':
-    my_config = OtherConfig.load("example_from_docs.json")
+    my_config = OtherConfig.load("example_from_readme.json")
 
     print(my_config.name)
     # Hello World!

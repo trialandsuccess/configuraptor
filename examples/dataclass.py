@@ -3,7 +3,7 @@ Example with dataclasses
 """
 from dataclasses import dataclass
 
-from typedconfig import load_into
+from configuraptor import load_into
 
 
 @dataclass
