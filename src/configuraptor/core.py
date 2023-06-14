@@ -328,10 +328,11 @@ def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str
     return {k: v for k, v in _all.items() if k not in _except}
 
 
-def _check_and_convert_data(
+def check_and_convert_data(
     cls: typing.Type[C],
     data: dict[str, typing.Any],
     _except: typing.Iterable[str],
+    strict: bool = True,
 ) -> dict[str, typing.Any]:
     """
     Based on class annotations, this prepares the data for `load_into_recurse`.
@@ -344,7 +345,9 @@ def _check_and_convert_data(
 
     to_load = convert_config(data)
     to_load = load_recursive(cls, to_load, annotations)
-    to_load = ensure_types(to_load, annotations)
+    if strict:
+        to_load = ensure_types(to_load, annotations)
+
     return to_load
 
 
@@ -352,6 +355,7 @@ def load_into_recurse(
     cls: typing.Type[C],
     data: dict[str, typing.Any],
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Loads an instance of `cls` filled with `data`.
@@ -366,14 +370,14 @@ def load_into_recurse(
     # fixme: cls.__init__ can set other keys than the name is in kwargs!!
 
     if dc.is_dataclass(cls):
-        to_load = _check_and_convert_data(cls, data, init.keys())
+        to_load = check_and_convert_data(cls, data, init.keys(), strict=strict)
         to_load |= init  # add extra init variables (should not happen for a dataclass but whatev)
 
         # ensure mypy inst is an instance of the cls type (and not a fictuous `DataclassInstance`)
         inst = typing.cast(C, cls(**to_load))
     else:
         inst = cls(**init)
-        to_load = _check_and_convert_data(cls, data, inst.__dict__.keys())
+        to_load = check_and_convert_data(cls, data, inst.__dict__.keys(), strict=strict)
         inst.__dict__.update(**to_load)
 
     return inst
@@ -384,6 +388,7 @@ def load_into_existing(
     cls: typing.Type[C],
     data: dict[str, typing.Any],
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Similar to `load_into_recurse` but uses an existing instance of a class (so after __init__) \
@@ -395,10 +400,7 @@ def load_into_existing(
 
     existing_data = inst.__dict__
 
-    annotations = all_annotations(cls, _except=existing_data.keys())
-    to_load = convert_config(data)
-    to_load = load_recursive(cls, to_load, annotations)
-    to_load = ensure_types(to_load, annotations)
+    to_load = check_and_convert_data(cls, data, _except=existing_data.keys(), strict=strict)
 
     inst.__dict__.update(**to_load)
 
@@ -411,12 +413,13 @@ def load_into_class(
     /,
     key: str = None,
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Shortcut for _load_data + load_into_recurse.
     """
     to_load = _load_data(data, key, cls.__name__)
-    return load_into_recurse(cls, to_load, init=init)
+    return load_into_recurse(cls, to_load, init=init, strict=strict)
 
 
 def load_into_instance(
@@ -425,13 +428,14 @@ def load_into_instance(
     /,
     key: str = None,
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Shortcut for _load_data + load_into_existing.
     """
     cls = inst.__class__
     to_load = _load_data(data, key, cls.__name__)
-    return load_into_existing(inst, cls, to_load, init=init)
+    return load_into_existing(inst, cls, to_load, init=init, strict=strict)
 
 
 def load_into(
@@ -440,6 +444,7 @@ def load_into(
     /,
     key: str = None,
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Load your config into a class (instance).
@@ -449,11 +454,12 @@ def load_into(
         data: can be a dictionary or a path to a file to load (as pathlib.Path or str)
         key: optional (nested) dictionary key to load data from (e.g. 'tool.su6.specific')
         init: optional data to pass to your cls' __init__ method (only if cls is not an instance already)
+        strict: enable type checks or allow anything?
 
     """
     if not isinstance(cls, type):
-        return load_into_instance(cls, data, key=key, init=init)
+        return load_into_instance(cls, data, key=key, init=init, strict=strict)
 
     # make mypy and pycharm happy by telling it cls is of type C and not just 'type'
     _cls = typing.cast(typing.Type[C], cls)
-    return load_into_class(_cls, data, key=key, init=init)
+    return load_into_class(_cls, data, key=key, init=init, strict=strict)
