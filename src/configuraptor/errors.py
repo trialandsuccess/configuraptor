@@ -24,6 +24,7 @@ class ConfigError(Exception):
 #         if not errors:
 #             raise ValueError("Error group raised without any errors?")
 
+
 @dataclass
 class ConfigErrorMissingKey(ConfigError):
     """

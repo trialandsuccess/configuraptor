@@ -103,6 +103,8 @@ def ensure_types(data: dict[str, T], annotations: dict[str, type]) -> dict[str, 
     Make sure all values in 'data' are in line with the ones stored in 'annotations'.
 
     If an annotated key in missing from data, it will be filled with None for convenience.
+
+    TODO: python 3.11 exception groups to throw multiple errors at once!
     """
     # custom object to use instead of None, since typing.Optional can be None!
     # cast to T to make mypy happy
@@ -205,7 +207,7 @@ def instance_of_custom_class(var: typing.Any) -> bool:
     return is_custom_class(var.__class__)
 
 
-def is_optional(_type: Type | None) -> bool:
+def is_optional(_type: Type | typing.Any) -> bool:
     """
     Tries to guess if _type could be optional.
 
@@ -217,11 +219,9 @@ def is_optional(_type: Type | None) -> bool:
         list[str | None] -> False
         list[str] -> False
     """
-    if _type and is_parameterized(_type) and typing.get_origin(_type) in (dict, list):
+    if _type and (is_parameterized(_type) and typing.get_origin(_type) in (dict, list)) or (_type is math.nan):
         # e.g. list[str]
         # will crash issubclass to test it first here
-        return False
-    elif _type is math.nan:
         return False
 
     return (
@@ -268,6 +268,8 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
         data = {"key": "anything"}
         annotations: {"key": str}
 
+
+    TODO: python 3.11 exception groups to throw multiple errors at once!
     """
     updated = {}
 
