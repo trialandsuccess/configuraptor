@@ -114,7 +114,7 @@ More examples can be round in [examples](https://github.com/trialandsuccess/conf
 
 ## License
 
-`edwh` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+`configuraptor` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
 
 ## Changelog
 

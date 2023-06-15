@@ -31,11 +31,15 @@ dependencies = [
 [template.plugins.default]
 src-layout = true
 
+[tool.setuptools.package-data]
+"configuraptor" = ["py.typed"]
+
 [project.optional-dependencies]
 dev = [
     "su6[all]",
     "hatch",
     "types-PyYAML",
+    "pytest-mypy-testing",
 ]
 
 [project.urls]

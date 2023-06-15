@@ -2,11 +2,11 @@
 Contains most of the loading logic.
 """
 
+import dataclasses as dc
 import types
 import typing
 import warnings
 from collections import ChainMap
-from dataclasses import is_dataclass
 from pathlib import Path
 
 from typeguard import TypeCheckError
@@ -214,6 +214,14 @@ def is_optional(_type: Type | None) -> bool:
     )
 
 
+def dataclass_field(cls: Type, key: str) -> typing.Optional[dc.Field[typing.Any]]:
+    """
+    Get Field info for a dataclass cls.
+    """
+    fields = getattr(cls, "__dataclass_fields__", {})
+    return fields.get(key)
+
+
 def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) -> dict[str, T]:
     """
     For all annotations (recursively gathered from parents with `all_annotations`), \
@@ -252,19 +260,19 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
                 arguments = typing.get_args(_type)
                 if origin is list and arguments and is_custom_class(arguments[0]):
                     subtype = arguments[0]
-                    value = [load_into_recurse(subtype, subvalue) for subvalue in value]
+                    value = [_load_into_recurse(subtype, subvalue) for subvalue in value]
 
                 elif origin is dict and arguments and is_custom_class(arguments[1]):
                     # e.g. dict[str, Point]
                     subkeytype, subvaluetype = arguments
                     # subkey(type) is not a custom class, so don't try to convert it:
-                    value = {subkey: load_into_recurse(subvaluetype, subvalue) for subkey, subvalue in value.items()}
+                    value = {subkey: _load_into_recurse(subvaluetype, subvalue) for subkey, subvalue in value.items()}
                 # elif origin is dict:
                 # keep data the same
                 elif origin is typing.Union and arguments:
                     for arg in arguments:
                         if is_custom_class(arg):
-                            value = load_into_recurse(arg, value)
+                            value = _load_into_recurse(arg, value)
                         else:
                             # print(_type, arg, value)
                             ...
@@ -273,7 +281,7 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
 
             elif is_custom_class(_type):
                 # type must be C (custom class) at this point
-                value = load_into_recurse(
+                value = _load_into_recurse(
                     # make mypy and pycharm happy by telling it _type is of type C...
                     # actually just passing _type as first arg!
                     typing.cast(Type_C[typing.Any], _type),
@@ -286,6 +294,10 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
         elif is_optional(_type):
             # type is optional and not found in __dict__ -> default is None
             value = None
+        elif dc.is_dataclass(cls) and (field := dataclass_field(cls, _key)) and field.default_factory is not dc.MISSING:
+            # could have a default factory
+            # todo: do something with field.default?
+            value = field.default_factory()
         else:
             # todo: exception group?
             raise ConfigErrorMissingKey(_key, cls, _type)
@@ -303,20 +315,24 @@ def _all_annotations(cls: Type) -> ChainMap[str, Type]:
     return ChainMap(*(c.__annotations__ for c in getattr(cls, "__mro__", []) if "__annotations__" in c.__dict__))
 
 
-def all_annotations(cls: Type, _except: typing.Iterable[str]) -> dict[str, Type]:
+def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str, Type]:
     """
     Wrapper around `_all_annotations` that filters away any keys in _except.
 
     It also flattens the ChainMap to a regular dict.
     """
+    if _except is None:
+        _except = set()
+
     _all = _all_annotations(cls)
     return {k: v for k, v in _all.items() if k not in _except}
 
 
-def _check_and_convert_data(
+def check_and_convert_data(
     cls: typing.Type[C],
     data: dict[str, typing.Any],
     _except: typing.Iterable[str],
+    strict: bool = True,
 ) -> dict[str, typing.Any]:
     """
     Based on class annotations, this prepares the data for `load_into_recurse`.
@@ -329,14 +345,17 @@ def _check_and_convert_data(
 
     to_load = convert_config(data)
     to_load = load_recursive(cls, to_load, annotations)
-    to_load = ensure_types(to_load, annotations)
+    if strict:
+        to_load = ensure_types(to_load, annotations)
+
     return to_load
 
 
-def load_into_recurse(
+def _load_into_recurse(
     cls: typing.Type[C],
     data: dict[str, typing.Any],
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Loads an instance of `cls` filled with `data`.
@@ -350,25 +369,26 @@ def load_into_recurse(
 
     # fixme: cls.__init__ can set other keys than the name is in kwargs!!
 
-    if is_dataclass(cls):
-        to_load = _check_and_convert_data(cls, data, init.keys())
+    if dc.is_dataclass(cls):
+        to_load = check_and_convert_data(cls, data, init.keys(), strict=strict)
         to_load |= init  # add extra init variables (should not happen for a dataclass but whatev)
 
         # ensure mypy inst is an instance of the cls type (and not a fictuous `DataclassInstance`)
         inst = typing.cast(C, cls(**to_load))
     else:
         inst = cls(**init)
-        to_load = _check_and_convert_data(cls, data, inst.__dict__.keys())
+        to_load = check_and_convert_data(cls, data, inst.__dict__.keys(), strict=strict)
         inst.__dict__.update(**to_load)
 
     return inst
 
 
-def load_into_existing(
+def _load_into_instance(
     inst: C,
     cls: typing.Type[C],
     data: dict[str, typing.Any],
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Similar to `load_into_recurse` but uses an existing instance of a class (so after __init__) \
@@ -380,10 +400,7 @@ def load_into_existing(
 
     existing_data = inst.__dict__
 
-    annotations = all_annotations(cls, _except=existing_data.keys())
-    to_load = convert_config(data)
-    to_load = load_recursive(cls, to_load, annotations)
-    to_load = ensure_types(to_load, annotations)
+    to_load = check_and_convert_data(cls, data, _except=existing_data.keys(), strict=strict)
 
     inst.__dict__.update(**to_load)
 
@@ -396,12 +413,13 @@ def load_into_class(
     /,
     key: str = None,
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Shortcut for _load_data + load_into_recurse.
     """
     to_load = _load_data(data, key, cls.__name__)
-    return load_into_recurse(cls, to_load, init=init)
+    return _load_into_recurse(cls, to_load, init=init, strict=strict)
 
 
 def load_into_instance(
@@ -410,35 +428,42 @@ def load_into_instance(
     /,
     key: str = None,
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Shortcut for _load_data + load_into_existing.
     """
     cls = inst.__class__
     to_load = _load_data(data, key, cls.__name__)
-    return load_into_existing(inst, cls, to_load, init=init)
+    return _load_into_instance(inst, cls, to_load, init=init, strict=strict)
 
 
 def load_into(
-    cls: typing.Type[C] | C,
+    cls: typing.Type[C],
     data: T_data,
     /,
     key: str = None,
     init: dict[str, typing.Any] = None,
+    strict: bool = True,
 ) -> C:
     """
     Load your config into a class (instance).
+
+    Supports both a class or an instance as first argument, but that's hard to explain to mypy, so officially only
+    classes are supported, and if you want to `load_into` an instance, you should use `load_into_instance`.
 
     Args:
         cls: either a class or an existing instance of that class.
         data: can be a dictionary or a path to a file to load (as pathlib.Path or str)
         key: optional (nested) dictionary key to load data from (e.g. 'tool.su6.specific')
         init: optional data to pass to your cls' __init__ method (only if cls is not an instance already)
+        strict: enable type checks or allow anything?
 
     """
     if not isinstance(cls, type):
-        return load_into_instance(cls, data, key=key, init=init)
+        # would not be supported according to mypy, but you can still load_into(instance)
+        return load_into_instance(cls, data, key=key, init=init, strict=strict)
 
     # make mypy and pycharm happy by telling it cls is of type C and not just 'type'
-    _cls = typing.cast(typing.Type[C], cls)
-    return load_into_class(_cls, data, key=key, init=init)
+    # _cls = typing.cast(typing.Type[C], cls)
+    return load_into_class(cls, data, key=key, init=init, strict=strict)

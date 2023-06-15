@@ -1,7 +1,7 @@
 import datetime as dt
 import math
 import typing
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 
@@ -95,6 +95,8 @@ class Tool:
 @dataclass
 class Empty:
     default: str = "allowed"
+    include: list[int] = field(default_factory=list)
+    # ^ not required in config file since it has a default value
 
 
 def test_empty():
