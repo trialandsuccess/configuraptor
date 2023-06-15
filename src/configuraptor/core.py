@@ -260,19 +260,19 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
                 arguments = typing.get_args(_type)
                 if origin is list and arguments and is_custom_class(arguments[0]):
                     subtype = arguments[0]
-                    value = [load_into_recurse(subtype, subvalue) for subvalue in value]
+                    value = [_load_into_recurse(subtype, subvalue) for subvalue in value]
 
                 elif origin is dict and arguments and is_custom_class(arguments[1]):
                     # e.g. dict[str, Point]
                     subkeytype, subvaluetype = arguments
                     # subkey(type) is not a custom class, so don't try to convert it:
-                    value = {subkey: load_into_recurse(subvaluetype, subvalue) for subkey, subvalue in value.items()}
+                    value = {subkey: _load_into_recurse(subvaluetype, subvalue) for subkey, subvalue in value.items()}
                 # elif origin is dict:
                 # keep data the same
                 elif origin is typing.Union and arguments:
                     for arg in arguments:
                         if is_custom_class(arg):
-                            value = load_into_recurse(arg, value)
+                            value = _load_into_recurse(arg, value)
                         else:
                             # print(_type, arg, value)
                             ...
@@ -281,7 +281,7 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
 
             elif is_custom_class(_type):
                 # type must be C (custom class) at this point
-                value = load_into_recurse(
+                value = _load_into_recurse(
                     # make mypy and pycharm happy by telling it _type is of type C...
                     # actually just passing _type as first arg!
                     typing.cast(Type_C[typing.Any], _type),
@@ -351,7 +351,7 @@ def check_and_convert_data(
     return to_load
 
 
-def load_into_recurse(
+def _load_into_recurse(
     cls: typing.Type[C],
     data: dict[str, typing.Any],
     init: dict[str, typing.Any] = None,
@@ -383,7 +383,7 @@ def load_into_recurse(
     return inst
 
 
-def load_into_existing(
+def _load_into_instance(
     inst: C,
     cls: typing.Type[C],
     data: dict[str, typing.Any],
@@ -419,7 +419,7 @@ def load_into_class(
     Shortcut for _load_data + load_into_recurse.
     """
     to_load = _load_data(data, key, cls.__name__)
-    return load_into_recurse(cls, to_load, init=init, strict=strict)
+    return _load_into_recurse(cls, to_load, init=init, strict=strict)
 
 
 def load_into_instance(
@@ -435,11 +435,11 @@ def load_into_instance(
     """
     cls = inst.__class__
     to_load = _load_data(data, key, cls.__name__)
-    return load_into_existing(inst, cls, to_load, init=init, strict=strict)
+    return _load_into_instance(inst, cls, to_load, init=init, strict=strict)
 
 
 def load_into(
-    cls: typing.Type[C] | C,
+    cls: typing.Type[C],
     data: T_data,
     /,
     key: str = None,
@@ -448,6 +448,9 @@ def load_into(
 ) -> C:
     """
     Load your config into a class (instance).
+
+    Supports both a class or an instance as first argument, but that's hard to explain to mypy, so officially only
+    classes are supported, and if you want to `load_into` an instance, you should use `load_into_instance`.
 
     Args:
         cls: either a class or an existing instance of that class.
@@ -458,8 +461,9 @@ def load_into(
 
     """
     if not isinstance(cls, type):
+        # would not be supported according to mypy, but you can still load_into(instance)
         return load_into_instance(cls, data, key=key, init=init, strict=strict)
 
     # make mypy and pycharm happy by telling it cls is of type C and not just 'type'
-    _cls = typing.cast(typing.Type[C], cls)
-    return load_into_class(_cls, data, key=key, init=init, strict=strict)
+    # _cls = typing.cast(typing.Type[C], cls)
+    return load_into_class(cls, data, key=key, init=init, strict=strict)

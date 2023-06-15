@@ -39,6 +39,7 @@ dev = [
     "su6[all]",
     "hatch",
     "types-PyYAML",
+    "pytest-mypy-testing",
 ]
 
 [project.urls]
