@@ -5,3 +5,6 @@ name = "Hello World!"
 number = 42
 numbers = [41, 43]
 string = "42"
+
+[irrelevant]
+doesnt-get-used = true

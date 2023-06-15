@@ -15,10 +15,12 @@ class TypedConfig:
     """
 
     @classmethod
-    def load(cls: typing.Type[C], data: T_data, key: str = None, init: dict[str, typing.Any] = None) -> C:
+    def load(
+        cls: typing.Type[C], data: T_data, key: str = None, init: dict[str, typing.Any] = None, strict: bool = True
+    ) -> C:
         """
         Load a class' config values from the config file.
 
         SomeClass.load(data, ...) = load_into(SomeClass, data, ...).
         """
-        return load_into(cls, data, key=key, init=init)
+        return load_into(cls, data, key=key, init=init, strict=strict)
