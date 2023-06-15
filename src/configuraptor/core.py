@@ -196,6 +196,13 @@ def is_custom_class(_type: Type) -> bool:
     )
 
 
+def instance_of_custom_class(var: typing.Any) -> bool:
+    """
+    Calls `is_custom_class` on an instance of a (possibly custom) class.
+    """
+    return is_custom_class(var.__class__)
+
+
 def is_optional(_type: Type | None) -> bool:
     """
     Tries to guess if _type could be optional.

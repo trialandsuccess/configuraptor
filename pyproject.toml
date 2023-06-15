@@ -24,7 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "typeguard",
-    "tomlkit; python_version < '3.11'",
+    "tomlkit", # tomllib does not support dumping :(
     "PyYAML",
 ]
 

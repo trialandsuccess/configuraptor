@@ -242,3 +242,96 @@ print(config.other_field)  # works now!
 
 ```
 
+## Dumping
+
+Filled config instances can also be dumped to multiple output formats (`asdict`, `asjson`, `asyaml` and `astoml`).
+The first argument is the class you want to dump, the other keyword arguments are passed to the respective dump
+methods (`json.dumps`, `yaml.dump` and `tomlkit.dump`).
+
+```yaml
+# dumping.yml
+complex:
+  name: "some name"
+  dependency:
+    name: "dependency 1"
+  dependencies:
+    - name: "dependency 2.1"
+    - name: "dependency 2.2"
+  extra:
+    first:
+      name: "dependency 3.1"
+    second:
+      name: "dependency 3.2"
+
+```
+
+```python
+from configuraptor import TypedConfig, astoml, asjson
+
+
+class Dependency:
+    name: str
+
+
+class Complex(TypedConfig):
+    name: str
+    dependency: Dependency
+    dependencies: list[Dependency]
+    extra: dict[str, Dependency]
+
+
+config = Complex.load("dumping.yml")
+
+print(
+    astoml(config),
+    asjson(config, indent=1)
+)
+```
+
+```toml
+[complex]
+name = "some name"
+
+[[complex.dependencies]]
+name = "dependency 2.1"
+
+[[complex.dependencies]]
+name = "dependency 2.2"
+
+[complex.dependency]
+name = "dependency 1"
+
+[complex.extra]
+[complex.extra.first]
+name = "dependency 3.1"
+
+[complex.extra.second]
+name = "dependency 3.2"
+```
+
+```json
+{
+  "complex": {
+    "name": "some name",
+    "dependency": {
+      "name": "dependency 1"
+    },
+    "dependencies": [
+      {
+        "name": "dependency 2.1"
+      },
+      {
+        "name": "dependency 2.2"
+      }
+    ],
+    "extra": {
+      "first": {
+        "name": "dependency 3.1"
+      },
+      "second": {
+        "name": "dependency 3.2"
+      }
+    }
+  }
+}
+```

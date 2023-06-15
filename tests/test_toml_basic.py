@@ -199,4 +199,4 @@ def test_missing_required_parameterized():
     # should go through is_optional -> is_parameterized -> typing.get_origin(_type) in (dict, list) -> False -> Error
     data = {"not_required": ["list", "of", "string"]}
     with pytest.raises(ConfigErrorMissingKey):
-        configuraptor.load_into(ShouldHaveListOfString, data, key='')  # empty key to indicate data exists top-level
+        configuraptor.load_into(ShouldHaveListOfString, data, key="")  # empty key to indicate data exists top-level
