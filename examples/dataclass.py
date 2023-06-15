@@ -11,19 +11,13 @@ class Two:
     name: str
     some_str: str
     some_int: int
-    include: list[str] = field(default_factory=list) # <- not required in config file since it has a default value
-
-    def __repr__(self) -> str:
-        return f"{self.name=} {self.some_str=} {self.some_int=}"
+    include: list[str] = field(default_factory=list)  # <- not required in config file since it has a default value
 
 
 @dataclass
 class Simple:
     name: str
     two: Two
-
-    def __repr__(self) -> str:
-        return f"{self.name=} {self.two=}"
 
 
 def main() -> None:
