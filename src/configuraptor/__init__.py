@@ -15,6 +15,7 @@ from .core import (
     load_into_class,
     load_into_instance,
 )
+from .postpone import postpone
 from .singleton import Singleton, SingletonMeta
 
 __all__ = [
@@ -31,4 +32,6 @@ __all__ = [
     "load_into",
     "load_into_class",
     "load_into_instance",
+    # postpone
+    "postpone",
 ]

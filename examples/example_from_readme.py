@@ -1,8 +1,9 @@
-from configuraptor import load_into, TypedConfig
+from configuraptor import TypedConfig, load_into
 
 ######################
 # with basic classes #
 ######################
+
 
 class SomeRegularClass:
     number: int
@@ -15,7 +16,7 @@ class Config:
     reference: SomeRegularClass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     my_config = load_into(Config, "example_from_readme.json")
 
     print(my_config.name)
@@ -28,6 +29,7 @@ if __name__ == '__main__':
 # alternative notation #
 ########################
 
+
 class SomeOtherRegularClass:
     number: int
     numbers: list[int]
@@ -39,7 +41,7 @@ class OtherConfig(TypedConfig):
     reference: SomeRegularClass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     my_config = OtherConfig.load("example_from_readme.json")
 
     print(my_config.name)

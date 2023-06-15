@@ -13,12 +13,7 @@ class MyConfig(Singleton):
         return f"{self.string=}, {self.number=}"
 
 
-config = load_into(MyConfig, {
-    "my_config": dict(
-        string="initial string",
-        number=0
-    )
-})
+config = load_into(MyConfig, {"my_config": dict(string="initial string", number=0)})
 
 second_config = MyConfig()  # note: no arguments required!
 print(f"{config=}\n{second_config=}")

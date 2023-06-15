@@ -207,3 +207,38 @@ config.update(string="second string", number=1)
 ```
 
 In this example, both `config` and `second_config` contain exactly the same data at any point in time.
+
+## Postponed Fields
+
+In some cases, a config key you want to define does not exist yet when calling `load_into`. When there is no default or
+matching value in the config file, which could be the case in cli tools where you NEED the value from the user,
+`postponed()` can be used.
+
+```python
+from configuraptor import Singleton, TypedConfig, load_into, postpone
+
+
+class Later(TypedConfig, Singleton):
+    field: str  # instant
+    other_field: str = postpone()
+
+    def update(self):
+        self.other_field = "usable"
+
+
+config = load_into(
+    Later,
+    {
+        "later": dict(field="instant")
+        # no other_field yet!
+    },
+)
+
+print(config.field)  # will work
+# config.other_field  # will give an error if you try to use it here!
+
+config.update()  # fill in other_field some way or another
+print(config.other_field)  # works now!
+
+```
+

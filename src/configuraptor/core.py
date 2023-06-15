@@ -15,6 +15,7 @@ from typeguard import check_type as _check_type
 from . import loaders
 from .errors import ConfigErrorInvalidType, ConfigErrorMissingKey
 from .helpers import camel_to_snake
+from .postpone import Postponed
 
 # T is a reusable typevar
 T = typing.TypeVar("T")
@@ -105,6 +106,7 @@ def ensure_types(data: dict[str, T], annotations: dict[str, type]) -> dict[str, 
     # custom object to use instead of None, since typing.Optional can be None!
     # cast to T to make mypy happy
     notfound = typing.cast(T, object())
+    postponed = Postponed()
 
     final: dict[str, T | None] = {}
     for key, _type in annotations.items():
@@ -115,6 +117,11 @@ def ensure_types(data: dict[str, T], annotations: dict[str, type]) -> dict[str, 
             )
             # skip!
             continue
+
+        if compare is postponed:
+            # don't do anything with this item!
+            continue
+
         if not check_type(compare, _type):
             raise ConfigErrorInvalidType(key, value=compare, expected_type=_type)
 

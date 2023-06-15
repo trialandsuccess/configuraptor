@@ -68,3 +68,12 @@ class ConfigErrorInvalidType(ConfigError):
             f"Config key '{self.key}' had a value (`{self._value}`) with a type (`{self.actual_type}`) "
             f"that was not expected: `{self.expected_type}` is the required type."
         )
+
+
+@dataclass
+class IsPostponedError(ConfigError):
+    """
+    Error thrown when you try to access a 'postponed' property without filling its value first.
+    """
+
+    message: str = "This postponed property has not been filled yet!"
