@@ -3,6 +3,7 @@ Contains most of the loading logic.
 """
 
 import dataclasses as dc
+import math
 import types
 import typing
 import warnings
@@ -126,6 +127,7 @@ def ensure_types(data: dict[str, T], annotations: dict[str, type]) -> dict[str, 
             raise ConfigErrorInvalidType(key, value=compare, expected_type=_type)
 
         final[key] = compare
+
     return final
 
 
@@ -219,12 +221,14 @@ def is_optional(_type: Type | None) -> bool:
         # e.g. list[str]
         # will crash issubclass to test it first here
         return False
+    elif _type is math.nan:
+        return False
 
     return (
         _type is None
+        or types.NoneType in typing.get_args(_type)  # union with Nonetype
         or issubclass(types.NoneType, _type)
         or issubclass(types.NoneType, type(_type))  # no type  # Nonetype
-        or type(None) in typing.get_args(_type)  # union with Nonetype
     )
 
 
@@ -266,6 +270,7 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
 
     """
     updated = {}
+
     for _key, _type in annotations.items():
         if _key in data:
             value: typing.Any = data[_key]  # value can change so define it as any instead of T
@@ -313,7 +318,6 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
             # todo: do something with field.default?
             value = field.default_factory()
         else:
-            # todo: exception group?
             raise ConfigErrorMissingKey(_key, cls, _type)
 
         updated[_key] = value

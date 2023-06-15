@@ -11,6 +11,19 @@ class ConfigError(Exception):
     """
 
 
+# class ConfigErrorGroup(ConfigError, ExceptionGroup):
+#     """
+#     Base Exception class for this module, but for exception groups (3.11+)
+#     """
+#     def __init__(self, _type: str, errors: list[Exception]):
+#         more = len(errors) > 1
+#         cnt = "Multiple" if more else "One"
+#         s = "s" if more else ""
+#         message = f"{cnt} {_type}{s} in config!"
+#         super().__init__(message, errors)
+#         if not errors:
+#             raise ValueError("Error group raised without any errors?")
+
 @dataclass
 class ConfigErrorMissingKey(ConfigError):
     """
@@ -25,7 +38,7 @@ class ConfigErrorMissingKey(ConfigError):
         """
         Automatically filles in the names of annotated type and cls for printing from __str__.
         """
-        self._annotated_type = self.annotated_type.__name__
+        self._annotated_type = getattr(self.annotated_type, "__name__", str(self.annotated_type))
         self._cls = self.cls.__name__
 
     def __str__(self) -> str:

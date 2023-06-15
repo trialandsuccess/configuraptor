@@ -104,6 +104,7 @@ def test_existing_instances():
 
     normal_tool = configuraptor.load_into(Tool, data)
     inst1_extended = configuraptor.load_into(inst1, data)
+    assert inst1_extended is inst1
 
     assert inst1.fruits
 
