@@ -5,8 +5,7 @@
 For basic usage, see [../README.md](https://github.com/trialandsuccess/configuraptor/blob/master/README.md#usage)
 and [./example_from_readme.py](https://github.com/trialandsuccess/configuraptor/blob/master/examples/example_from_readme.py).
 Normal classes can be used with `configuraptor` (with `load_into(YourClass, data, ...)`) or you can
-inherit `TypedConfig` (and
-use `YourClass.load(data, ...)`).
+inherit `TypedConfig` (and use `YourClass.load(data, ...)`).
 
 In the examples above, `data` can be either
 
@@ -124,8 +123,49 @@ See also: [./dataclass.py](https://github.com/trialandsuccess/configuraptor/blob
 
 ## Inheriting from TypedConfig
 
-Currently, Inheriting from TypedConfig only adds the functionality of doing `MyClass.load`.  
-However, more functionality could follow later.
+In addition to the `MyClass.load` shortcut, inheriting from TypedConfig also gives you the ability to `.update` your
+config instances. Update will check whether the type you're trying to assign to a property is inline with its
+annotation. By default, `None` values will be skipped to preserve the default or previous value.
+These two features can be bypassed with `strict=False` and `allow_none=True` respectively.
+
+```python
+from configuraptor import TypedConfig
+
+
+class SomeConfig(TypedConfig):
+    string: str
+    num_key: int
+
+
+config = SomeConfig.load("./some/config.toml")
+
+assert config.string != "updated"
+config.update(string="updated")
+assert config.string == "updated"
+
+# `string` will not be updated:
+config.update(string=None)
+assert config.string == "updated"
+
+# `string` will be updated:
+config.update(string=None, allow_none=True)
+assert config.string is None
+
+# will raise a `ConfigErrorInvalidType`:
+config.update(string=123)
+
+# will work:
+config.update(string=123, strict=False)
+assert config.string == 123
+
+# will raise a `ConfigErrorExtraKey`:
+config.update(new_key="some value")
+
+# will work:
+config.update(new_key="some value", strict=False)
+assert config.new_key == "some value"
+
+```
 
 ## Existing Instances
 

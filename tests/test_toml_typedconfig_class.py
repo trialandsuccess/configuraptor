@@ -5,7 +5,7 @@ import typing
 import pytest
 
 from src import configuraptor
-from src.configuraptor.errors import ConfigError
+from src.configuraptor.errors import ConfigError, ConfigErrorInvalidType, ConfigErrorExtraKey
 
 from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
 
@@ -106,3 +106,33 @@ def test_typedconfig_classes():
     first = First.load(EXAMPLE_FILE, key="tool.first")
 
     assert tool.first.extra["name"]["first"] == first.extra["name"]["first"]
+
+
+def test_typedconfig_update():
+    first = First.load(EXAMPLE_FILE, key="tool.first")
+
+    assert first.string != "updated"
+    first.update(string="updated")
+    assert first.string == "updated"
+
+    first.update(string=None)
+    assert first.string == "updated"
+
+    first.update(string=None, allow_none=True)
+    assert first.string is None
+
+    with pytest.raises(ConfigErrorInvalidType):
+        first.update(string=123)
+
+    first.update(string=123, strict=False)
+    assert first.string == 123
+
+    with pytest.raises(ConfigErrorExtraKey):
+        try:
+            first.update(new_key="some value")
+        except ConfigErrorExtraKey as e:
+            assert "new_key" in str(e)
+            raise e
+
+    first.update(new_key="some value", strict=False)
+    assert first.new_key == "some value"
