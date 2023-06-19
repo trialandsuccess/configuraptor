@@ -54,6 +54,34 @@ class ConfigErrorMissingKey(ConfigError):
 
 
 @dataclass
+class ConfigErrorExtraKey(ConfigError):
+    """
+    Exception for when the config file is missing a required key.
+    """
+
+    key: str
+    value: str
+    cls: type
+
+    def __post_init__(self) -> None:
+        """
+        Automatically filles in the names of annotated type and cls for printing from __str__.
+        """
+        self._cls = self.cls.__name__
+        self._type = type(self.value)
+
+    def __str__(self) -> str:
+        """
+        Custom error message based on dataclass values and calculated actual type.
+        """
+        return (
+            f"Config key '{self.key}' (value: `{self.value}` type `{self._type}`) "
+            f"does not exist on class `{self._cls}`, but was attempted to be updated. "
+            f"Use strict = False to allow this behavior."
+        )
+
+
+@dataclass
 class ConfigErrorInvalidType(ConfigError):
     """
     Exception for when the config file contains a key with an unexpected type.

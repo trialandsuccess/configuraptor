@@ -108,9 +108,12 @@ if __name__ == '__main__':
     # Hello World!
     print(my_config.reference.numbers)
     # [41, 43]
+
+    # TypedConfig has an extra benefit of allowing .update:
+    my_config.update(numbers=[68, 70])
 ```
 
-More examples can be round in [examples](https://github.com/trialandsuccess/configuraptor/blob/master/examples).
+More examples can be found in [examples](https://github.com/trialandsuccess/configuraptor/blob/master/examples).
 
 ## License
 
