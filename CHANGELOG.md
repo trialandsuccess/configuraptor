@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.7.2 (2023-06-20)
+### Fix
+* **toml:** Tomlkit had own types, move to tomli ([`0b5f0a4`](https://github.com/trialandsuccess/configuraptor/commit/0b5f0a4333f5767fc2329cebb040c6cf4c78eff9))
+
 ## v1.7.1 (2023-06-20)
 ### Fix
 * **310:** Backwards compatible code ([`8f90aec`](https://github.com/trialandsuccess/configuraptor/commit/8f90aec43fd1fcd403f1b68d26e4d605ea346014))
