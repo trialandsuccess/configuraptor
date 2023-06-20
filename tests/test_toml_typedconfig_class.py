@@ -118,13 +118,13 @@ def test_typedconfig_update():
     first.update(string=None)
     assert first.string == "updated"
 
-    first.update(string=None, allow_none=True)
+    first.update(string=None, _allow_none=True)
     assert first.string is None
 
     with pytest.raises(ConfigErrorInvalidType):
         first.update(string=123)
 
-    first.update(string=123, strict=False)
+    first.update(string=123, _strict=False)
     assert first.string == 123
 
     with pytest.raises(ConfigErrorExtraKey):
@@ -134,5 +134,18 @@ def test_typedconfig_update():
             assert "new_key" in str(e)
             raise e
 
-    first.update(new_key="some value", strict=False)
+    first.update(new_key="some value", _strict=False)
     assert first.new_key == "some value"
+
+class MyConfig(configuraptor.TypedConfig):
+    update: bool = False
+
+def test_typedconfig_update_name_collision():
+    config = MyConfig.load({"update": True}, key="")
+
+    assert config.update == True
+    config._update(update=False)
+    assert config.update == False
+
+    configuraptor.update(config, update=True)
+    assert config.update == True
