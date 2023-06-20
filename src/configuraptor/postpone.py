@@ -2,12 +2,13 @@
 File contains logic to do with the 'postpone' feature.
 """
 
-import typing
+from typing import Any
+
+from typing_extensions import Never
 
 from .errors import IsPostponedError
 from .singleton import Singleton
-from typing import Any
-from typing_extensions import Never
+
 
 class Postponed(Singleton):
     """
