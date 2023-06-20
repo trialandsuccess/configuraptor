@@ -9,12 +9,6 @@ from ._types import T_config
 # tomli used for every Python version now.
 from .loaders_shared import json, toml, yaml
 
-# if sys.version_info > (3, 11):
-#     from .loaders_311 import toml
-# else:  # pragma: no cover
-#     from .loaders_310 import toml
-
-
 __all__ = ["get", "toml", "json", "yaml"]
 
 T_loader = typing.Callable[[typing.BinaryIO], T_config]
