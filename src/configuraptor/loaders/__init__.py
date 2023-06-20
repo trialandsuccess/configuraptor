@@ -6,7 +6,7 @@ import typing
 
 from ._types import T_config
 
-# tomlkit used for every Python version now.
+# tomli used for every Python version now.
 from .loaders_shared import json, toml, yaml
 
 # if sys.version_info > (3, 11):

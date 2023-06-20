@@ -24,7 +24,8 @@ classifiers = [
 ]
 dependencies = [
     "typeguard",
-    "tomlkit", # tomllib does not support dumping :(
+    "tomli", # Python 3.10 does not have tomllib and tomlkit has weird types
+    "tomli_w", # tomllib does not support dumping :(
     "PyYAML",
 ]
 

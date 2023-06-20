@@ -1,7 +1,7 @@
 import json
 import typing
 
-import tomlkit
+import tomli_w
 import yaml
 
 from src.configuraptor import TypedConfig
@@ -36,7 +36,7 @@ def test_asyaml():
 
 
 def test_astoml():
-    assert astoml(simple) == tomlkit.dumps(data)
+    assert astoml(simple) == tomli_w.dumps(data)
 
 
 class Dependency:

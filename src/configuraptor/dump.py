@@ -5,7 +5,7 @@ Method to dump classes to other formats.
 import json
 import typing
 
-import tomlkit
+import tomli_w
 import yaml
 
 from .core import instance_of_custom_class, is_custom_class
@@ -37,12 +37,12 @@ def asdict(inst: typing.Any, _level: int = 0, /, with_top_level_key: bool = True
     return data
 
 
-def astoml(inst: typing.Any, sort_keys: bool = False) -> str:
+def astoml(inst: typing.Any, multiline_strings: bool = False) -> str:
     """
     Dump a config instance to toml (recursively).
     """
     data = asdict(inst)
-    return tomlkit.dumps(data, sort_keys=sort_keys)
+    return tomli_w.dumps(data, multiline_strings=multiline_strings)
 
 
 def asjson(inst: typing.Any, **kw: typing.Any) -> str:
