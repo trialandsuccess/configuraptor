@@ -37,7 +37,7 @@ src-layout = true
 
 [project.optional-dependencies]
 dev = [
-    "su6[all]; python_version >= '3.11'",
+    "su6[all]",
     "hatch",
     "types-PyYAML",
     "pytest-mypy-testing",
