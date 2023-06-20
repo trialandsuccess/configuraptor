@@ -6,14 +6,15 @@ import typing
 
 from .errors import IsPostponedError
 from .singleton import Singleton
-
+from typing import Any
+from typing_extensions import Never
 
 class Postponed(Singleton):
     """
     Class returned by `postpone` below.
     """
 
-    def __get__(self, instance: type[typing.Any], owner: type[typing.Any]) -> typing.Never:
+    def __get__(self, instance: type[Any], owner: type[Any]) -> Never:
         """
         This magic method is called when a property is accessed.
 
@@ -27,7 +28,7 @@ class Postponed(Singleton):
         raise IsPostponedError()
 
 
-def postpone() -> typing.Any:
+def postpone() -> Any:
     """
     Can be used to mark a property as postponed, meaning the user will fill it in later (they promose).
 
