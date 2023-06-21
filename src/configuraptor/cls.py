@@ -55,6 +55,15 @@ class TypedConfig:
         """
         return self._update(_strict, _allow_none, **values)
 
+    def _format(self, string: str) -> str:
+        """
+        Format the config data into a string template.
+
+        Replacement for string.format(**config), which is only possible for MutableMappings.
+        MutableMapping does not work well with our Singleton Metaclass.
+        """
+        return string.format(**self.__dict__)
+
 
 # also expose as separate function:
 def update(instance: typing.Any, _strict: bool = True, _allow_none: bool = False, **values: typing.Any) -> None:

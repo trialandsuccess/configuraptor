@@ -6,7 +6,6 @@ import pytest
 
 from src import configuraptor
 from src.configuraptor.errors import ConfigError, ConfigErrorInvalidType, ConfigErrorExtraKey
-
 from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
 
 
@@ -149,3 +148,8 @@ def test_typedconfig_update_name_collision():
 
     configuraptor.update(config, update=True)
     assert config.update == True
+
+def test_mapping():
+    tool = Tool.load(EXAMPLE_FILE, key="tool")
+
+    assert tool._format("{first.string}") == "src"
