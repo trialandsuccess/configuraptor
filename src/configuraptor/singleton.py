@@ -16,7 +16,7 @@ class SingletonMeta(type):
     Source: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
     """
 
-    _instances: dict[typing.Type[typing.Any], typing.Type[typing.Any]] = {}
+    _instances: typing.ClassVar[dict[typing.Type[typing.Any], typing.Type[typing.Any]]] = {}
 
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Type[typing.Any]:
         """

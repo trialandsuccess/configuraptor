@@ -124,6 +124,8 @@ unfixable = [
 ]
 extend-exclude = ["*.bak/", "venv*/"]
 
+ignore = ["RUF013"] # = implicit Optional
+
 [tool.bandit]
 # bandit -c pyproject.toml -r .
 exclude_dirs = [".bak", "venv"]
