@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.8.0 (2023-06-21)
+### Feature
+* **format:** Allow TypedConfig._format ([`0b46646`](https://github.com/trialandsuccess/configuraptor/commit/0b46646fec153a6bcdfea0c40b872da884aa9146))
+
 ## v1.7.2 (2023-06-20)
 ### Fix
 * **toml:** Tomlkit had own types, move to tomli ([`0b5f0a4`](https://github.com/trialandsuccess/configuraptor/commit/0b5f0a4333f5767fc2329cebb040c6cf4c78eff9))
