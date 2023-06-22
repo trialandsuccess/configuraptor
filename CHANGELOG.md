@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.9.2 (2023-06-22)
+### Fix
+* Internal values (_) should be updatable without TypedConfig._update logic ([`ef24673`](https://github.com/trialandsuccess/configuraptor/commit/ef24673f4304fa58d2b51a429efe7dc62ddc84f9))
+
 ## v1.9.1 (2023-06-22)
 ### Fix
 * Key="" workaround no longer required ([`2c5fcaf`](https://github.com/trialandsuccess/configuraptor/commit/2c5fcaf8471176b82ebf5438d677e8db657018ab))
