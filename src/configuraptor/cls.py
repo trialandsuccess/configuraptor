@@ -78,6 +78,8 @@ class TypedConfig:
 
         If you want a non-strict option, use _update(strict=False).
         """
+        if key.startswith("_"):
+            return super().__setattr__(key, value)
         self._update(**{key: value})
 
 

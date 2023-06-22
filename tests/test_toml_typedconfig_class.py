@@ -218,3 +218,12 @@ def test_mapping():
 
     with pytest.raises(ConfigErrorImmutable):
         non_mut.default = "overwrite"
+
+
+def test_allow_setting_internals():
+    conf = MyConfig.load({})
+
+    # internal keys should NOT be type checked!
+
+    conf._new_key = "allowed"
+    conf._new_key = 123
