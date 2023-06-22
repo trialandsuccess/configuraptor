@@ -35,3 +35,21 @@ def test_all_annotations():
     assert set(all_annotations(Sub).keys()) == {"has", "has_also"}
     # with except:
     assert set(all_annotations(Sub, {"has_also"}).keys()) == {"has"}
+
+
+def test_no_data():
+    from src import configuraptor
+
+    # data must be a dict:
+    with pytest.raises(ValueError):
+        configuraptor.core._load_data(42, key=None)
+    with pytest.raises(ValueError):
+        configuraptor.core._load_data(["joe"], key=None)
+
+    # but other than that, it should be fine:
+    configuraptor.core._load_data({}, key="")
+    configuraptor.core._load_data({}, key=None)
+    configuraptor.core._load_data({"-": 0, "+": None}, key="joe", classname="-.+")
+    configuraptor.core._load_data({"-": 0, "+": None}, key="+", classname="-.+")
+    configuraptor.core._load_data({"-": 0, "+": None}, key="", classname="-.+")
+    configuraptor.core._load_data({"-": 0, "+": None}, key=None, classname="-.+")

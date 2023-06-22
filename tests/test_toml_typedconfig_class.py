@@ -9,7 +9,8 @@ from src.configuraptor import asdict, all_annotations
 from src.configuraptor.errors import (
     ConfigError,
     ConfigErrorExtraKey,
-    ConfigErrorInvalidType, ConfigErrorImmutable,
+    ConfigErrorInvalidType,
+    ConfigErrorImmutable,
 )
 
 from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
@@ -158,10 +159,12 @@ def test_typedconfig_update_name_collision():
     configuraptor.update(config, update=True)
     assert config.update == True
 
+
 def test_annotations():
     conf = MyConfig.load({})
 
     assert conf._all_annotations() == all_annotations(MyConfig)
+
 
 def test_mapping():
     tool = Tool.load(EXAMPLE_FILE, key="tool")
@@ -193,10 +196,10 @@ def test_mapping():
     with pytest.raises(ConfigErrorInvalidType):
         tool["third"] = 123
 
-    del tool['third']
+    del tool["third"]
 
     with pytest.raises(KeyError):
-        assert not tool['third']
+        assert not tool["third"]
 
     non_mut = Empty.load({})
 

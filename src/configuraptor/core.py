@@ -99,9 +99,11 @@ def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str
     except Exception as e:
         if key != "":
             return __load_data(data, "", classname)
-        else:
-            # key already was "", CRASH!
-            raise e
+        else:  # pragma: no cover
+            warnings.warn(f"Data could not be loaded: {e}", source=e)
+            # key already was "", just return data!
+            # (will probably not happen but fallback)
+            return {}
 
 
 def check_type(value: typing.Any, expected_type: T_typelike) -> bool:
