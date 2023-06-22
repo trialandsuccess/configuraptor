@@ -5,7 +5,13 @@ import typing
 import pytest
 
 from src import configuraptor
-from src.configuraptor.errors import ConfigError, ConfigErrorInvalidType, ConfigErrorExtraKey
+from src.configuraptor import asdict
+from src.configuraptor.errors import (
+    ConfigError,
+    ConfigErrorExtraKey,
+    ConfigErrorInvalidType,
+)
+
 from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
 
 
@@ -77,13 +83,14 @@ class SecondExtra:
     allowed: bool
 
 
-class Tool(configuraptor.TypedConfig):
+class Tool(configuraptor.TypedMutableMapping):
     first: First
     fruits: list[Fruit]
     second_extra: SecondExtra
+    third: str = "-"
 
 
-class Empty(configuraptor.TypedConfig):
+class Empty(configuraptor.TypedMapping):
     default: str = "allowed"
 
 
@@ -114,7 +121,7 @@ def test_typedconfig_update():
     first.update(string="updated")
     assert first.string == "updated"
 
-    first.update(string=None)
+    configuraptor.update(first, string=None)
     assert first.string == "updated"
 
     first.update(string=None, _allow_none=True)
@@ -136,8 +143,10 @@ def test_typedconfig_update():
     first.update(new_key="some value", _strict=False)
     assert first.new_key == "some value"
 
+
 class MyConfig(configuraptor.TypedConfig):
     update: bool = False
+
 
 def test_typedconfig_update_name_collision():
     config = MyConfig.load({"update": True}, key="")
@@ -149,7 +158,43 @@ def test_typedconfig_update_name_collision():
     configuraptor.update(config, update=True)
     assert config.update == True
 
+
 def test_mapping():
     tool = Tool.load(EXAMPLE_FILE, key="tool")
 
     assert tool._format("{first.string}") == "src"
+
+    first = tool.first
+
+    # tool is a MutableMapping so this should work:
+    assert tool["first"] == first
+    with pytest.raises(TypeError):
+        # first is not a mutable  mapping, so this should not work:
+        assert first["string"]
+
+    tool_d = dict(**tool)
+
+    assert tool_d["third"] == asdict(tool)["tool"]["third"] == tool.third
+    assert tool_d["first"].string == asdict(tool)["tool"]["first"]["string"]
+
+    tool.third = "!"
+    tool.first.string = "!"
+    with pytest.raises(TypeError):
+        tool.first["string"] = "123"
+    tool["third"] = "123"
+
+    with pytest.raises(ConfigErrorInvalidType):
+        tool["third"] = 123
+
+    del tool['third']
+
+    with pytest.raises(KeyError):
+        assert not tool['third']
+
+    non_mut = Empty.load({})
+
+    assert non_mut.default == non_mut["default"] == "allowed"
+    assert "{default}".format(**non_mut) == "allowed"
+
+    with pytest.raises(TypeError):
+        non_mut["default"] = "overwrite"

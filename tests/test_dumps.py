@@ -5,7 +5,7 @@ import tomli_w
 import yaml
 
 from src.configuraptor import TypedConfig
-from src.configuraptor.dump import asdict, asyaml, asjson, astoml
+from src.configuraptor.dump import asdict, asjson, astoml, asyaml
 
 
 class Simple(TypedConfig):

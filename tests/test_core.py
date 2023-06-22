@@ -9,6 +9,7 @@ from src.configuraptor import all_annotations
 from src.configuraptor.core import is_optional
 from tests.constants import EXAMPLE_FILE
 
+
 def test_invalid_extension():
     from src.configuraptor.loaders import get
 
@@ -19,6 +20,7 @@ def test_invalid_extension():
 def test_is_optional_with_weird_inputs():
     assert is_optional(math.nan) is False
     assert is_optional(typing.Optional[dict[str, typing.Optional[str]]]) is True
+
 
 class Base:
     has: int

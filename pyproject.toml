@@ -63,7 +63,7 @@ build_command = "hatch build"
 directory = "src"
 include = []
 exclude = []
-stop-after-first-failure = false
+stop-after-first-failure = true
 coverage = 100
 badge = true
 

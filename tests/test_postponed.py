@@ -1,6 +1,6 @@
 import pytest
 
-from src.configuraptor import TypedConfig, Singleton, postpone
+from src.configuraptor import Singleton, TypedConfig, postpone
 from src.configuraptor.errors import IsPostponedError
 
 

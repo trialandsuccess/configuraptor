@@ -3,11 +3,13 @@ Logic for the TypedConfig inheritable class.
 """
 
 import typing
+from collections.abc import Mapping, MutableMapping
+from typing import Any, Iterator
 
 from .core import T_data, all_annotations, check_type, load_into
 from .errors import ConfigErrorExtraKey, ConfigErrorInvalidType
 
-C = typing.TypeVar("C", bound=typing.Any)
+C = typing.TypeVar("C", bound=Any)
 
 
 class TypedConfig:
@@ -16,9 +18,7 @@ class TypedConfig:
     """
 
     @classmethod
-    def load(
-        cls: typing.Type[C], data: T_data, key: str = None, init: dict[str, typing.Any] = None, strict: bool = True
-    ) -> C:
+    def load(cls: typing.Type[C], data: T_data, key: str = None, init: dict[str, Any] = None, strict: bool = True) -> C:
         """
         Load a class' config values from the config file.
 
@@ -26,7 +26,7 @@ class TypedConfig:
         """
         return load_into(cls, data, key=key, init=init, strict=strict)
 
-    def _update(self, _strict: bool = True, _allow_none: bool = False, **values: typing.Any) -> None:
+    def _update(self, _strict: bool = True, _allow_none: bool = False, **values: Any) -> None:
         """
         Can be used if .update is overwritten with another value in the config.
         """
@@ -44,7 +44,7 @@ class TypedConfig:
 
             setattr(self, key, value)
 
-    def update(self, _strict: bool = True, _allow_none: bool = False, **values: typing.Any) -> None:
+    def update(self, _strict: bool = True, _allow_none: bool = False, **values: Any) -> None:
         """
         Update values on this config.
 
@@ -65,15 +65,78 @@ class TypedConfig:
         return string.format(**self.__dict__)
 
 
+K = typing.TypeVar("K", bound=str)
+V = typing.TypeVar("V", bound=Any)
+
+
+class TypedMapping(TypedConfig, Mapping[K, V]):
+    """
+    Note: this can't be used as a singleton!
+    """
+
+    def __getitem__(self, key: K) -> V:
+        """
+        Dict-notation to get attribute.
+
+        Example:
+            my_config[key]
+        """
+        return typing.cast(V, self.__dict__[key])
+
+    def __len__(self) -> int:
+        """
+        Required for Mapping.
+        """
+        return len(self.__dict__)
+
+    def __iter__(self) -> Iterator[K]:
+        """
+        Required for Mapping.
+        """
+        # keys is actually a `dict_keys` but mypy doesn't need to know that
+        keys = typing.cast(list[K], self.__dict__.keys())
+        return iter(keys)
+
+
+class TypedMutableMapping(TypedMapping[K, V], MutableMapping[K, V]):
+    """
+    Note: this can't be used as a singleton!
+    """
+
+    def __setitem__(self, key: str, value: V) -> None:
+        """
+        Dict notation to set attribute.
+
+        Example:
+            my_config[key] = value
+        """
+        self.update(**{key: value})
+
+    def __delitem__(self, key: K) -> None:
+        """
+        Dict notation to delete attribute.
+
+        Example:
+            del my_config[key]
+        """
+        del self.__dict__[key]
+
+    def update(self, *args: Any, **kwargs: V) -> None:  # type: ignore
+        """
+        Ensure TypedConfig.update is used en not MutableMapping.update.
+        """
+        return TypedConfig._update(self, *args, **kwargs)
+
+
 # also expose as separate function:
-def update(instance: typing.Any, _strict: bool = True, _allow_none: bool = False, **values: typing.Any) -> None:
+def update(self: Any, _strict: bool = True, _allow_none: bool = False, **values: Any) -> None:
     """
     Update values on a config.
 
     Args:
-        instance: config instance to update
+        self: config instance to update
         _strict: allow wrong types?
         _allow_none: allow None or skip those entries?
         **values: key: value pairs in the right types to update.
     """
-    return TypedConfig._update(instance, _strict, _allow_none, **values)
+    return TypedConfig._update(self, _strict, _allow_none, **values)

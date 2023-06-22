@@ -1,5 +1,6 @@
-import pytest
 import typing
+
+import pytest
 
 from src.configuraptor import load_into
 
