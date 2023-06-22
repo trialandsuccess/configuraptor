@@ -54,7 +54,7 @@ def _guess_key(clsname: str) -> str:
     return camel_to_snake(clsname)
 
 
-def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str, typing.Any]:
+def __load_data(data: T_data, key: str = None, classname: str = None) -> dict[str, typing.Any]:
     """
     Tries to load the right data from a filename/path or dict, based on a manual key or a classname.
 
@@ -79,10 +79,29 @@ def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str
             key = _guess_key(classname)
 
     if key:
-        return _data_for_nested_key(key, data)
-    else:
-        # no key found, just return all data
-        return data
+        data = _data_for_nested_key(key, data)
+
+    if not data:
+        raise ValueError("No data found!")
+
+    if not isinstance(data, dict):
+        raise ValueError("Data is not a dict!")
+
+    return data
+
+
+def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str, typing.Any]:
+    """
+    Wrapper around __load_data that retries with key="" if anything goes wrong.
+    """
+    try:
+        return __load_data(data, key, classname)
+    except Exception as e:
+        if key != "":
+            return __load_data(data, "", classname)
+        else:
+            # key already was "", CRASH!
+            raise e
 
 
 def check_type(value: typing.Any, expected_type: T_typelike) -> bool:

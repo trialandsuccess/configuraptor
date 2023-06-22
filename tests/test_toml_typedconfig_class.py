@@ -149,7 +149,7 @@ class MyConfig(configuraptor.TypedConfig):
 
 
 def test_typedconfig_update_name_collision():
-    config = MyConfig.load({"update": True}, key="")
+    config = MyConfig.load({"update": True})
 
     assert config.update == True
     config._update(update=False)

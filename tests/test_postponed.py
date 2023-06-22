@@ -12,7 +12,7 @@ class Later(TypedConfig, Singleton):
         self.other_field = "usable"
 
 
-later = Later.load({"field": "instant"}, key="")
+later = Later.load({"field": "instant"})
 
 
 def test_postponed_can_be_filled_later():

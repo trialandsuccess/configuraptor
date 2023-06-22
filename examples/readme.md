@@ -26,7 +26,8 @@ of structure), `key` can be provided to manually select where `configuraptor` ne
 - otherwise, the name of the class is used to guess the key name (this happens in the case of `Config` in
   the `README` example).
 
-If you pass `key=""` (empty string), all data will be loaded from the top-level.
+If you pass `key=""` (empty string), all data will be loaded from the top-level. 
+This will be done automatically too if something goes wrong with the supplied key.
 Example:
 
 ```json
@@ -384,6 +385,7 @@ default `TypedConfig`.
 `TypedMapping` also makes updating the data illegal, whereas this is allowed in `TypedConfig` and `TypedMutableMapping`.
 
 ```python
+# example_mapping.py
 import configuraptor
 
 
@@ -398,5 +400,4 @@ my_config.update(key="something else")
 
 # this would crash if MyConfig was a TypedConfig:
 "key is {key}".format(**my_config)  # == "key is something"
-
 ```

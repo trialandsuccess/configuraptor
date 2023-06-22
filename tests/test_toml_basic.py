@@ -132,7 +132,7 @@ def test_guess_key_from_multiple_keys():
 def test_guess_key_no_match():
     file = str(PYTEST_EXAMPLES / "with_multiple_toplevel_keys.toml")
     # no key and no match by class name:
-    relevant = configuraptor.load_into(Irrelevant, file, key="")
+    relevant = configuraptor.load_into(Irrelevant, file)
     assert relevant and relevant.key["value"] == "fallback"
 
 
@@ -199,4 +199,4 @@ def test_missing_required_parameterized():
     # should go through is_optional -> is_parameterized -> typing.get_origin(_type) in (dict, list) -> False -> Error
     data = {"not_required": ["list", "of", "string"]}
     with pytest.raises(ConfigErrorMissingKey):
-        configuraptor.load_into(ShouldHaveListOfString, data, key="")  # empty key to indicate data exists top-level
+        configuraptor.load_into(ShouldHaveListOfString, data)
