@@ -5,11 +5,11 @@ import typing
 import pytest
 
 from src import configuraptor
-from src.configuraptor import asdict
+from src.configuraptor import asdict, all_annotations
 from src.configuraptor.errors import (
     ConfigError,
     ConfigErrorExtraKey,
-    ConfigErrorInvalidType,
+    ConfigErrorInvalidType, ConfigErrorImmutable,
 )
 
 from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
@@ -158,6 +158,10 @@ def test_typedconfig_update_name_collision():
     configuraptor.update(config, update=True)
     assert config.update == True
 
+def test_annotations():
+    conf = MyConfig.load({})
+
+    assert conf._all_annotations() == all_annotations(MyConfig)
 
 def test_mapping():
     tool = Tool.load(EXAMPLE_FILE, key="tool")
@@ -184,6 +188,9 @@ def test_mapping():
     tool["third"] = "123"
 
     with pytest.raises(ConfigErrorInvalidType):
+        tool.third = 123
+
+    with pytest.raises(ConfigErrorInvalidType):
         tool["third"] = 123
 
     del tool['third']
@@ -198,3 +205,13 @@ def test_mapping():
 
     with pytest.raises(TypeError):
         non_mut["default"] = "overwrite"
+
+    with pytest.raises(ConfigErrorImmutable):
+        try:
+            non_mut.update(default="overwrite")
+        except ConfigErrorImmutable as e:
+            assert "Empty is Immutable" in str(e)
+            raise e
+
+    with pytest.raises(ConfigErrorImmutable):
+        non_mut.default = "overwrite"

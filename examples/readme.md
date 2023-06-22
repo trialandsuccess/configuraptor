@@ -375,3 +375,28 @@ name = "dependency 3.2"
   }
 }
 ```
+
+## Mappings
+
+To make a class unpackable with `**`, you need to inherit `TypedMapping` or `TypedMutableMapping`.
+Doing this will break compatibility with `Singleton`, so this unpacking feature is not enabled on the
+default `TypedConfig`.
+`TypedMapping` also makes updating the data illegal, whereas this is allowed in `TypedConfig` and `TypedMutableMapping`.
+
+```python
+import configuraptor
+
+
+class MyConfig(configuraptor.TypedMapping):
+    key: str
+
+
+my_config = MyConfig.load({"key": "something"})
+
+# not allowed, because it's not a Mutable Mapping:
+my_config.update(key="something else")
+
+# this would crash if MyConfig was a TypedConfig:
+"key is {key}".format(**my_config)  # == "key is something"
+
+```

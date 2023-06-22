@@ -4,7 +4,7 @@
 
 ## v1.9.0 (2023-06-22)
 ### Feature
-* **mapping:** Add configuraptor.Mapping and .MutableMapping to support **unpacking (but not on default TypedConfig) ([`b4c6b9d`](https://github.com/trialandsuccess/configuraptor/commit/b4c6b9dc01cfd6727187310610e750fa6ada3234))
+* **mapping:** Add configuraptor.TypedMapping and .TypedMutableMapping to support **unpacking (but not on default TypedConfig) ([`b4c6b9d`](https://github.com/trialandsuccess/configuraptor/commit/b4c6b9dc01cfd6727187310610e750fa6ada3234))
 
 ## v1.8.0 (2023-06-21)
 ### Feature

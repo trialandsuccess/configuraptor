@@ -113,6 +113,27 @@ class ConfigErrorInvalidType(ConfigError):
 
 
 @dataclass
+class ConfigErrorImmutable(ConfigError):
+    """
+    Raised when an immutable Mapping is attempted to be updated.
+    """
+
+    cls: type
+
+    def __post_init__(self) -> None:
+        """
+        Store the class name.
+        """
+        self._cls = self.cls.__name__
+
+    def __str__(self) -> str:
+        """
+        Custom error message.
+        """
+        return f"{self._cls} is Immutable!"
+
+
+@dataclass
 class IsPostponedError(ConfigError):
     """
     Error thrown when you try to access a 'postponed' property without filling its value first.

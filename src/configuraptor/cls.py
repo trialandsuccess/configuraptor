@@ -7,7 +7,7 @@ from collections.abc import Mapping, MutableMapping
 from typing import Any, Iterator
 
 from .core import T_data, all_annotations, check_type, load_into
-from .errors import ConfigErrorExtraKey, ConfigErrorInvalidType
+from .errors import ConfigErrorExtraKey, ConfigErrorImmutable, ConfigErrorInvalidType
 
 C = typing.TypeVar("C", bound=Any)
 
@@ -42,7 +42,8 @@ class TypedConfig:
             if _strict and not check_type(value, annotations[key]) and not (value is None and _allow_none):
                 raise ConfigErrorInvalidType(expected_type=annotations[key], key=key, value=value)
 
-            setattr(self, key, value)
+            self.__dict__[key] = value
+            # setattr(self, key, value)
 
     def update(self, _strict: bool = True, _allow_none: bool = False, **values: Any) -> None:
         """
@@ -55,6 +56,13 @@ class TypedConfig:
         """
         return self._update(_strict, _allow_none, **values)
 
+    @classmethod
+    def _all_annotations(cls) -> dict[str, type]:
+        """
+        Shortcut to get all annotations.
+        """
+        return all_annotations(cls)
+
     def _format(self, string: str) -> str:
         """
         Format the config data into a string template.
@@ -64,14 +72,24 @@ class TypedConfig:
         """
         return string.format(**self.__dict__)
 
+    def __setattr__(self, key: str, value: typing.Any) -> None:
+        """
+        Updates should have the right type.
+
+        If you want a non-strict option, use _update(strict=False).
+        """
+        self._update(**{key: value})
+
 
 K = typing.TypeVar("K", bound=str)
 V = typing.TypeVar("V", bound=Any)
 
 
-class TypedMapping(TypedConfig, Mapping[K, V]):
+class TypedMappingAbstract(TypedConfig, Mapping[K, V]):
     """
     Note: this can't be used as a singleton!
+
+    Don't use directly, choose either TypedMapping (immutable) or TypedMutableMapping (mutable).
     """
 
     def __getitem__(self, key: K) -> V:
@@ -98,7 +116,16 @@ class TypedMapping(TypedConfig, Mapping[K, V]):
         return iter(keys)
 
 
-class TypedMutableMapping(TypedMapping[K, V], MutableMapping[K, V]):
+class TypedMapping(TypedMappingAbstract[K, V]):
+    """
+    Note: this can't be used as a singleton!
+    """
+
+    def _update(self, *_: Any, **__: Any) -> None:
+        raise ConfigErrorImmutable(self.__class__)
+
+
+class TypedMutableMapping(TypedMappingAbstract[K, V], MutableMapping[K, V]):
     """
     Note: this can't be used as a singleton!
     """
