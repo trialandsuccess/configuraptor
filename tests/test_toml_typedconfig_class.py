@@ -5,12 +5,12 @@ import typing
 import pytest
 
 from src import configuraptor
-from src.configuraptor import asdict, all_annotations
+from src.configuraptor import all_annotations, asdict
 from src.configuraptor.errors import (
     ConfigError,
     ConfigErrorExtraKey,
-    ConfigErrorInvalidType,
     ConfigErrorImmutable,
+    ConfigErrorInvalidType,
 )
 
 from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml

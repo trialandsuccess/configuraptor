@@ -122,31 +122,23 @@ def test_mixed_init():
         SomethingWithInit,
         {},
         init=dict(
-                arg1=1,
-                arg2=2,
-                kwarg1=1,
-                kwarg2=2,
-            )
+            arg1=1,
+            arg2=2,
+            kwarg1=1,
+            kwarg2=2,
+        ),
     )
 
-    configuraptor.load_into(
-        SomethingWithInit,
-        {},
-        init=[
-            1,
-            2,
-            3,
-            4
-        ]
-    )
+    configuraptor.load_into(SomethingWithInit, {}, init=[1, 2, 3, 4])
 
     # invalid init:
     with pytest.raises(ValueError):
         configuraptor.load_into(
             SomethingWithInit,
             {},
-            init=33
+            init=33,
         )
+
 
 def test_existing_instances():
     data = _load_toml()

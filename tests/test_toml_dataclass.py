@@ -118,6 +118,7 @@ def test_dataclasses():
 
     assert tool.first.extra["name"]["first"] == first.extra["name"]["first"]
 
+
 def test_init_not_allowed():
     data = _load_toml()
 
