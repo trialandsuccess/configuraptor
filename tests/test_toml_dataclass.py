@@ -117,3 +117,9 @@ def test_dataclasses():
     first = configuraptor.load_into(First, EXAMPLE_FILE, key="tool.first")
 
     assert tool.first.extra["name"]["first"] == first.extra["name"]["first"]
+
+def test_init_not_allowed():
+    data = _load_toml()
+
+    with pytest.raises(ValueError):
+        tool = configuraptor.load_into(Tool, data, init={"extra": "data"})

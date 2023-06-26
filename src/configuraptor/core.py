@@ -392,10 +392,36 @@ def check_and_convert_data(
     return to_load
 
 
+T_init_list = list[typing.Any]
+T_init_dict = dict[str, typing.Any]
+T_init = tuple[T_init_list, T_init_dict] | T_init_list | T_init_dict | None
+
+
+@typing.no_type_check  # (mypy doesn't understand 'match' fully yet)
+def _split_init(init: T_init) -> tuple[T_init_list, T_init_dict]:
+    """
+    Accept a tuple, a dict or a list of (arg, kwarg), {kwargs: ...}, [args] respectively and turn them all into a tuple.
+    """
+    if not init:
+        return [], {}
+
+    args: T_init_list = []
+    kwargs: T_init_dict = {}
+    match init:
+        case (args, kwargs):
+            return args, kwargs
+        case [*args]:
+            return args, {}
+        case {**kwargs}:
+            return [], kwargs
+        case _:
+            raise ValueError("Init must be either a tuple of list and dict, a list or a dict.")
+
+
 def _load_into_recurse(
     cls: typing.Type[C],
     data: dict[str, typing.Any],
-    init: dict[str, typing.Any] = None,
+    init: T_init = None,
     strict: bool = True,
 ) -> C:
     """
@@ -405,19 +431,17 @@ def _load_into_recurse(
     `init` can be used to optionally pass extra __init__ arguments. \
         NOTE: This will overwrite a config key with the same name!
     """
-    if init is None:
-        init = {}
-
-    # fixme: cls.__init__ can set other keys than the name is in kwargs!!
+    init_args, init_kwargs = _split_init(init)
 
     if dc.is_dataclass(cls):
-        to_load = check_and_convert_data(cls, data, init.keys(), strict=strict)
-        to_load |= init  # add extra init variables (should not happen for a dataclass but whatev)
+        to_load = check_and_convert_data(cls, data, init_kwargs.keys(), strict=strict)
+        if init:
+            raise ValueError("Init is not allowed for dataclasses!")
 
         # ensure mypy inst is an instance of the cls type (and not a fictuous `DataclassInstance`)
         inst = typing.cast(C, cls(**to_load))
     else:
-        inst = cls(**init)
+        inst = cls(*init_args, **init_kwargs)
         to_load = check_and_convert_data(cls, data, inst.__dict__.keys(), strict=strict)
         inst.__dict__.update(**to_load)
 
@@ -428,7 +452,7 @@ def _load_into_instance(
     inst: C,
     cls: typing.Type[C],
     data: dict[str, typing.Any],
-    init: dict[str, typing.Any] = None,
+    init: T_init = None,
     strict: bool = True,
 ) -> C:
     """
@@ -453,7 +477,7 @@ def load_into_class(
     data: T_data,
     /,
     key: str = None,
-    init: dict[str, typing.Any] = None,
+    init: T_init = None,
     strict: bool = True,
 ) -> C:
     """
@@ -468,7 +492,7 @@ def load_into_instance(
     data: T_data,
     /,
     key: str = None,
-    init: dict[str, typing.Any] = None,
+    init: T_init = None,
     strict: bool = True,
 ) -> C:
     """
@@ -484,7 +508,7 @@ def load_into(
     data: T_data,
     /,
     key: str = None,
-    init: dict[str, typing.Any] = None,
+    init: T_init = None,
     strict: bool = True,
 ) -> C:
     """

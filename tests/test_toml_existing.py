@@ -97,6 +97,57 @@ def test_new_instances():
     assert tool.fruits
 
 
+class SomethingWithInit:
+    def __init__(self, arg1, arg2, kwarg1, kwarg2=None):
+        assert arg1
+        assert arg2
+        assert kwarg1
+        assert kwarg2
+
+
+def test_mixed_init():
+    configuraptor.load_into(
+        SomethingWithInit,
+        {},
+        init=(
+            [1, 2],
+            dict(
+                kwarg1=1,
+                kwarg2=2,
+            ),
+        ),
+    )
+
+    configuraptor.load_into(
+        SomethingWithInit,
+        {},
+        init=dict(
+                arg1=1,
+                arg2=2,
+                kwarg1=1,
+                kwarg2=2,
+            )
+    )
+
+    configuraptor.load_into(
+        SomethingWithInit,
+        {},
+        init=[
+            1,
+            2,
+            3,
+            4
+        ]
+    )
+
+    # invalid init:
+    with pytest.raises(ValueError):
+        configuraptor.load_into(
+            SomethingWithInit,
+            {},
+            init=33
+        )
+
 def test_existing_instances():
     data = _load_toml()
 
