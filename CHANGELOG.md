@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.10.0 (2023-06-26)
+### Feature
+* **init:** Allow ([args], {kwargs}) and [args] and {kwargs} for init! ([`0d19df8`](https://github.com/trialandsuccess/configuraptor/commit/0d19df8c47093fc35e9713672e2067c156cc7d47))
+
 ## v1.9.2 (2023-06-22)
 ### Fix
 * Internal values (_) should be updatable without TypedConfig._update logic ([`ef24673`](https://github.com/trialandsuccess/configuraptor/commit/ef24673f4304fa58d2b51a429efe7dc62ddc84f9))
