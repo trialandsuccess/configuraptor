@@ -82,6 +82,23 @@ class ConfigErrorExtraKey(ConfigError):
 
 
 @dataclass
+class ConfigErrorCouldNotConvert(ConfigError):
+    """
+    Raised by `convert_between` if something funky is going on (incompatible types etc.).
+    """
+
+    from_t: type
+    to_t: type
+    value: typing.Any
+
+    def __str__(self) -> str:
+        """
+        Custom error message based on dataclass values and calculated actual type.
+        """
+        return f"Could not convert `{self.value}` from `{self.from_t}` to `{self.to_t}`"
+
+
+@dataclass
 class ConfigErrorInvalidType(ConfigError):
     """
     Exception for when the config file contains a key with an unexpected type.

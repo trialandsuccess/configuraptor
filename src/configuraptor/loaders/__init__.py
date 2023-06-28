@@ -7,9 +7,9 @@ import typing
 from ._types import T_config
 
 # tomli used for every Python version now.
-from .loaders_shared import json, toml, yaml
+from .loaders_shared import dotenv, json, toml, yaml
 
-__all__ = ["get", "toml", "json", "yaml"]
+__all__ = ["get", "toml", "json", "yaml", "dotenv"]
 
 T_loader = typing.Callable[[typing.BinaryIO], T_config]
 
@@ -18,6 +18,7 @@ LOADERS: dict[str, T_loader] = {
     "json": json,
     "yml": yaml,
     "yaml": yaml,
+    "env": dotenv,
 }
 
 

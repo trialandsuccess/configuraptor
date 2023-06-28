@@ -14,7 +14,11 @@ from typeguard import TypeCheckError
 from typeguard import check_type as _check_type
 
 from . import loaders
-from .errors import ConfigErrorInvalidType, ConfigErrorMissingKey
+from .errors import (
+    ConfigErrorCouldNotConvert,
+    ConfigErrorInvalidType,
+    ConfigErrorMissingKey,
+)
 from .helpers import camel_to_snake
 from .postpone import Postponed
 
@@ -54,7 +58,9 @@ def _guess_key(clsname: str) -> str:
     return camel_to_snake(clsname)
 
 
-def __load_data(data: T_data, key: str = None, classname: str = None) -> dict[str, typing.Any]:
+def __load_data(
+    data: T_data, key: str = None, classname: str = None, lower_keys: bool = False
+) -> dict[str, typing.Any]:
     """
     Tries to load the right data from a filename/path or dict, based on a manual key or a classname.
 
@@ -65,7 +71,7 @@ def __load_data(data: T_data, key: str = None, classname: str = None) -> dict[st
         data = Path(data)
     if isinstance(data, Path):
         with data.open("rb") as f:
-            loader = loaders.get(data.suffix)
+            loader = loaders.get(data.suffix or data.name)
             data = loader(f)
 
     if not data:
@@ -87,18 +93,21 @@ def __load_data(data: T_data, key: str = None, classname: str = None) -> dict[st
     if not isinstance(data, dict):
         raise ValueError("Data is not a dict!")
 
+    if lower_keys:
+        data = {k.lower(): v for k, v in data.items()}
+
     return data
 
 
-def _load_data(data: T_data, key: str = None, classname: str = None) -> dict[str, typing.Any]:
+def _load_data(data: T_data, key: str = None, classname: str = None, lower_keys: bool = False) -> dict[str, typing.Any]:
     """
     Wrapper around __load_data that retries with key="" if anything goes wrong.
     """
     try:
-        return __load_data(data, key, classname)
+        return __load_data(data, key, classname, lower_keys=lower_keys)
     except Exception as e:
         if key != "":
-            return __load_data(data, "", classname)
+            return __load_data(data, "", classname, lower_keys=lower_keys)
         else:  # pragma: no cover
             warnings.warn(f"Data could not be loaded: {e}", source=e)
             # key already was "", just return data!
@@ -119,7 +128,49 @@ def check_type(value: typing.Any, expected_type: T_typelike) -> bool:
         return False
 
 
-def ensure_types(data: dict[str, T], annotations: dict[str, type]) -> dict[str, T | None]:
+F = typing.TypeVar("F")
+
+
+def str_to_bool(value: str) -> bool:
+    """
+    Used by convert_between, usually for .env loads.
+
+    Example:
+        SOME_VALUE=TRUE -> True
+        SOME_VALUE=1 -> True
+        SOME_VALUE=Yes -> True
+
+        SOME_VALUE  -> None
+        SOME_VALUE=NOpe -> False
+
+        SOME_VALUE=Unrelated -> Error
+    """
+    if not value:
+        return False
+
+    first_letter = value[0].lower()
+    # yes, true, 1
+    if first_letter in {"y", "t", "1"}:
+        return True
+    elif first_letter in {"n", "f", "0"}:
+        return False
+    else:
+        raise ValueError("Not booly.")
+
+
+def convert_between(from_value: F, from_type: typing.Type[F], to_type: type[T]) -> T:
+    """
+    Convert a value between types.
+    """
+    if from_type is str and to_type is bool:
+        return str_to_bool(from_value)  # type: ignore
+    # default: just convert type:
+    return to_type(from_value)  # type: ignore
+
+
+def ensure_types(
+    data: dict[str, T], annotations: dict[str, type[T]], convert_types: bool = False
+) -> dict[str, T | None]:
     """
     Make sure all values in 'data' are in line with the ones stored in 'annotations'.
 
@@ -147,7 +198,13 @@ def ensure_types(data: dict[str, T], annotations: dict[str, type]) -> dict[str, 
             continue
 
         if not check_type(compare, _type):
-            raise ConfigErrorInvalidType(key, value=compare, expected_type=_type)
+            if convert_types:
+                try:
+                    compare = convert_between(compare, type(compare), _type)
+                except (TypeError, ValueError) as e:
+                    raise ConfigErrorCouldNotConvert(type(compare), _type, compare) from e
+            else:
+                raise ConfigErrorInvalidType(key, value=compare, expected_type=_type)
 
         final[key] = compare
 
@@ -356,7 +413,7 @@ def _all_annotations(cls: Type) -> ChainMap[str, Type]:
     return ChainMap(*(c.__annotations__ for c in getattr(cls, "__mro__", []) if "__annotations__" in c.__dict__))
 
 
-def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str, Type]:
+def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str, type[object]]:
     """
     Wrapper around `_all_annotations` that filters away any keys in _except.
 
@@ -374,6 +431,7 @@ def check_and_convert_data(
     data: dict[str, typing.Any],
     _except: typing.Iterable[str],
     strict: bool = True,
+    convert_types: bool = False,
 ) -> dict[str, typing.Any]:
     """
     Based on class annotations, this prepares the data for `load_into_recurse`.
@@ -387,7 +445,7 @@ def check_and_convert_data(
     to_load = convert_config(data)
     to_load = load_recursive(cls, to_load, annotations)
     if strict:
-        to_load = ensure_types(to_load, annotations)
+        to_load = ensure_types(to_load, annotations, convert_types=convert_types)
 
     return to_load
 
@@ -423,6 +481,7 @@ def _load_into_recurse(
     data: dict[str, typing.Any],
     init: T_init = None,
     strict: bool = True,
+    convert_types: bool = False,
 ) -> C:
     """
     Loads an instance of `cls` filled with `data`.
@@ -434,7 +493,7 @@ def _load_into_recurse(
     init_args, init_kwargs = _split_init(init)
 
     if dc.is_dataclass(cls):
-        to_load = check_and_convert_data(cls, data, init_kwargs.keys(), strict=strict)
+        to_load = check_and_convert_data(cls, data, init_kwargs.keys(), strict=strict, convert_types=convert_types)
         if init:
             raise ValueError("Init is not allowed for dataclasses!")
 
@@ -442,7 +501,7 @@ def _load_into_recurse(
         inst = typing.cast(C, cls(**to_load))
     else:
         inst = cls(*init_args, **init_kwargs)
-        to_load = check_and_convert_data(cls, data, inst.__dict__.keys(), strict=strict)
+        to_load = check_and_convert_data(cls, data, inst.__dict__.keys(), strict=strict, convert_types=convert_types)
         inst.__dict__.update(**to_load)
 
     return inst
@@ -454,6 +513,7 @@ def _load_into_instance(
     data: dict[str, typing.Any],
     init: T_init = None,
     strict: bool = True,
+    convert_types: bool = False,
 ) -> C:
     """
     Similar to `load_into_recurse` but uses an existing instance of a class (so after __init__) \
@@ -465,7 +525,9 @@ def _load_into_instance(
 
     existing_data = inst.__dict__
 
-    to_load = check_and_convert_data(cls, data, _except=existing_data.keys(), strict=strict)
+    to_load = check_and_convert_data(
+        cls, data, _except=existing_data.keys(), strict=strict, convert_types=convert_types
+    )
 
     inst.__dict__.update(**to_load)
 
@@ -479,12 +541,14 @@ def load_into_class(
     key: str = None,
     init: T_init = None,
     strict: bool = True,
+    lower_keys: bool = False,
+    convert_types: bool = False,
 ) -> C:
     """
     Shortcut for _load_data + load_into_recurse.
     """
-    to_load = _load_data(data, key, cls.__name__)
-    return _load_into_recurse(cls, to_load, init=init, strict=strict)
+    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys)
+    return _load_into_recurse(cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
 def load_into_instance(
@@ -494,13 +558,15 @@ def load_into_instance(
     key: str = None,
     init: T_init = None,
     strict: bool = True,
+    lower_keys: bool = False,
+    convert_types: bool = False,
 ) -> C:
     """
     Shortcut for _load_data + load_into_existing.
     """
     cls = inst.__class__
-    to_load = _load_data(data, key, cls.__name__)
-    return _load_into_instance(inst, cls, to_load, init=init, strict=strict)
+    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys)
+    return _load_into_instance(inst, cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
 def load_into(
@@ -510,6 +576,8 @@ def load_into(
     key: str = None,
     init: T_init = None,
     strict: bool = True,
+    lower_keys: bool = False,
+    convert_types: bool = False,
 ) -> C:
     """
     Load your config into a class (instance).
@@ -523,12 +591,18 @@ def load_into(
         key: optional (nested) dictionary key to load data from (e.g. 'tool.su6.specific')
         init: optional data to pass to your cls' __init__ method (only if cls is not an instance already)
         strict: enable type checks or allow anything?
+        lower_keys: should the config keys be lowercased? (for .env)
+        convert_types: should the types be converted to the annotated type if not yet matching? (for .env)
 
     """
     if not isinstance(cls, type):
         # would not be supported according to mypy, but you can still load_into(instance)
-        return load_into_instance(cls, data, key=key, init=init, strict=strict)
+        return load_into_instance(
+            cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
+        )
 
     # make mypy and pycharm happy by telling it cls is of type C and not just 'type'
     # _cls = typing.cast(typing.Type[C], cls)
-    return load_into_class(cls, data, key=key, init=init, strict=strict)
+    return load_into_class(
+        cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
+    )

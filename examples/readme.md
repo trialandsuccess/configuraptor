@@ -26,7 +26,7 @@ of structure), `key` can be provided to manually select where `configuraptor` ne
 - otherwise, the name of the class is used to guess the key name (this happens in the case of `Config` in
   the `README` example).
 
-If you pass `key=""` (empty string), all data will be loaded from the top-level. 
+If you pass `key=""` (empty string), all data will be loaded from the top-level.
 This will be done automatically too if something goes wrong with the supplied key.
 Example:
 
@@ -121,6 +121,63 @@ print(simple)
 ```
 
 See also: [./dataclass.py](https://github.com/trialandsuccess/configuraptor/blob/master/examples/dataclass.py)
+
+## DotEnv
+
+Although env files are much more limited than the other supported file types, it can be useful to parse (dot)envs.
+Because by default, only strings are really supported and the convention is to write env keys in CAPITAL LETTERS,
+`load_into` has two options to make working with env files easier:
+
+- `lower_keys` will lower the keys in an env file to match your class properties.
+- `convert_types` will convert the values from string to the annotated type. Note that this is pretty limited, and
+  should only be used to compare to simple types such as `int`s. Relationships to other config instances is not
+  supported with env files.
+    - Converting to `bool` has some special rules, which will convert "True", "Yes" and "1" (any capitalization) into
+      True; "False", "No" and "0" to False and any other values will raise an exception.
+
+```env
+# examples/.env
+STRING=string
+WITH_VARIABLE="${STRING}"
+NUMBER=123
+BOOLEAN_T=True
+BOOLEAN_Y=Yes
+BOOLEAN_F=False
+BOOLEAN_N=No
+BOOLEAN_1=1
+BOOLEAN_0=0
+
+NULL
+```
+
+```python
+# examples/example_dotenv.py
+import typing
+
+from configuraptor import load_into, asdict
+
+
+class DotEnv:
+    string: str
+    with_variable: str
+    number: int
+    boolean_t: bool
+    boolean_y: bool
+    boolean_1: bool
+
+    boolean_f: bool
+    boolean_n: bool
+    boolean_1: bool
+
+    null: typing.Optional[None]
+
+
+if __name__ == '__main__':
+    data = load_into(DotEnv, ".env", lower_keys=True, convert_types=True)
+
+    print(asdict(data))
+
+```
 
 ## Inheriting from TypedConfig
 
