@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.11.0 (2023-06-28)
+### Feature
+* **dotenv:** Support dotenv and add `lower_keys` and `convert_types` to `load_into` for dotenv ([`4d41197`](https://github.com/trialandsuccess/configuraptor/commit/4d41197a5d31cd623afb1f0ae61f720f27533a33))
+
 ## v1.10.0 (2023-06-26)
 ### Feature
 * **init:** Allow ([args], {kwargs}) and [args] and {kwargs} for init! ([`0d19df8`](https://github.com/trialandsuccess/configuraptor/commit/0d19df8c47093fc35e9713672e2067c156cc7d47))
