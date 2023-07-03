@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.12.0 (2023-07-03)
+### Feature
+* Support .ini files and fix `convert_types` for recursion ([`9333029`](https://github.com/trialandsuccess/configuraptor/commit/9333029485eea936153320381181326ce862cfe6))
+
 ## v1.11.0 (2023-06-28)
 ### Feature
 * **dotenv:** Support dotenv and add `lower_keys` and `convert_types` to `load_into` for dotenv ([`4d41197`](https://github.com/trialandsuccess/configuraptor/commit/4d41197a5d31cd623afb1f0ae61f720f27533a33))
