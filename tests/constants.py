@@ -9,4 +9,4 @@ EMPTY_FILE = PYTEST_EXAMPLES / "empty.toml"
 
 def _load_toml():
     with EXAMPLE_FILE.open("rb") as f:
-        return loaders.toml(f)
+        return loaders.toml(f, None)

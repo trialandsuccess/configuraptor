@@ -6,7 +6,7 @@ import typing
 import pytest
 
 from src.configuraptor import all_annotations
-from src.configuraptor.core import is_optional
+from src.configuraptor.core import is_optional, str_to_none
 from tests.constants import EXAMPLE_FILE
 
 
@@ -53,3 +53,9 @@ def test_no_data():
     configuraptor.core._load_data({"-": 0, "+": None}, key="+", classname="-.+")
     configuraptor.core._load_data({"-": 0, "+": None}, key="", classname="-.+")
     configuraptor.core._load_data({"-": 0, "+": None}, key=None, classname="-.+")
+
+
+def test_str_to_none():
+    assert str_to_none("null") == str_to_none("none") == str_to_none("None") == str_to_none("") == None
+
+    assert str_to_none("yeet") != None

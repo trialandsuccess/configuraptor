@@ -72,7 +72,7 @@ def __load_data(
     if isinstance(data, Path):
         with data.open("rb") as f:
             loader = loaders.get(data.suffix or data.name)
-            data = loader(f)
+            data = loader(f, data.resolve())
 
     if not data:
         return {}
@@ -158,12 +158,25 @@ def str_to_bool(value: str) -> bool:
         raise ValueError("Not booly.")
 
 
+def str_to_none(value: str) -> typing.Optional[str]:
+    """
+    Convert a string value of null/none to None, or keep the original string otherwise.
+    """
+    if value.lower() in {"", "null", "none"}:
+        return None
+    else:
+        return value
+
+
 def convert_between(from_value: F, from_type: typing.Type[F], to_type: type[T]) -> T:
     """
     Convert a value between types.
     """
-    if from_type is str and to_type is bool:
-        return str_to_bool(from_value)  # type: ignore
+    if from_type is str:
+        if to_type is bool:
+            return str_to_bool(from_value)  # type: ignore
+        elif to_type is None or to_type is types.NoneType:  # noqa: E721
+            return str_to_none(from_value)  # type: ignore
     # default: just convert type:
     return to_type(from_value)  # type: ignore
 
@@ -318,7 +331,9 @@ def dataclass_field(cls: Type, key: str) -> typing.Optional[dc.Field[typing.Any]
     return fields.get(key)
 
 
-def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) -> dict[str, T]:
+def load_recursive(
+    cls: Type, data: dict[str, T], annotations: dict[str, Type], convert_types: bool = False
+) -> dict[str, T]:
     """
     For all annotations (recursively gathered from parents with `all_annotations`), \
     try to resolve the tree of annotations.
@@ -359,19 +374,22 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
                 arguments = typing.get_args(_type)
                 if origin is list and arguments and is_custom_class(arguments[0]):
                     subtype = arguments[0]
-                    value = [_load_into_recurse(subtype, subvalue) for subvalue in value]
+                    value = [_load_into_recurse(subtype, subvalue, convert_types=convert_types) for subvalue in value]
 
                 elif origin is dict and arguments and is_custom_class(arguments[1]):
                     # e.g. dict[str, Point]
                     subkeytype, subvaluetype = arguments
                     # subkey(type) is not a custom class, so don't try to convert it:
-                    value = {subkey: _load_into_recurse(subvaluetype, subvalue) for subkey, subvalue in value.items()}
+                    value = {
+                        subkey: _load_into_recurse(subvaluetype, subvalue, convert_types=convert_types)
+                        for subkey, subvalue in value.items()
+                    }
                 # elif origin is dict:
                 # keep data the same
                 elif origin is typing.Union and arguments:
                     for arg in arguments:
                         if is_custom_class(arg):
-                            value = _load_into_recurse(arg, value)
+                            value = _load_into_recurse(arg, value, convert_types=convert_types)
                         else:
                             # print(_type, arg, value)
                             ...
@@ -385,6 +403,7 @@ def load_recursive(cls: Type, data: dict[str, T], annotations: dict[str, Type]) 
                     # actually just passing _type as first arg!
                     typing.cast(Type_C[typing.Any], _type),
                     value,
+                    convert_types=convert_types,
                 )
 
         elif _key in cls.__dict__:
@@ -443,7 +462,7 @@ def check_and_convert_data(
     annotations = all_annotations(cls, _except=_except)
 
     to_load = convert_config(data)
-    to_load = load_recursive(cls, to_load, annotations)
+    to_load = load_recursive(cls, to_load, annotations, convert_types=convert_types)
     if strict:
         to_load = ensure_types(to_load, annotations, convert_types=convert_types)
 
