@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.12.1 (2023-07-06)
+### Documentation
+* **readme:** Added info about .env and .ini ([`c6acc09`](https://github.com/trialandsuccess/configuraptor/commit/c6acc09391f9d5da1005aa64739032260d362c1c))
+
 ## v1.12.0 (2023-07-03)
 ### Feature
 * Support .ini files and fix `convert_types` for recursion ([`9333029`](https://github.com/trialandsuccess/configuraptor/commit/9333029485eea936153320381181326ce862cfe6))
