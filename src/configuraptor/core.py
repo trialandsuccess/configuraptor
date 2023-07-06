@@ -73,7 +73,6 @@ def __load_data(
         with data.open("rb") as f:
             loader = loaders.get(data.suffix or data.name)
             data = loader(f, data.resolve())
-
     if not data:
         return {}
 

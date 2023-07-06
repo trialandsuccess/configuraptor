@@ -1,0 +1,14 @@
+<my_config>
+    <string>string</string>
+    <number>3.14</number>
+    <boolean>true</boolean>
+    <list>
+        list 1
+    </list>
+    <list>
+        list 2
+    </list>
+    <dict>
+        <key>value</key>
+    </dict>
+</my_config>

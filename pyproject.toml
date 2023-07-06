@@ -42,6 +42,8 @@ dev = [
     "hatch",
     "types-PyYAML",
     "pytest-mypy-testing",
+
+    "xmltodict",
 ]
 
 [project.urls]

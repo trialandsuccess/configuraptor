@@ -16,6 +16,7 @@ from .core import (
     load_into_instance,
 )
 from .dump import asdict, asjson, astoml, asyaml
+from .loaders import register_loader as loader
 from .postpone import postpone
 from .singleton import Singleton, SingletonMeta
 
@@ -43,4 +44,6 @@ __all__ = [
     "astoml",
     "asyaml",
     "asjson",
+    # register
+    "loader",
 ]

@@ -131,6 +131,9 @@ More examples can be found in [examples](https://github.com/trialandsuccess/conf
 - [`.ini`](https://docs.python.org/3/library/configparser.html): only supports strings. You can use `convert_types=True`
   to try to convert to your annotated types;
 
+For other file types, a custom Loader can be written.
+See [examples/readme.md#Custom File Types](https://github.com/trialandsuccess/configuraptor/blob/master/examples/readme.md#custom-file-types)
+
 ## License
 
 `configuraptor` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.

@@ -13,8 +13,10 @@ import yaml as yaml_lib
 from dotenv import dotenv_values
 
 from ._types import T_config, as_tconfig
+from .register import register_loader
 
 
+@register_loader
 def json(f: BinaryIO, _: typing.Optional[Path]) -> T_config:
     """
     Load a JSON file.
@@ -23,28 +25,28 @@ def json(f: BinaryIO, _: typing.Optional[Path]) -> T_config:
     return as_tconfig(data)
 
 
-def yaml(f: BinaryIO, _: typing.Optional[Path]) -> T_config:
+@register_loader(".yaml", ".yml")
+def yaml(f: BinaryIO, _: typing.Optional[Path]) -> typing.Any:
     """
     Load a YAML file.
     """
-    data = yaml_lib.load(f, yaml_lib.SafeLoader)
-    return as_tconfig(data)
+    return yaml_lib.load(f, yaml_lib.SafeLoader)
 
 
-def toml(f: BinaryIO, _: typing.Optional[Path]) -> T_config:
+@register_loader
+def toml(f: BinaryIO, _: typing.Optional[Path]) -> typing.Any:
     """
     Load a toml file.
     """
-    data = tomli.load(f)
-    return as_tconfig(data)
+    return tomli.load(f)
 
 
-def dotenv(_: typing.Optional[BinaryIO], fullpath: Path) -> T_config:
+@register_loader(".env")
+def dotenv(_: typing.Optional[BinaryIO], fullpath: Path) -> typing.Any:
     """
     Load a toml file.
     """
-    data = dotenv_values(fullpath)
-    return as_tconfig(data)
+    return dotenv_values(fullpath)
 
 
 def _convert_key(key: str) -> str:
@@ -60,7 +62,8 @@ def _convert_value(value: str) -> str:
 RecursiveDict = dict[str, typing.Union[str, "RecursiveDict"]]
 
 
-def ini(_: typing.Optional[BinaryIO], fullpath: Path) -> T_config:
+@register_loader
+def ini(_: typing.Optional[BinaryIO], fullpath: Path) -> typing.Any:
     """
     Load an ini file.
     """
@@ -83,4 +86,4 @@ def ini(_: typing.Optional[BinaryIO], fullpath: Path) -> T_config:
         else:
             final_data[section] = data
 
-    return as_tconfig(dict(final_data))
+    return dict(final_data)

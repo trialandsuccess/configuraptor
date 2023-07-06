@@ -129,11 +129,12 @@ Because by default, only strings are really supported and the convention is to w
 `load_into` has two options to make working with env files easier:
 
 - `lower_keys` will lower the keys in an env file to match your class properties.
-- `convert_types` will convert the values from string to the annotated type. Note that this is pretty limited, and
+- `convert_types` will try to convert the values from string to the annotated type. Note that this is pretty limited, and
   should only be used to compare to simple types such as `int`s. Relationships to other config instances is not
   supported with env files.
     - Converting to `bool` has some special rules, which will convert "True", "Yes" and "1" (any capitalization) into
       True; "False", "No" and "0" to False and any other values will raise an exception.
+    - Complex types such as `dict[str, int]` will not be converted!
 
 ```env
 # examples/.env
@@ -457,4 +458,48 @@ my_config.update(key="something else")
 
 # this would crash if MyConfig was a TypedConfig:
 "key is {key}".format(**my_config)  # == "key is something"
+```
+
+## Custom File Types
+
+You can define custom loaders for file types that are not supported by default.
+
+Here follows an example for XML using `xmltodict`:
+
+```xml
+<!-- pytest_examples/example.xml -->
+<my_config>
+    <string>string</string>
+    <number>3.14</number>
+    <boolean>true</boolean>
+    <list>
+        list 1
+    </list>
+    <list>
+        list 2
+    </list>
+    <dict>
+        <key>value</key>
+    </dict>
+</my_config>
+```
+
+```python
+# tests/test_custom_filetype.py
+class MyConfig:
+    string: str
+    number: float
+    boolean: bool
+    list: list[str]
+    dict: dict[str, str]
+
+
+@configuraptor.loader("xml")
+def load_xml(file_handler: BinaryIO, file_path: Path) -> typing.Any:
+    return xmltodict.parse(file_handler)
+
+
+# loading works just like normal now:
+config = configuraptor.load_into(MyConfig, xml_file, convert_types=True)
+# {'string': 'string', 'number': 3.14, 'boolean': True, 'list': ['list 1', 'list 2'], 'dict': {'key': 'value'}}
 ```

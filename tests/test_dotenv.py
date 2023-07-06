@@ -1,12 +1,12 @@
 import typing
 
 import pytest
+from dotenv import dotenv_values
 
 from src import configuraptor
 from src.configuraptor import asjson
 from src.configuraptor.errors import ConfigErrorCouldNotConvert
 from tests.constants import PYTEST_EXAMPLES
-from dotenv import dotenv_values
 
 ENV_FILE = PYTEST_EXAMPLES / ".env"
 
@@ -34,11 +34,7 @@ class InvalidConfig:
 
 
 def test_dotenv_basic():
-    my_config = configuraptor.load_into(MyConfig,
-                                        dotenv_values(ENV_FILE),
-                                        lower_keys=True,
-                                        convert_types=True
-                                        )
+    my_config = configuraptor.load_into(MyConfig, dotenv_values(ENV_FILE), lower_keys=True, convert_types=True)
 
     my_configuraptor = MyConfiguraptor.load(ENV_FILE, lower_keys=True, convert_types=True)
 
@@ -56,9 +52,8 @@ def test_dotenv_basic():
         asjson(
             my_configuraptor,
             indent=2,
-        )
+        ),
     )
-
 
     with pytest.raises(ConfigErrorCouldNotConvert):
         try:
