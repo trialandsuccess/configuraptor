@@ -9,7 +9,9 @@
 </div>
 
 <div align="center">
-    Load toml/yaml/json config files into classes for a typed config (type hinting etc.).
+    Load config files into Python classes for a typed config (for type hinting etc.).
+    Supported file types are toml/yaml/json, and .env/.ini to a lesser degree 
+        (see <a href="#supported-config-file-types">Supported Config File Types</a>).
 </div>
 
 <br>
@@ -31,6 +33,7 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Supported Config File Types](#supported-config-file-types)
 - [License](#license)
 - [Changelog](#changelog)
 
@@ -114,6 +117,19 @@ if __name__ == '__main__':
 ```
 
 More examples can be found in [examples](https://github.com/trialandsuccess/configuraptor/blob/master/examples).
+
+## Supported Config File Types
+
+- [`.toml`](https://docs.fileformat.com/programming/toml/): supports the most types (strings, numbers, booleans,
+  datetime, lists/arrays, dicts/tables);
+- [`.json`](https://www.w3schools.com/js/js_json_datatypes.asp): supports roughly the same types as toml (except
+  datetime);
+- [`.yaml`](https://docs.fileformat.com/programming/yaml): supports roughly the same types as toml, backwards compatible
+  with JSON;
+- [`.env`](https://pypi.org/project/python-dotenv/): only supports strings. You can use `convert_types=True` to try to
+  convert to your annotated types;
+- [`.ini`](https://docs.python.org/3/library/configparser.html): only supports strings. You can use `convert_types=True`
+  to try to convert to your annotated types;
 
 ## License
 
