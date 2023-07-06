@@ -19,6 +19,7 @@ from .dump import asdict, asjson, astoml, asyaml
 from .loaders import register_loader as loader
 from .postpone import postpone
 from .singleton import Singleton, SingletonMeta
+from .type_converters import register_converter as converter
 
 __all__ = [
     # cls
@@ -46,4 +47,5 @@ __all__ = [
     "asjson",
     # register
     "loader",
+    "converter",
 ]

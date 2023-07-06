@@ -129,12 +129,15 @@ Because by default, only strings are really supported and the convention is to w
 `load_into` has two options to make working with env files easier:
 
 - `lower_keys` will lower the keys in an env file to match your class properties.
-- `convert_types` will try to convert the values from string to the annotated type. Note that this is pretty limited, and
+- `convert_types` will try to convert the values from string to the annotated type. Note that this is pretty limited,
+  and
   should only be used to compare to simple types such as `int`s. Relationships to other config instances is not
   supported with env files.
     - Converting to `bool` has some special rules, which will convert "True", "Yes" and "1" (any capitalization) into
       True; "False", "No" and "0" to False and any other values will raise an exception.
     - Complex types such as `dict[str, int]` will not be converted!
+    - Advanced: Custom converters can be defined with `@configuraptor.converter(from_type: type, to_type: type)`.
+      See [tests/test_custom_converter.py](../tests/test_custom_converter.py).
 
 ```env
 # examples/.env
@@ -503,3 +506,8 @@ def load_xml(file_handler: BinaryIO, file_path: Path) -> typing.Any:
 config = configuraptor.load_into(MyConfig, xml_file, convert_types=True)
 # {'string': 'string', 'number': 3.14, 'boolean': True, 'list': ['list 1', 'list 2'], 'dict': {'key': 'value'}}
 ```
+
+### Custom Type Converters
+
+Additionally, you can also define custom converters (used with `convert_types=True`).
+See [tests/test_custom_converter.py](../tests/test_custom_converter.py) for an example.

@@ -21,6 +21,7 @@ from .errors import (
 )
 from .helpers import camel_to_snake
 from .postpone import Postponed
+from .type_converters import CONVERTERS
 
 # T is a reusable typevar
 T = typing.TypeVar("T")
@@ -130,52 +131,13 @@ def check_type(value: typing.Any, expected_type: T_typelike) -> bool:
 F = typing.TypeVar("F")
 
 
-def str_to_bool(value: str) -> bool:
-    """
-    Used by convert_between, usually for .env loads.
-
-    Example:
-        SOME_VALUE=TRUE -> True
-        SOME_VALUE=1 -> True
-        SOME_VALUE=Yes -> True
-
-        SOME_VALUE  -> None
-        SOME_VALUE=NOpe -> False
-
-        SOME_VALUE=Unrelated -> Error
-    """
-    if not value:
-        return False
-
-    first_letter = value[0].lower()
-    # yes, true, 1
-    if first_letter in {"y", "t", "1"}:
-        return True
-    elif first_letter in {"n", "f", "0"}:
-        return False
-    else:
-        raise ValueError("Not booly.")
-
-
-def str_to_none(value: str) -> typing.Optional[str]:
-    """
-    Convert a string value of null/none to None, or keep the original string otherwise.
-    """
-    if value.lower() in {"", "null", "none"}:
-        return None
-    else:
-        return value
-
-
 def convert_between(from_value: F, from_type: typing.Type[F], to_type: type[T]) -> T:
     """
     Convert a value between types.
     """
-    if from_type is str:
-        if to_type is bool:
-            return str_to_bool(from_value)  # type: ignore
-        elif to_type is None or to_type is types.NoneType:  # noqa: E721
-            return str_to_none(from_value)  # type: ignore
+    if converter := CONVERTERS.get((from_type, to_type)):
+        return typing.cast(T, converter(from_value))
+
     # default: just convert type:
     return to_type(from_value)  # type: ignore
 

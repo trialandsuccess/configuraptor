@@ -6,8 +6,8 @@ import typing
 import pytest
 
 from src.configuraptor import all_annotations
-from src.configuraptor.core import is_optional, str_to_none
-from tests.constants import EXAMPLE_FILE
+from src.configuraptor.core import is_optional
+from src.configuraptor.type_converters import str_to_none
 
 
 def test_invalid_extension():
