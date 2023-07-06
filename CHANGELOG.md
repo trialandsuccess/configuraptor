@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v1.13.0 (2023-07-06)
+### Feature
+* Allow defining custom converters for `load_into(..., convert_types=True)` using `@configuraptor.converter` ([`2cf8c44`](https://github.com/trialandsuccess/configuraptor/commit/2cf8c44f6ecb41480f5bcc71385abbf668681ef1))
+* Support custom File types using `@configuraptor.loader` ([`4d5ccb3`](https://github.com/trialandsuccess/configuraptor/commit/4d5ccb3868f4cae4c733dc12e134e28b0aee2d1a))
+
 ## v1.12.1 (2023-07-06)
 ### Documentation
 * **readme:** Added info about .env and .ini ([`c6acc09`](https://github.com/trialandsuccess/configuraptor/commit/c6acc09391f9d5da1005aa64739032260d362c1c))
