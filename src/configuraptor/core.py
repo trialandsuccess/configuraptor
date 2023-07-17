@@ -46,7 +46,11 @@ def _data_for_nested_key(key: str, raw: dict[str, typing.Any]) -> dict[str, typi
     """
     parts = key.split(".")
     while parts:
-        raw = raw[parts.pop(0)]
+        key = parts.pop(0)
+        if key not in raw:
+            return {}
+
+        raw = raw[key]
 
     return raw
 
