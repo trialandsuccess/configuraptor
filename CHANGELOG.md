@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.13.1 (2023-07-17)
+### Fix
+* If nested key is missing, don't crash but return empty data (and deal with error handling later) ([`822b671`](https://github.com/trialandsuccess/configuraptor/commit/822b67103a46245b1c4a958f1b809bbcf083f47f))
+
 ## v1.13.0 (2023-07-06)
 ### Feature
 * Allow defining custom converters for `load_into(..., convert_types=True)` using `@configuraptor.converter` ([`2cf8c44`](https://github.com/trialandsuccess/configuraptor/commit/2cf8c44f6ecb41480f5bcc71385abbf668681ef1))
