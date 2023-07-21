@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.15.0 (2023-07-21)
+### Feature
+* Added 'fill' to TypedConfig class to update without overwrite ([`8e27361`](https://github.com/trialandsuccess/configuraptor/commit/8e2736124c675c5a0c7ffc648334158908d51f3b))
+
 ## v1.14.0 (2023-07-21)
 ### Feature
 * Use empty data in `load` to read from pyproject.toml ([`6e48899`](https://github.com/trialandsuccess/configuraptor/commit/6e48899acb1908377f30bc731e6967dbe4cb7c28))
