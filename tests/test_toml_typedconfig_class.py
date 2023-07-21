@@ -145,6 +145,53 @@ def test_typedconfig_update():
     assert first.new_key == "some value"
 
 
+class VeryOptional(configuraptor.TypedConfig):
+    value1: str | None
+    value2: str | None = None
+    value3: int = 0
+
+
+def test_typedconfig_fill():
+    config1 = VeryOptional.load(dict(value1="one"))
+
+    # will overwrite existing values:
+    config1.update(
+        value1="1",
+        value2="2",
+        value3=3,
+    )
+
+    assert config1.value1 == "1"
+    assert config1.value2 == "2"
+    assert config1.value3 == 3
+
+    config2 = VeryOptional.load(dict(value1="one"))
+
+    # will only update missing values:
+    config2.fill(
+        value1="1",
+        value2="2",
+        value3=3,
+    )
+
+    assert config2.value1 == "one"  # already had a value
+    assert config2.value2 == "2"  # updated
+    assert config2.value3 == 0  # 0 is falsey but not missing, since it's not None
+
+    config2._fill(
+        value1="NO",
+        value2="NO",
+        value3=-3,
+    )
+
+    # nothing should've changed now:
+
+    assert config2.value1 == "one"
+    assert config2.value2 == "2"
+    assert config2.value3 == 0
+
+
+
 class MyConfig(configuraptor.TypedConfig):
     update: bool = False
 

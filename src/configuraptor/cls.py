@@ -36,14 +36,19 @@ class TypedConfig:
             cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
         )
 
-    def _update(self, _strict: bool = True, _allow_none: bool = False, **values: Any) -> None:
+    def _update(self, _strict: bool = True, _allow_none: bool = False, _overwrite: bool = True, **values: Any) -> None:
         """
-        Can be used if .update is overwritten with another value in the config.
+        Underscore version can be used if .update is overwritten with another value in the config.
         """
         annotations = all_annotations(self.__class__)
 
         for key, value in values.items():
             if value is None and not _allow_none:
+                continue
+
+            existing_value = self.__dict__.get(key)
+            if existing_value is not None and not _overwrite:
+                # fill mode, don't overwrite
                 continue
 
             if _strict and key not in annotations:
@@ -55,16 +60,31 @@ class TypedConfig:
             self.__dict__[key] = value
             # setattr(self, key, value)
 
-    def update(self, _strict: bool = True, _allow_none: bool = False, **values: Any) -> None:
+    def update(self, _strict: bool = True, _allow_none: bool = False, _overwrite: bool = True, **values: Any) -> None:
         """
         Update values on this config.
 
         Args:
             _strict: allow wrong types?
             _allow_none: allow None or skip those entries?
+            _overwrite: also update not-None values?
             **values: key: value pairs in the right types to update.
         """
-        return self._update(_strict, _allow_none, **values)
+        return self._update(_strict=_strict, _allow_none=_allow_none, _overwrite=_overwrite, **values)
+
+    def _fill(self, _strict: bool = True, **values: typing.Any) -> None:
+        """
+        Alias for update without overwrite.
+
+        Underscore version can be used if .fill is overwritten with another value in the config.
+        """
+        return self._update(_strict, _allow_none=False, _overwrite=False, **values)
+
+    def fill(self, _strict: bool = True, **values: typing.Any) -> None:
+        """
+        Alias for update without overwrite.
+        """
+        return self._update(_strict, _allow_none=False, _overwrite=False, **values)
 
     @classmethod
     def _all_annotations(cls) -> dict[str, type]:
