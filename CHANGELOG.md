@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.14.0 (2023-07-21)
+### Feature
+* Use empty data in `load` to read from pyproject.toml ([`6e48899`](https://github.com/trialandsuccess/configuraptor/commit/6e48899acb1908377f30bc731e6967dbe4cb7c28))
+
 ## v1.13.1 (2023-07-17)
 ### Fix
 * If nested key is missing, don't crash but return empty data (and deal with error handling later) ([`822b671`](https://github.com/trialandsuccess/configuraptor/commit/822b67103a46245b1c4a958f1b809bbcf083f47f))
