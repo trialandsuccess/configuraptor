@@ -20,7 +20,7 @@ class TypedConfig:
     @classmethod
     def load(
         cls: typing.Type[C],
-        data: T_data,
+        data: T_data = None,
         key: str = None,
         init: dict[str, Any] = None,
         strict: bool = True,

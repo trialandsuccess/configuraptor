@@ -1,0 +1,2 @@
+[tool.configuraptor.test]
+my_key = 'my_value'

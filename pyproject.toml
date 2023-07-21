@@ -2,6 +2,12 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[template.plugins.default]
+src-layout = true
+
+[tool.setuptools.package-data]
+"configuraptor" = ["py.typed"]
+
 [project]
 name = "configuraptor"
 dynamic = ["version"]
@@ -28,13 +34,8 @@ dependencies = [
     "tomli_w", # tomllib does not support dumping :(
     "PyYAML",
     "python-dotenv",
+    "black", # for find_project_root
 ]
-
-[template.plugins.default]
-src-layout = true
-
-[tool.setuptools.package-data]
-"configuraptor" = ["py.typed"]
 
 [project.optional-dependencies]
 dev = [
@@ -42,7 +43,6 @@ dev = [
     "hatch",
     "types-PyYAML",
     "pytest-mypy-testing",
-
     "xmltodict",
 ]
 

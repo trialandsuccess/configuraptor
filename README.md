@@ -116,6 +116,11 @@ if __name__ == '__main__':
     my_config.update(numbers=[68, 70])
 ```
 
+The second argument of `.load_into` and the first argument of `.load` (which is `"example_from_readme.toml"` in the
+examples above), can be either a string or a Path to a file, a raw dictionary with data or empty.
+If it is left empty, the `pyproject.toml` will be used. You can supply a `key='tool.mytool.myconf'` to specify which
+section of the file should be read.
+
 More examples can be found in [examples](https://github.com/trialandsuccess/configuraptor/blob/master/examples).
 
 ## Supported Config File Types

@@ -19,7 +19,7 @@ from .errors import (
     ConfigErrorInvalidType,
     ConfigErrorMissingKey,
 )
-from .helpers import camel_to_snake
+from .helpers import camel_to_snake, find_pyproject_toml
 from .postpone import Postponed
 from .type_converters import CONVERTERS
 
@@ -28,7 +28,7 @@ T = typing.TypeVar("T")
 # t_typelike is anything that can be type hinted
 T_typelike: typing.TypeAlias = type | types.UnionType  # | typing.Union
 # t_data is anything that can be fed to _load_data
-T_data = str | Path | dict[str, typing.Any]
+T_data = str | Path | dict[str, typing.Any] | None
 # c = a config class instance, can be any (user-defined) class
 C = typing.TypeVar("C")
 # type c is a config class
@@ -107,6 +107,10 @@ def _load_data(data: T_data, key: str = None, classname: str = None, lower_keys:
     """
     Wrapper around __load_data that retries with key="" if anything goes wrong.
     """
+    if data is None:
+        # try to load pyproject.toml
+        data = find_pyproject_toml()
+
     try:
         return __load_data(data, key, classname, lower_keys=lower_keys)
     except Exception as e:
@@ -555,7 +559,7 @@ def load_into_instance(
 
 def load_into(
     cls: typing.Type[C],
-    data: T_data,
+    data: T_data = None,
     /,
     key: str = None,
     init: T_init = None,

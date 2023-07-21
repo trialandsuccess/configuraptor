@@ -190,6 +190,24 @@ def test_dict_of_custom():
         assert isinstance(value, Point)
 
 
+try:
+    import contextlib
+    chdir = contextlib.chdir
+except AttributeError:
+    from contextlib_chdir import chdir
+
+
+class ProjectToml:
+    my_key: str
+
+
+def test_pyproject_toml():
+    with chdir("pytest_examples/nested"):
+        config = configuraptor.load_into(ProjectToml, key='tool.configuraptor.test')
+
+    assert config.my_key == "my_value"
+
+
 class ShouldHaveListOfString:
     required: list[str]
     not_required: typing.Optional[list[str]]
