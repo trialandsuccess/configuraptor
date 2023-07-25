@@ -44,7 +44,7 @@ def test_no_data():
     with pytest.raises(ValueError):
         configuraptor.core._load_data(42, key=None)
     with pytest.raises(ValueError):
-        configuraptor.core._load_data(["joe"], key=None)
+        configuraptor.core._load_data([], key=None)
 
     # but other than that, it should be fine:
     configuraptor.core._load_data({}, key="")

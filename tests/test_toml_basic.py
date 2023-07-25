@@ -102,6 +102,29 @@ def test_empty():
         configuraptor.load_into(First, EMPTY_FILE, key="tool.first")
 
 
+class MyConfig:
+    public_key: str
+    private_key: str
+    extra: int
+
+
+def test_multiple_files():
+    public_file = str(PYTEST_EXAMPLES / "my_config.toml")
+    private_file = str(PYTEST_EXAMPLES / "my_secrets.env")
+
+    config = configuraptor.load_into(MyConfig,
+                                     [public_file,  # toml
+                                      private_file,  # .env
+                                      {"extra": 3}  # raw dict
+                                      ],
+                                     key="my_config.custom"  # should work even if only relevant for toml file
+                                     # lower keys is automatically set to True
+                                     )
+
+    assert config.public_key == "this is public"
+    assert config.private_key == "THIS IS PRIVATE" != "<overwite me>"
+
+
 def test_basic_classes():
     data = _load_toml()
 
@@ -192,6 +215,7 @@ def test_dict_of_custom():
 
 try:
     import contextlib
+
     chdir = contextlib.chdir
 except AttributeError:
     from contextlib_chdir import chdir

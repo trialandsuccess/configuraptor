@@ -183,6 +183,44 @@ if __name__ == '__main__':
 
 ```
 
+## Multiple data sources
+
+Sometimes, you need to combine different sources of configuration.
+This can be done by providing a list of filenames as the first argument (`data`) of `configuraptor.load_into`.
+A dictionary of data can also be used to extend the config files. The files are loaded in order and overwrite any keys
+that were already defined in previous files, so be careful with in which order you load them.
+
+```toml
+# config.toml
+[my_config]
+public_key = "some key"
+private_key = "<overwrite me>"
+```
+
+```env
+# secrets.env
+PRIVATE_KEY="some private key"
+```
+
+```python
+from configuraptor import load_into
+
+
+class MyConfig:
+    public_key: str
+    private_key: str
+    extra: int
+
+
+data = load_into(MyConfig, ["config.toml", "secrets.env", {"extra": 3}],
+                 # lower_keys=True,  # <- automatically set to True when loading a list.
+                 # other settings such as `convert_types` and `key` are still available.
+                 )
+
+data.private_key == "some private key"  # because secrets.env was after config.toml in the list, it has overwritten the private_key setting.
+data.public_key == "some key"  # because secrets.env did not have a public_key setting, the one from config.toml is used.
+```
+
 ## Inheriting from TypedConfig
 
 In addition to the `MyClass.load` shortcut, inheriting from TypedConfig also gives you the ability to `.update` your

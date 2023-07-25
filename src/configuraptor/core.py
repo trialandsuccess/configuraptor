@@ -28,7 +28,9 @@ T = typing.TypeVar("T")
 # t_typelike is anything that can be type hinted
 T_typelike: typing.TypeAlias = type | types.UnionType  # | typing.Union
 # t_data is anything that can be fed to _load_data
-T_data = str | Path | dict[str, typing.Any] | None
+T_data_typse = str | Path | dict[str, typing.Any] | None
+T_data = T_data_typse | list[T_data_typse]
+
 # c = a config class instance, can be any (user-defined) class
 C = typing.TypeVar("C")
 # type c is a config class
@@ -72,6 +74,16 @@ def __load_data(
     E.g. class Tool will be mapped to key tool.
     It also deals with nested keys (tool.extra -> {"tool": {"extra": ...}}
     """
+    if isinstance(data, list):
+        if not data:
+            raise ValueError("Empty list passed!")
+
+        final_data: dict[str, typing.Any] = {}
+        for source in data:
+            final_data |= _load_data(source, key=key, classname=classname, lower_keys=True)
+
+        return final_data
+
     if isinstance(data, str):
         data = Path(data)
     if isinstance(data, Path):
