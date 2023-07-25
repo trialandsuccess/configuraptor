@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.16.0 (2023-07-25)
+### Feature
+* A list of data can now also be loaded ([`e962cf8`](https://github.com/trialandsuccess/configuraptor/commit/e962cf8adf48ceff146ec495113c620c5879d777))
+
 ## v1.15.0 (2023-07-21)
 ### Feature
 * Added 'fill' to TypedConfig class to update without overwrite ([`8e27361`](https://github.com/trialandsuccess/configuraptor/commit/8e2736124c675c5a0c7ffc648334158908d51f3b))
