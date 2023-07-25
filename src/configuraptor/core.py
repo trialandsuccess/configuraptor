@@ -96,7 +96,7 @@ def __load_data(
     if key is None:
         # try to guess key by grabbing the first one or using the class name
         if len(data) == 1:
-            key = list(data.keys())[0]
+            key = next(iter(data.keys()))
         elif classname is not None:
             key = _guess_key(classname)
 
