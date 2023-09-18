@@ -86,3 +86,25 @@ def test_binary_config_with_external_block():
     assert data.second.major == 0
 
     assert data._pack() == v1 + v2
+
+class IsNumber(BinaryConfig):
+    value = BinaryField(int, format="h")
+
+class IsBigNumber(BinaryConfig):
+    value = BinaryField(int, format="l")
+
+class HasNumber(BinaryConfig):
+    contains = BinaryField(IsNumber)
+
+
+def test_resize_config():
+    inst = HasNumber()
+    assert inst._get_length() == 2
+    inst.contains = 12
+    assert inst._get_length() == 2
+
+    big_num = IsBigNumber()
+    big_num.value = 420
+
+    inst.contains = big_num
+    assert inst._get_length() == 8

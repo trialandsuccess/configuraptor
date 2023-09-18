@@ -122,6 +122,17 @@ class BinaryConfig(AbstractTypedConfig):
 
         return struct.calcsize(fmt)
 
+    def __setattr__(self, key: str, value: typing.Any) -> None:
+        """
+        When setting a new field for this config, update the _fields property to have the correct new type + size.
+        """
+        if not key.startswith("_") and isinstance(value, BinaryConfig):
+            field = self._fields[key]
+            field.klass = value.__class__
+            field.length = value.__class__._get_length()
+
+        return super().__setattr__(key, value)
+
 
 @dataclass
 class _BinaryField:
