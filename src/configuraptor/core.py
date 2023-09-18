@@ -58,7 +58,11 @@ def _guess_key(clsname: str) -> str:
 
 
 def __load_data(
-    data: T_data, key: str = None, classname: str = None, lower_keys: bool = False
+    data: T_data,
+    key: str = None,
+    classname: str = None,
+    lower_keys: bool = False,
+    allow_types: tuple[type, ...] = (dict,),
 ) -> dict[str, typing.Any]:
     """
     Tries to load the right data from a filename/path or dict, based on a manual key or a classname.
@@ -72,7 +76,7 @@ def __load_data(
 
         final_data: dict[str, typing.Any] = {}
         for source in data:
-            final_data |= _load_data(source, key=key, classname=classname, lower_keys=True)
+            final_data |= _load_data(source, key=key, classname=classname, lower_keys=True, allow_types=allow_types)
 
         return final_data
 
@@ -98,16 +102,22 @@ def __load_data(
     if not data:
         raise ValueError("No data found!")
 
-    if not isinstance(data, dict):
-        raise ValueError("Data is not a dict!")
+    if not isinstance(data, allow_types):
+        raise ValueError(f"Data should be one of {allow_types} but it is {type(data)}!")
 
-    if lower_keys:
+    if lower_keys and isinstance(data, dict):
         data = {k.lower(): v for k, v in data.items()}
 
     return data
 
 
-def _load_data(data: T_data, key: str = None, classname: str = None, lower_keys: bool = False) -> dict[str, typing.Any]:
+def _load_data(
+    data: T_data,
+    key: str = None,
+    classname: str = None,
+    lower_keys: bool = False,
+    allow_types: tuple[type, ...] = (dict,),
+) -> dict[str, typing.Any]:
     """
     Wrapper around __load_data that retries with key="" if anything goes wrong.
     """
@@ -116,10 +126,10 @@ def _load_data(data: T_data, key: str = None, classname: str = None, lower_keys:
         data = find_pyproject_toml()
 
     try:
-        return __load_data(data, key, classname, lower_keys=lower_keys)
+        return __load_data(data, key, classname, lower_keys=lower_keys, allow_types=allow_types)
     except Exception as e:
         if key != "":
-            return __load_data(data, "", classname, lower_keys=lower_keys)
+            return __load_data(data, "", classname, lower_keys=lower_keys, allow_types=allow_types)
         else:  # pragma: no cover
             warnings.warn(f"Data could not be loaded: {e}", source=e)
             # key already was "", just return data!
@@ -358,8 +368,6 @@ def _load_into_recurse(
     init_args, init_kwargs = _split_init(init)
 
     if issubclass(cls, BinaryConfig):
-        # todo: init?
-
         if not isinstance(data, (bytes, dict)):  # pragma: no cover
             raise NotImplementedError("BinaryConfig can only deal with `bytes` or a dict of bytes as input.")
         inst = typing.cast(C, cls._parse_into(data))
@@ -418,7 +426,8 @@ def load_into_class(
     """
     Shortcut for _load_data + load_into_recurse.
     """
-    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys)
+    allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
+    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
     return _load_into_recurse(cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
@@ -436,7 +445,8 @@ def load_into_instance(
     Shortcut for _load_data + load_into_existing.
     """
     cls = inst.__class__
-    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys)
+    allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
+    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
     return _load_into_instance(inst, cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 

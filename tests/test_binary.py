@@ -43,6 +43,7 @@ def test_binary_config():
     }
 
     inst = configuraptor.load_into(TopLevel, data).binary
+    assert MyBinaryConfig.load(binary)
 
     assert inst.string == "Hello"
     assert inst.other_string == "Hi"
