@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.17.3 (2023-09-18)
+### Fix
+* **binary:** Swapping out values with a different field now updates the container size ([`c76261a`](https://github.com/trialandsuccess/configuraptor/commit/c76261aa4daa6c1438cb1d62d59fc886e6667ed4))
+
 ## v1.17.2 (2023-09-18)
 ### Fix
 * **binary:** Made ._pack work with split binary blocks ([`0393846`](https://github.com/trialandsuccess/configuraptor/commit/0393846b518f5340cc310ab3411c6d89834644aa))
