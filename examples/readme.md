@@ -326,8 +326,8 @@ class Version(BinaryConfig):
 
 
 class Versions(BinaryConfig):
-    first = BinaryField(Version, length=12)
-    second = BinaryField(Version, length=12)
+    first = BinaryField(Version)
+    second = BinaryField(Version, length=12) # length optional, can be calculated automatically.
 
 
 v1 = struct.pack("i i i", 1, 12, 5)
