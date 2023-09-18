@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v1.17.0 (2023-09-18)
+### Feature
+* Allow a new type of config: binary config ([`06a70df`](https://github.com/trialandsuccess/configuraptor/commit/06a70df6e521deae2b0469621e5521c26a7dac88))
+
+### Fix
+* **binary:** .load should now also work with just a bytestring, no wrapping dict. ([`2f7f8fc`](https://github.com/trialandsuccess/configuraptor/commit/2f7f8fc86004f07e444e13f3d855cfce0b2926bb))
+
+### Documentation
+* Explained binary config in readme's ([`923b9e7`](https://github.com/trialandsuccess/configuraptor/commit/923b9e7e3a2bbb54bb66657ffce2551c8ce4aad9))
+
 ## v1.16.0 (2023-07-25)
 ### Feature
 * A list of data can now also be loaded ([`e962cf8`](https://github.com/trialandsuccess/configuraptor/commit/e962cf8adf48ceff146ec495113c620c5879d777))
