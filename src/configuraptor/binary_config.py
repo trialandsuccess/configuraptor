@@ -104,6 +104,7 @@ class BinaryConfig(AbstractTypedConfig):
         fmt = " ".join(str(_) for _ in self._fields.values())
 
         values = [self._fields[k].pack(v) for k, v in self.__dict__.items() if not k.startswith("_")]
+
         return struct.pack(fmt, *values)
 
     @classmethod
@@ -133,7 +134,7 @@ class _BinaryField:
     klass: typing.Type[typing.Any]
     length: int
     fmt: str
-    special: typing.Callable[[typing.Any], typing.Any] | None
+    special: typing.Callable[[typing.Any], dict[str, typing.Any]] | None
     packer: typing.Callable[[typing.Any], typing.Any] | None
 
     def __str__(self) -> str:
@@ -144,6 +145,8 @@ class _BinaryField:
             value = self.packer(value)
         if isinstance(value, str):
             return value.encode()
+        if isinstance(value, BinaryConfig):
+            return value._pack()
         return value
 
 

@@ -84,3 +84,5 @@ def test_binary_config_with_external_block():
 
     assert data.first.patch == 5
     assert data.second.major == 0
+
+    assert data._pack() == v1 + v2
