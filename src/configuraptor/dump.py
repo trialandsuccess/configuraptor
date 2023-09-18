@@ -8,10 +8,11 @@ import typing
 import tomli_w
 import yaml
 
-from .core import instance_of_custom_class, is_custom_class
-from .helpers import camel_to_snake
+from .helpers import camel_to_snake, instance_of_custom_class, is_custom_class
+from .loaders.register import register_dumper
 
 
+@register_dumper("dict")
 def asdict(inst: typing.Any, _level: int = 0, /, with_top_level_key: bool = True) -> dict[str, typing.Any]:
     """
     Dump a config instance to a dictionary (recursively).
@@ -37,27 +38,30 @@ def asdict(inst: typing.Any, _level: int = 0, /, with_top_level_key: bool = True
     return data
 
 
-def astoml(inst: typing.Any, multiline_strings: bool = False) -> str:
+@register_dumper("toml")
+def astoml(inst: typing.Any, multiline_strings: bool = False, **kw: typing.Any) -> str:
     """
     Dump a config instance to toml (recursively).
     """
-    data = asdict(inst)
+    data = asdict(inst, with_top_level_key=kw.pop("with_top_level_key", True))
     return tomli_w.dumps(data, multiline_strings=multiline_strings)
 
 
+@register_dumper("json")
 def asjson(inst: typing.Any, **kw: typing.Any) -> str:
     """
     Dump a config instance to json (recursively).
     """
-    data = asdict(inst)
+    data = asdict(inst, with_top_level_key=kw.pop("with_top_level_key", True))
     return json.dumps(data, **kw)
 
 
+@register_dumper("yaml")
 def asyaml(inst: typing.Any, **kw: typing.Any) -> str:
     """
     Dump a config instance to yaml (recursively).
     """
-    data = asdict(inst)
+    data = asdict(inst, with_top_level_key=kw.pop("with_top_level_key", True))
     output = yaml.dump(data, encoding=None, **kw)
     # output is already a str but mypy doesn't know that
     return typing.cast(str, output)

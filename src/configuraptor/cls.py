@@ -6,35 +6,17 @@ import typing
 from collections.abc import Mapping, MutableMapping
 from typing import Any, Iterator
 
+from .abs import AbstractTypedConfig
 from .core import T_data, all_annotations, check_type, load_into
 from .errors import ConfigErrorExtraKey, ConfigErrorImmutable, ConfigErrorInvalidType
 
 C = typing.TypeVar("C", bound=Any)
 
 
-class TypedConfig:
+class TypedConfig(AbstractTypedConfig):
     """
     Can be used instead of load_into.
     """
-
-    @classmethod
-    def load(
-        cls: typing.Type[C],
-        data: T_data = None,
-        key: str = None,
-        init: dict[str, Any] = None,
-        strict: bool = True,
-        lower_keys: bool = False,
-        convert_types: bool = False,
-    ) -> C:
-        """
-        Load a class' config values from the config file.
-
-        SomeClass.load(data, ...) = load_into(SomeClass, data, ...).
-        """
-        return load_into(
-            cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
-        )
 
     def _update(self, _strict: bool = True, _allow_none: bool = False, _overwrite: bool = True, **values: Any) -> None:
         """

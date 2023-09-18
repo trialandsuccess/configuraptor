@@ -7,10 +7,37 @@ from pathlib import Path
 
 from ._types import T_config
 
-T_loader = typing.Callable[[typing.BinaryIO, Path], T_config]
+T_loader = typing.Callable[[typing.IO, Path | None], T_config]
 T_WrappedLoader = typing.Callable[[T_loader], T_loader]
 
+T_dumper = typing.Callable[[typing.Any], str | dict[str, typing.Any]]
+
 LOADERS: dict[str, T_loader] = {}
+DUMPERS: dict[str, T_dumper] = {}
+
+
+def register_something(storage: dict[str, typing.Any], *extension_args: typing.Any):
+    f_outer = None
+    extension_set = set()
+
+    for extension in extension_args:
+        if not isinstance(extension, str):
+            f_outer = extension
+            extension = extension.__name__
+
+        elif extension.startswith("."):
+            extension = extension.removeprefix(".")
+
+        extension_set.add(extension)
+
+    def wrapper(f_inner: T_loader) -> T_loader:
+        storage.update({ext: f_inner for ext in extension_set})
+        return f_inner
+
+    if f_outer:
+        return wrapper(f_outer)  # -> T_Loader
+    else:
+        return wrapper  # -> T_WrappedLoader
 
 
 @typing.overload
@@ -51,27 +78,11 @@ def register_loader(*extension_args: str | T_loader) -> T_loader | T_WrappedLoad
     However, some loaders (such as .ini) don't support binary file streams.
     These can use the Path to open and read the file themselves however they please.
     """
-    f_outer = None
-    extension_set = set()
-
-    for extension in extension_args:
-        if not isinstance(extension, str):
-            f_outer = extension
-            extension = extension.__name__
-
-        elif extension.startswith("."):
-            extension = extension.removeprefix(".")
-
-        extension_set.add(extension)
-
-    def wrapper(f_inner: T_loader) -> T_loader:
-        LOADERS.update({ext: f_inner for ext in extension_set})
-        return f_inner
-
-    if f_outer:
-        return wrapper(f_outer)  # -> T_Loader
-    else:
-        return wrapper  # -> T_WrappedLoader
+    return register_something(LOADERS, *extension_args)
 
 
-__all__ = ["register_loader", "LOADERS"]
+def register_dumper(*extension_args: str) -> T_dumper:
+    return register_something(DUMPERS, *extension_args)
+
+
+__all__ = ["register_loader", "register_dumper", "LOADERS", "DUMPERS"]

@@ -5,6 +5,7 @@ Exposes TypedConfig and load_into for this library.
 # SPDX-FileCopyrightText: 2023-present Robin van der Noord <robinvandernoord@gmail.com>
 #
 # SPDX-License-Identifier: MIT
+from .binary_config import BinaryConfig, BinaryField
 from .cls import TypedConfig, TypedMapping, TypedMutableMapping, update
 from .core import (
     all_annotations,
@@ -22,6 +23,9 @@ from .singleton import Singleton, SingletonMeta
 from .type_converters import register_converter as converter
 
 __all__ = [
+    # binary
+    "BinaryConfig",
+    "BinaryField",
     # cls
     "TypedConfig",
     "TypedMapping",
