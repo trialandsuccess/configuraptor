@@ -70,12 +70,14 @@ class BinaryConfig(AbstractTypedConfig):
 
         unpacked = struct.unpack(" ".join(str(_) for _ in elements), data)
         final_data: dict[str, BINARY_TYPES] = {}
+
         zipped: typing.Iterable[tuple[str, typing.Any, _BinaryField]] = zip(fields, unpacked, elements)
         for field, value, meta in zipped:
-            if isinstance(value, bytes):
+            if isinstance(value, bytes) and not issubclass(meta.klass, BinaryConfig):
                 value = value.strip(b"\x00").decode()
 
             if meta.special:
+                # e.g. load from JSON
                 value = meta.special(value)
 
             # ensure it's the right class (e.g. bool):
@@ -103,6 +105,21 @@ class BinaryConfig(AbstractTypedConfig):
 
         values = [self._fields[k].pack(v) for k, v in self.__dict__.items() if not k.startswith("_")]
         return struct.pack(fmt, *values)
+
+    @classmethod
+    def _format(cls) -> str:
+        _, fields = cls._collect_fields()
+
+        return " ".join(str(_) for _ in fields)
+
+    @classmethod
+    def _get_length(cls) -> int:
+        """
+        How many bytes do the fields of this class have?
+        """
+        fmt = cls._format()
+
+        return struct.calcsize(fmt)
 
 
 @dataclass
@@ -160,11 +177,11 @@ DEFAULT_FORMATS = {
     str: "s",
     int: "i",
     float: "f",
-    bool: "b",
+    bool: "?",  # b
 }
 
 
-def BinaryField(klass: typing.Type[T], **kw: typing.Any) -> typing.Type[T]:
+def BinaryField(klass: typing.Type[T], **kw: typing.Any) -> T:
     """
     Fields for BinaryConfig can not be annotated like a regular typed config, \
     because more info is required (such as struct format/type and length).
@@ -184,20 +201,27 @@ def BinaryField(klass: typing.Type[T], **kw: typing.Any) -> typing.Type[T]:
                         # will extract 64 bytes of string and try to convert to the linked class
                         # (using regular typeconfig logic)
     """
-    fmt = kw.get("format") or DEFAULT_FORMATS[klass]
     special = None
     packer = None
-    if loader := loaders.get(fmt, None):
-        special = lambda data: loader(BytesIO(data if isinstance(data, bytes) else data.encode()), Path())  # noqa: E731
-        if _packer := DUMPERS.get(fmt, None):
-            packer = lambda data: _packer(data, with_top_level_key=False)  # noqa: E731
-        length = kw["length"]
-        fmt = "s"
-    elif len(fmt) > 1:
-        # length in format: 10s
-        length, fmt = int(fmt[:-1]), fmt[-1]
+
+    if issubclass(klass, BinaryConfig):
+        fmt = "s"  # temporarily group as one string
+        length = kw.get("length", klass._get_length())
     else:
-        length = kw.get("length", 1)
+        fmt = kw.get("format") or DEFAULT_FORMATS[klass]
+        if loader := loaders.get(fmt, None):
+            special = lambda data: loader(  # noqa: E731
+                BytesIO(data if isinstance(data, bytes) else data.encode()), Path()
+            )
+            if _packer := DUMPERS.get(fmt, None):
+                packer = lambda data: _packer(data, with_top_level_key=False)  # noqa: E731
+            length = kw["length"]
+            fmt = "s"
+        elif len(fmt) > 1:
+            # length in format: 10s
+            length, fmt = int(fmt[:-1]), fmt[-1]
+        else:
+            length = kw.get("length", 1)
 
     field = _BinaryField(
         klass,
@@ -207,4 +231,4 @@ def BinaryField(klass: typing.Type[T], **kw: typing.Any) -> typing.Type[T]:
         packer=packer,
     )
 
-    return typing.cast(typing.Type[T], field)
+    return typing.cast(T, field)

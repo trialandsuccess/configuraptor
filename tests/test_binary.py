@@ -64,3 +64,23 @@ def test_nested_binary_config():
     assert inst.data1.name != inst.data2.name
 
     assert inst._pack() == data1 + data2 + data3
+
+
+class Version(BinaryConfig):
+    major = BinaryField(int)
+    minor = BinaryField(int)
+    patch = BinaryField(int)
+
+
+class Versions(BinaryConfig):
+    first = BinaryField(Version)
+    second = BinaryField(Version)
+
+
+def test_binary_config_with_external_block():
+    v1 = struct.pack("i i i", 1, 12, 5)
+    v2 = struct.pack("i i i", 0, 4, 2)
+    data = Versions.load(v1 + v2)
+
+    assert data.first.patch == 5
+    assert data.second.major == 0

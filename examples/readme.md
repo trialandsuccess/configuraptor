@@ -316,6 +316,25 @@ inst = NestedBinaryConfig.load({'data2': data2, 'data1': data1, 'data3': data3})
 inst = load_into(NestedBinaryConfig, b'{"name": "Alex", "age": 42}\x00\x00\x00\x00\x00age: 24\nname: Sam\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00name = "Sam"\nage = 24\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 ```
 
+Config can also be split up into multiple binary blocks:
+
+```python
+class Version(BinaryConfig):
+    major = BinaryField(int)
+    minor = BinaryField(int)
+    patch = BinaryField(int)
+
+
+class Versions(BinaryConfig):
+    first = BinaryField(Version, length=12)
+    second = BinaryField(Version, length=12)
+
+
+v1 = struct.pack("i i i", 1, 12, 5)
+v2 = struct.pack("i i i", 0, 4, 2)
+data = Versions.load(v1 + v2)
+```
+
 ## Existing Instances
 
 If for some reason you have an already instantiated class and you need to fill the rest of the properties,
