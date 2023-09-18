@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.17.2 (2023-09-18)
+### Fix
+* **binary:** Made ._pack work with split binary blocks ([`0393846`](https://github.com/trialandsuccess/configuraptor/commit/0393846b518f5340cc310ab3411c6d89834644aa))
+
+### Documentation
+* **binary:** Explained length is optional ([`65634f4`](https://github.com/trialandsuccess/configuraptor/commit/65634f42bbf530e5436a1444f3854616694cfe0b))
+
 ## v1.17.1 (2023-09-18)
 ### Fix
 * **binary:** Allow splitting binary config into multiple blocks ([`f96adbb`](https://github.com/trialandsuccess/configuraptor/commit/f96adbb427aabce4d511fb838f89f9df0fb54d46))
