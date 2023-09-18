@@ -1,45 +1,44 @@
+"""
+Logic to do with parsing bytestrings as configuration (using struct).
+"""
+
 import collections
-import inspect
-import json
 import struct
 import typing
 from dataclasses import dataclass
-from io import StringIO
+from io import BytesIO
+from pathlib import Path
 
 from typing_extensions import Self
 
 from . import loaders
 from .abs import AbstractTypedConfig
-from .helpers import all_annotations, is_custom_class
+from .helpers import is_custom_class
 from .loaders.register import DUMPERS
-
-# def get_class_properties_in_order(cls: type) -> list[str]:
-#     properties = []
-#     for name, value in inspect.getmembers(cls):
-#
-#         print(name, value)
-#
-#         if name.startswith("_"):
-#             continue
-#         if inspect.ismethod(value):
-#             continue
-#         properties.append(name)
-#
-#     return properties
 
 BINARY_TYPES = typing.Union[str, float, int, bool]
 
 
 class BinaryConfig(AbstractTypedConfig):
-    _fields: collections.OrderedDict[str, "_BinaryField"] = {}
+    """
+    Inherit this class if you want your config or a section of it to be parsed using struct.
+    """
 
-    def __init__(self):
+    _fields: collections.OrderedDict[str, "_BinaryField"]
+
+    def __init__(self) -> None:
+        """
+        Before filling the class with data, we store the fields (BinaryField) for later use.
+        """
         fields, elements = self._collect_fields()
         self._fields = collections.OrderedDict(zip(fields, elements))
         super().__init__()
 
     @classmethod
     def _collect_fields(cls) -> tuple[list[str], list["_BinaryField"]]:
+        """
+        Get the class' field names and dataclass instances.
+        """
         elements: list[_BinaryField] = []
         fields: list[str] = []
 
@@ -57,6 +56,9 @@ class BinaryConfig(AbstractTypedConfig):
 
     @classmethod
     def _parse(cls, data: bytes | dict[str, bytes]) -> dict[str, BINARY_TYPES]:
+        """
+        Parse a bytestring or a dict of bytestrings (in the right order).
+        """
         from .core import load_into
 
         # NOTE: annotations not used!
@@ -67,9 +69,9 @@ class BinaryConfig(AbstractTypedConfig):
             data = b"".join(data[field] for field in fields)
 
         unpacked = struct.unpack(" ".join(str(_) for _ in elements), data)
-        data = {}
-        for field, value, meta in zip(fields, unpacked, elements):
-            meta: _BinaryField
+        final_data: dict[str, BINARY_TYPES] = {}
+        zipped: typing.Iterable[tuple[str, typing.Any, _BinaryField]] = zip(fields, unpacked, elements)
+        for field, value, meta in zipped:
             if isinstance(value, bytes):
                 value = value.strip(b"\x00").decode()
 
@@ -79,18 +81,24 @@ class BinaryConfig(AbstractTypedConfig):
             if is_custom_class(meta.klass):
                 value = load_into(meta.klass, value)
 
-            data[field] = value
+            final_data[field] = value
 
-        return data
+        return final_data
 
     @classmethod
     def _parse_into(cls, data: bytes | dict[str, bytes]) -> Self:
+        """
+        Create a new instance based on data.
+        """
         converted = cls._parse(data)
         inst = cls()
         inst.__dict__.update(**converted)
         return inst
 
     def _pack(self) -> bytes:
+        """
+        Pack an instance back into a bytestring.
+        """
         fmt = " ".join(str(_) for _ in self._fields.values())
 
         values = [self._fields[k].pack(v) for k, v in self.__dict__.items() if not k.startswith("_")]
@@ -99,14 +107,20 @@ class BinaryConfig(AbstractTypedConfig):
 
 @dataclass
 class _BinaryField:
-    klass: type
+    """
+    Class that stores info to parse the value from a bytestring.
+
+    Returned by BinaryField, but overwritten on instances with the actual value of type klass.
+    """
+
+    klass: typing.Type[typing.Any]
     length: int
-    format: str
+    fmt: str
     special: typing.Callable[[typing.Any], typing.Any] | None
     packer: typing.Callable[[typing.Any], typing.Any] | None
 
-    def __str__(self):
-        return f"{self.length}{self.format}"
+    def __str__(self) -> str:
+        return f"{self.length}{self.fmt}"
 
     def pack(self, value: typing.Any) -> typing.Any:
         if self.packer:
@@ -150,14 +164,33 @@ DEFAULT_FORMATS = {
 }
 
 
-def BinaryField(klass: typing.Type[T], **kw) -> typing.Type[T]:
+def BinaryField(klass: typing.Type[T], **kw: typing.Any) -> typing.Type[T]:
+    """
+    Fields for BinaryConfig can not be annotated like a regular typed config, \
+    because more info is required (such as struct format/type and length).
+
+    This actually returns a _BinaryField but when using load/load_into, the value will be replaced with type 'klass'.
+
+    Args:
+        klass (type): the final type the value will have
+        format (str): either one of the formats of struct (e.g. 10s) or a loadable format (json, toml, yaml etc.)
+        length (int): how many bytes of data to store? (required for str, unless you enter it in format already)
+
+    Usage:
+        class MyConfig(BinaryConfig):
+            string = BinaryField(str, length=5) # string of 5 characters
+            integer = BinaryField(int)
+            complex = BinaryField(OtherClass, format='json', length=64)
+                        # will extract 64 bytes of string and try to convert to the linked class
+                        # (using regular typeconfig logic)
+    """
     fmt = kw.get("format") or DEFAULT_FORMATS[klass]
     special = None
     packer = None
     if loader := loaders.get(fmt, None):
-        special = lambda data: loader(StringIO(data), None)
+        special = lambda data: loader(BytesIO(data if isinstance(data, bytes) else data.encode()), Path())  # noqa: E731
         if _packer := DUMPERS.get(fmt, None):
-            packer = lambda data: _packer(data, with_top_level_key=False)
+            packer = lambda data: _packer(data, with_top_level_key=False)  # noqa: E731
         length = kw["length"]
         fmt = "s"
     elif len(fmt) > 1:
@@ -168,7 +201,7 @@ def BinaryField(klass: typing.Type[T], **kw) -> typing.Type[T]:
 
     field = _BinaryField(
         klass,
-        format=fmt,
+        fmt=fmt,
         length=length,
         special=special,
         packer=packer,

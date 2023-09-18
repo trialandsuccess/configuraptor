@@ -17,7 +17,7 @@ def asdict(inst: typing.Any, _level: int = 0, /, with_top_level_key: bool = True
     """
     Dump a config instance to a dictionary (recursively).
     """
-    data = {}
+    data: dict[str, typing.Any] = {}
 
     for key, value in inst.__dict__.items():
         cls = value.__class__

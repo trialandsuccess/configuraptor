@@ -3,16 +3,12 @@ Contains most of the loading logic.
 """
 
 import dataclasses as dc
-import math
-import types
 import typing
 import warnings
 from pathlib import Path
 
-from typeguard import TypeCheckError
-from typeguard import check_type as _check_type
-
 from . import loaders
+from .abs import C, T, T_data, Type_C
 from .binary_config import BinaryConfig
 from .errors import (
     ConfigErrorCouldNotConvert,
@@ -22,6 +18,7 @@ from .errors import (
 from .helpers import (
     all_annotations,
     camel_to_snake,
+    check_type,
     dataclass_field,
     find_pyproject_toml,
     is_custom_class,
@@ -30,19 +27,6 @@ from .helpers import (
 )
 from .postpone import Postponed
 from .type_converters import CONVERTERS
-
-# T is a reusable typevar
-T = typing.TypeVar("T")
-# t_typelike is anything that can be type hinted
-T_typelike: typing.TypeAlias = type | types.UnionType  # | typing.Union
-# t_data is anything that can be fed to _load_data
-T_data_types = str | Path | dict[str, typing.Any] | None
-T_data = T_data_types | list[T_data_types]
-
-# c = a config class instance, can be any (user-defined) class
-C = typing.TypeVar("C")
-# type c is a config class
-Type_C = typing.Type[C]
 
 
 def _data_for_nested_key(key: str, raw: dict[str, typing.Any]) -> dict[str, typing.Any]:
@@ -141,19 +125,6 @@ def _load_data(data: T_data, key: str = None, classname: str = None, lower_keys:
             # key already was "", just return data!
             # (will probably not happen but fallback)
             return {}
-
-
-def check_type(value: typing.Any, expected_type: T_typelike) -> bool:
-    """
-    Given a variable, check if it matches 'expected_type' (which can be a Union, parameterized generic etc.).
-
-    Based on typeguard but this returns a boolean instead of returning the value or throwing a TypeCheckError
-    """
-    try:
-        _check_type(value, expected_type)
-        return True
-    except TypeCheckError:
-        return False
 
 
 F = typing.TypeVar("F")
@@ -391,7 +362,7 @@ def _load_into_recurse(
 
         if not isinstance(data, (bytes, dict)):
             raise NotImplementedError("BinaryConfig can only deal with `bytes` or a dict of bytes as input.")
-        inst = cls._parse_into(data)
+        inst = typing.cast(C, cls._parse_into(data))
     elif dc.is_dataclass(cls):
         to_load = check_and_convert_data(cls, data, init_kwargs.keys(), strict=strict, convert_types=convert_types)
         if init:

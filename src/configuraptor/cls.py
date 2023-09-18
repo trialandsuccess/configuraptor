@@ -7,8 +7,8 @@ from collections.abc import Mapping, MutableMapping
 from typing import Any, Iterator
 
 from .abs import AbstractTypedConfig
-from .core import T_data, all_annotations, check_type, load_into
 from .errors import ConfigErrorExtraKey, ConfigErrorImmutable, ConfigErrorInvalidType
+from .helpers import all_annotations, check_type
 
 C = typing.TypeVar("C", bound=Any)
 

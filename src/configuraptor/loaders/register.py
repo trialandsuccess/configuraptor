@@ -7,16 +7,20 @@ from pathlib import Path
 
 from ._types import T_config
 
-T_loader = typing.Callable[[typing.IO, Path | None], T_config]
+T_loader = typing.Callable[[typing.BinaryIO, Path], T_config]
 T_WrappedLoader = typing.Callable[[T_loader], T_loader]
 
-T_dumper = typing.Callable[[typing.Any], str | dict[str, typing.Any]]
+T_dumper = typing.Callable[..., str | dict[str, typing.Any]]
+T_WrappedDumper = typing.Callable[[T_dumper], T_dumper]
 
 LOADERS: dict[str, T_loader] = {}
 DUMPERS: dict[str, T_dumper] = {}
 
+R = typing.TypeVar("R")
+AnyCallable = typing.Callable[..., typing.Any]
 
-def register_something(storage: dict[str, typing.Any], *extension_args: typing.Any):
+
+def register_something(storage: dict[str, typing.Any], *extension_args: typing.Any) -> AnyCallable:
     f_outer = None
     extension_set = set()
 
@@ -30,7 +34,7 @@ def register_something(storage: dict[str, typing.Any], *extension_args: typing.A
 
         extension_set.add(extension)
 
-    def wrapper(f_inner: T_loader) -> T_loader:
+    def wrapper(f_inner: typing.Callable[..., R]) -> typing.Callable[..., R]:
         storage.update({ext: f_inner for ext in extension_set})
         return f_inner
 
@@ -81,7 +85,40 @@ def register_loader(*extension_args: str | T_loader) -> T_loader | T_WrappedLoad
     return register_something(LOADERS, *extension_args)
 
 
-def register_dumper(*extension_args: str) -> T_dumper:
+@typing.overload
+def register_dumper(*extension_args: str) -> AnyCallable:
+    """
+    Overload for case with parens.
+
+    @register_dumper("yaml", ".yml")
+    def dump_yaml(...):
+        ...
+
+    # extension_args is a tuple of strings
+    # this will return a wrapper which takes `dump_yaml` as input and output.
+    """
+
+
+@typing.overload
+def register_dumper(*extension_args: typing.Callable[..., R]) -> typing.Callable[..., R]:
+    """
+    Overload for case without parens.
+
+    @register_dumper
+    def json(...):
+        ...
+
+    # extension_args is a tuple of 1: `def json`
+    # this will simply return the `json` method itself.
+    """
+
+
+def register_dumper(*extension_args: str | typing.Callable[..., R]) -> AnyCallable | typing.Callable[..., R]:
+    """
+    Register a data dumper for a new filetype.
+
+    Not everything that can be loaded, can also be dumped (currently).
+    """
     return register_something(DUMPERS, *extension_args)
 
 

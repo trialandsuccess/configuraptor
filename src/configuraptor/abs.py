@@ -1,3 +1,7 @@
+"""
+Contains the Abstract config class shared by TypedConfig and BinaryConfig.
+"""
+
 import types
 import typing
 from pathlib import Path
@@ -9,10 +13,18 @@ T_typelike: typing.TypeAlias = type | types.UnionType  # | typing.Union
 # t_data is anything that can be fed to _load_data
 T_data_types = str | Path | dict[str, typing.Any] | None
 T_data = T_data_types | list[T_data_types]
-C = typing.TypeVar("C", bound=typing.Any)
+
+# c = a config class instance, can be any (user-defined) class
+C = typing.TypeVar("C")
+# type c is a config class
+Type_C = typing.Type[C]
 
 
 class AbstractTypedConfig:
+    """
+    Logic shared by TypedConfig and BinaryConfig.
+    """
+
     @classmethod
     def load(
         cls: typing.Type[C],
