@@ -78,11 +78,8 @@ class BinaryConfig(AbstractTypedConfig):
             if meta.special:
                 value = meta.special(value)
 
-            if is_custom_class(meta.klass):
-                value = load_into(meta.klass, value)
-            else:
-                # ensure it's the right class (e.g. bool):
-                value = meta.klass(value)
+            # ensure it's the right class (e.g. bool):
+            value = load_into(meta.klass, value) if is_custom_class(meta.klass) else meta.klass(value)
 
             final_data[field] = value
 
