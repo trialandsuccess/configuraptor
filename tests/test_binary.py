@@ -1,6 +1,7 @@
 import json
 import struct
 
+import pytest
 import tomli_w
 import yaml
 
@@ -15,6 +16,8 @@ class MyBinaryConfig(BinaryConfig):
     string = BinaryField(str, length=5)
     decimal = BinaryField(float)
     double = BinaryField(float, format="d")
+    other_string = BinaryField(str, format="10s")
+    boolean = BinaryField(bool)
 
 
 class TopLevel:
@@ -30,19 +33,22 @@ class NestedBinaryConfig(BinaryConfig):
     data1 = BinaryField(JsonField, format="json", length=32)
     data2 = BinaryField(JsonField, format="yaml", length=32)
     data3 = BinaryField(JsonField, format="toml", length=32)
+    other_data = "don't touch this"
 
 
 def test_binary_config():
-    binary = struct.pack("I 5s f d", 42, "Hello".encode(), 3.6, 10 / 3)
+    binary = struct.pack("I 5s f d 10s b", 42, "Hello".encode(), 3.6, 10 / 3, b"Hi", True)
     data = {
         'binary': binary
     }
 
-    inst = configuraptor.load_into(TopLevel, data)
+    inst = configuraptor.load_into(TopLevel, data).binary
 
-    assert inst.binary.string == "Hello"
+    assert inst.string == "Hello"
+    assert inst.other_string == "Hi"
+    assert inst.boolean is True
 
-    assert inst.binary._pack() == binary
+    assert inst._pack() == binary
 
 
 def test_nested_binary_config():

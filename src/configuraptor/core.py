@@ -360,7 +360,7 @@ def _load_into_recurse(
     if issubclass(cls, BinaryConfig):
         # todo: init?
 
-        if not isinstance(data, (bytes, dict)):
+        if not isinstance(data, (bytes, dict)):  # pragma: no cover
             raise NotImplementedError("BinaryConfig can only deal with `bytes` or a dict of bytes as input.")
         inst = typing.cast(C, cls._parse_into(data))
     elif dc.is_dataclass(cls):
