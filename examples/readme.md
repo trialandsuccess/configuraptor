@@ -267,6 +267,55 @@ assert config.new_key == "some value"
 
 ```
 
+## Binary Config
+
+To load a bytestring (from struct.pack) into a config class, use `BinaryConfig` with `BinaryField`:
+
+```python
+from configuraptor import BinaryConfig, BinaryField
+
+class MyBinaryConfig(BinaryConfig):
+    # annotations not supported! (because mixing annotation and __dict__ lookup messes with the order,
+    # which is important for struct.(un)pack
+    number = BinaryField(int)
+    string = BinaryField(str, length=5)
+    decimal = BinaryField(float)
+    double = BinaryField(float, format="d")
+    other_string = BinaryField(str, format="10s")
+    boolean = BinaryField(bool)
+
+
+MyBinaryConfig.load(b'*\x00\x00\x00Hello\x00\x00\x00fff@\xab\xaa\xaa\xaa\xaa\xaa\n@Hi\x00\x00\x00\x00\x00\x00\x00\x00\x01')
+```
+
+If one of these fields contains complex info (e.g. JSON), you can link another (regular typedconfig) class:
+
+```python
+from configuraptor import BinaryConfig, BinaryField
+import json, yaml, tomli_w
+
+class JsonField:
+    name: str
+    age: int
+
+
+class NestedBinaryConfig(BinaryConfig):
+    data1 = BinaryField(JsonField, format="json", length=32)
+    data2 = BinaryField(JsonField, format="yaml", length=32)
+    data3 = BinaryField(JsonField, format="toml", length=32)
+    other_data = "don't touch this"
+
+input_data1 = {"name": "Alex", "age": 42}
+input_data2 = {"name": "Sam", "age": 24}
+data1 = struct.pack("32s", json.dumps(input_data1).encode())
+data2 = struct.pack("32s", yaml.dump(input_data2).encode())
+data3 = struct.pack("32s", tomli_w.dumps(input_data2).encode())
+
+inst = NestedBinaryConfig.load({'data2': data2, 'data1': data1, 'data3': data3})
+# or:
+inst = load_into(NestedBinaryConfig, b'{"name": "Alex", "age": 42}\x00\x00\x00\x00\x00age: 24\nname: Sam\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00name = "Sam"\nage = 24\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+```
+
 ## Existing Instances
 
 If for some reason you have an already instantiated class and you need to fill the rest of the properties,
