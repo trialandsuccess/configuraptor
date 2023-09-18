@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.17.1 (2023-09-18)
+### Fix
+* **binary:** Allow splitting binary config into multiple blocks ([`f96adbb`](https://github.com/trialandsuccess/configuraptor/commit/f96adbb427aabce4d511fb838f89f9df0fb54d46))
+
 ## v1.17.0 (2023-09-18)
 ### Feature
 * Allow a new type of config: binary config ([`06a70df`](https://github.com/trialandsuccess/configuraptor/commit/06a70df6e521deae2b0469621e5521c26a7dac88))
