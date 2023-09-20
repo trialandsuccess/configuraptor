@@ -81,7 +81,7 @@ class Config:
 
 
 if __name__ == '__main__':
-    my_config = load_into(Config, "example_from_readme.toml")  # or .json, .yaml
+    my_config = load_into(Config, "example_from_readme.toml")  # or .json, .yaml, ...
 
     print(my_config.name)
     # Hello World!
@@ -105,7 +105,7 @@ class OtherConfig(TypedConfig):
 
 
 if __name__ == '__main__':
-    my_config = OtherConfig.load("example_from_readme.toml")  # or .json, .yaml
+    my_config = OtherConfig.load("https://api.my-server.dev/v1/config.json?secret=token")  # or .toml, .yaml, ...
 
     print(my_config.name)
     # Hello World!
@@ -117,9 +117,12 @@ if __name__ == '__main__':
 ```
 
 The second argument of `.load_into` and the first argument of `.load` (which is `"example_from_readme.toml"` in the
-examples above), can be either a string or a Path to a file, a raw dictionary with data or empty.
+examples above), can be either a string or a Path to a file, a raw dictionary with data, a URL or empty.
+You can also use a list of these options to combine data sources.
 If it is left empty, the `pyproject.toml` will be used. You can supply a `key='tool.mytool.myconf'` to specify which
-section of the file should be read.
+section of the file should be read. For HTTP authentication, currently you can use http basic
+auth (`https://user:pass@host` or query parameters (like `?token=...`)). 
+Other authentication methods are not currently supported.
 
 More examples can be found in [examples](https://github.com/trialandsuccess/configuraptor/blob/master/examples).
 
@@ -141,12 +144,14 @@ See [examples/readme.md#Custom File Types](https://github.com/trialandsuccess/co
 
 ### Binary Config
 
-You can also parse a [`struct`-packed](https://docs.python.org/3/library/struct.html) bytestring into a config class. For this, you have to use `BinaryConfig` with
+You can also parse a [`struct`-packed](https://docs.python.org/3/library/struct.html) bytestring into a config class.
+For this, you have to use `BinaryConfig` with
 `BinaryField`s. Annotations are not supported in this case, because the order of properties is important for this type
 of config.
 
 ```python
 from configuraptor import BinaryConfig, BinaryField
+
 
 class MyBinaryConfig(BinaryConfig):
     # annotations not supported! (because mixing annotation and __dict__ lookup messes with the order,
@@ -158,7 +163,9 @@ class MyBinaryConfig(BinaryConfig):
     other_string = BinaryField(str, format="10s")
     boolean = BinaryField(bool)
 
-MyBinaryConfig.load(b'*\x00\x00\x00Hello\x00\x00\x00fff@\xab\xaa\xaa\xaa\xaa\xaa\n@Hi\x00\x00\x00\x00\x00\x00\x00\x00\x01')
+
+MyBinaryConfig.load(
+    b'*\x00\x00\x00Hello\x00\x00\x00fff@\xab\xaa\xaa\xaa\xaa\xaa\n@Hi\x00\x00\x00\x00\x00\x00\x00\x00\x01')
 
 ```
 
