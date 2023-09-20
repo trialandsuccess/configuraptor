@@ -3,9 +3,13 @@ Contains most of the loading logic.
 """
 
 import dataclasses as dc
+import io
+import os
 import typing
 import warnings
 from pathlib import Path
+
+import requests
 
 from . import loaders
 from .abs import C, T, T_data, Type_C
@@ -57,6 +61,56 @@ def _guess_key(clsname: str) -> str:
     return camel_to_snake(clsname)
 
 
+def _from_mock_url(url: str) -> str:
+    """
+    Pytest only: when starting a url with mock:// it is expected to just be json afterwards.
+    """
+    return url.removeprefix("mock://")
+
+
+def guess_filetype_for_url(url: str, response: requests.Response = None) -> str:
+    """
+    Based on the url (which may have an extension) and the requests response \
+        (which may have a content-type), try to guess the right filetype (-> loader, e.g. json or yaml).
+
+    Falls back to JSON if none can be found.
+    """
+    url = url.split("?")[0]
+    if url_extension := os.path.splitext(url)[1].lower():
+        return url_extension.strip(".")
+
+    if response and (content_type_header := response.headers.get("content-type", "").split(";")[0].strip()):
+        content_type = content_type_header.split("/")[-1]
+        if content_type != "plain":
+            return content_type
+
+    # If both methods fail, default to JSON
+    return "json"
+
+
+def from_url(url: str, _dummy: bool = False) -> tuple[io.BytesIO, str]:
+    """
+    Load data as bytes into a file-like object and return the file type.
+
+    This can be used by __load_data:
+    > loader = loaders.get(filetype)
+    > # dev/null exists but always returns b''
+    > data = loader(contents, Path("/dev/null"))
+    """
+    if url.startswith("mock://"):
+        data = _from_mock_url(url)
+        resp = None
+    elif _dummy:
+        resp = None
+        data = "{}"
+    else:
+        resp = requests.get(url, timeout=10)
+        data = resp.text
+
+    filetype = guess_filetype_for_url(url, resp)
+    return io.BytesIO(data.encode()), filetype
+
+
 def __load_data(
     data: T_data,
     key: str = None,
@@ -87,7 +141,14 @@ def __load_data(
         return final_data
 
     if isinstance(data, str):
-        data = Path(data)
+        if data.startswith(("http://", "https://", "mock://")):
+            contents, filetype = from_url(data)
+
+            loader = loaders.get(filetype)
+            # dev/null exists but always returns b''
+            data = loader(contents, Path("/dev/null"))
+        else:
+            data = Path(data)
 
     if isinstance(data, Path):
         with data.open("rb") as f:

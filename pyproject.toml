@@ -32,6 +32,7 @@ dependencies = [
     "typeguard",
     "tomli", # Python 3.10 does not have tomllib and tomlkit has weird types
     "tomli_w", # tomllib does not support dumping :(
+    "requests",
     "PyYAML",
     "python-dotenv",
     "black", # for find_project_root
