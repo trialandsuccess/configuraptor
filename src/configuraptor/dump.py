@@ -11,6 +11,9 @@ import yaml
 from .helpers import camel_to_snake, instance_of_custom_class, is_custom_class
 from .loaders.register import register_dumper
 
+if typing.TYPE_CHECKING:  # pragma: no cover
+    from .binary_config import BinaryConfig
+
 
 @register_dumper("dict")
 def asdict(inst: typing.Any, _level: int = 0, /, with_top_level_key: bool = True) -> dict[str, typing.Any]:
@@ -65,3 +68,11 @@ def asyaml(inst: typing.Any, **kw: typing.Any) -> str:
     output = yaml.dump(data, encoding=None, **kw)
     # output is already a str but mypy doesn't know that
     return typing.cast(str, output)
+
+
+@register_dumper("bytes")
+def asbytes(inst: "BinaryConfig", **_: typing.Any) -> bytes:
+    """
+    Dumper for binary config to 'pack' into a bytestring.
+    """
+    return inst._pack()

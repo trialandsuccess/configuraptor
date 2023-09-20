@@ -7,6 +7,7 @@ import yaml
 
 from src import configuraptor
 from src.configuraptor import BinaryField, BinaryConfig
+from src.configuraptor.dump import asbytes
 
 
 class MyBinaryConfig(BinaryConfig):
@@ -49,7 +50,7 @@ def test_binary_config():
     assert inst.other_string == "Hi"
     assert inst.boolean is True
 
-    assert inst._pack() == binary
+    assert inst._pack() == binary == asbytes(inst)
 
 
 def test_nested_binary_config():
@@ -87,11 +88,14 @@ def test_binary_config_with_external_block():
 
     assert data._pack() == v1 + v2
 
+
 class IsNumber(BinaryConfig):
     value = BinaryField(int, format="h")
 
+
 class IsBigNumber(BinaryConfig):
     value = BinaryField(int, format="l")
+
 
 class HasNumber(BinaryConfig):
     contains = BinaryField(IsNumber)
