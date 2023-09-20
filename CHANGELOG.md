@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.18.0 (2023-09-20)
+### Feature
+* **binary:** Add asbytes() as shortcut for ._pack() ([`5caaa7d`](https://github.com/trialandsuccess/configuraptor/commit/5caaa7d9e68ed3cc4b0b2a0c3864d2ce7dd82e71))
+
 ## v1.17.3 (2023-09-18)
 ### Fix
 * **binary:** Swapping out values with a different field now updates the container size ([`c76261a`](https://github.com/trialandsuccess/configuraptor/commit/c76261aa4daa6c1438cb1d62d59fc886e6667ed4))
