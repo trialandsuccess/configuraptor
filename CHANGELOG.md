@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.18.1 (2023-09-20)
+### Fix
+* **asbytes:** Also expose from top-level lib + update examples ([`375ea47`](https://github.com/trialandsuccess/configuraptor/commit/375ea473059764c3b4b0c0397a865b5c74b12791))
+
 ## v1.18.0 (2023-09-20)
 ### Feature
 * **binary:** Add asbytes() as shortcut for ._pack() ([`5caaa7d`](https://github.com/trialandsuccess/configuraptor/commit/5caaa7d9e68ed3cc4b0b2a0c3864d2ce7dd82e71))
