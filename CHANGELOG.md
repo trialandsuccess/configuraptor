@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.18.2 (2023-09-20)
+### Fix
+* **mypy:** Load_into also accepts bytes so return value is fixed ([`db509f0`](https://github.com/trialandsuccess/configuraptor/commit/db509f07adc4e6f4cfca1f8eac702179fea5dc80))
+
 ## v1.18.1 (2023-09-20)
 ### Fix
 * **asbytes:** Also expose from top-level lib + update examples ([`375ea47`](https://github.com/trialandsuccess/configuraptor/commit/375ea473059764c3b4b0c0397a865b5c74b12791))
