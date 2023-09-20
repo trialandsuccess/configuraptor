@@ -1,13 +1,12 @@
 import json
 import struct
 
-import pytest
 import tomli_w
 import yaml
 
 from src import configuraptor
 from src.configuraptor import BinaryField, BinaryConfig
-from src.configuraptor.dump import asbytes
+from src.configuraptor import asbytes
 
 
 class MyBinaryConfig(BinaryConfig):

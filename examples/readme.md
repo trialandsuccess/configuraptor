@@ -319,6 +319,9 @@ inst = load_into(NestedBinaryConfig, b'{"name": "Alex", "age": 42}\x00\x00\x00\x
 Config can also be split up into multiple binary blocks:
 
 ```python
+import struct
+from configuraptor import BinaryConfig, BinaryField, asbytes
+
 class Version(BinaryConfig):
     major = BinaryField(int)
     minor = BinaryField(int)
@@ -332,7 +335,13 @@ class Versions(BinaryConfig):
 
 v1 = struct.pack("i i i", 1, 12, 5)
 v2 = struct.pack("i i i", 0, 4, 2)
-data = Versions.load(v1 + v2)
+obj = Versions.load(v1 + v2)
+
+print(obj.first.patch) # 5
+
+# and back into bytes:
+asbytes(obj)
+# -> b'\x01\x00\x00\x00\x0c\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00'
 ```
 
 ## Existing Instances

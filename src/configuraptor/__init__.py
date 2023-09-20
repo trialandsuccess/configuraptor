@@ -15,7 +15,7 @@ from .core import (
     load_into_class,
     load_into_instance,
 )
-from .dump import asdict, asjson, astoml, asyaml
+from .dump import asbytes, asdict, asjson, astoml, asyaml
 from .helpers import all_annotations, check_type
 from .loaders import register_loader as loader
 from .postpone import postpone
@@ -47,6 +47,7 @@ __all__ = [
     # postpone
     "postpone",
     # dump
+    "asbytes",
     "asdict",
     "astoml",
     "asyaml",
