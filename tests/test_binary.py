@@ -63,7 +63,7 @@ def test_nested_binary_config():
 
     assert inst.data1.name != inst.data2.name
 
-    assert inst._pack() == data1 + data2 + data3
+    assert inst._pack() == data1 + data2 + data3 == asbytes(inst)
 
 
 class Version(BinaryConfig):
@@ -85,7 +85,7 @@ def test_binary_config_with_external_block():
     assert data.first.patch == 5
     assert data.second.major == 0
 
-    assert data._pack() == v1 + v2
+    assert data._pack() == v1 + v2 == asbytes(data)
 
 
 class IsNumber(BinaryConfig):

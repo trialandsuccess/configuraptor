@@ -11,7 +11,7 @@ T = typing.TypeVar("T")
 # t_typelike is anything that can be type hinted
 T_typelike: typing.TypeAlias = type | types.UnionType  # | typing.Union
 # t_data is anything that can be fed to _load_data
-T_data_types = str | Path | dict[str, typing.Any] | None
+T_data_types = str | Path | bytes | dict[str, typing.Any] | None
 T_data = T_data_types | list[T_data_types]
 
 # c = a config class instance, can be any (user-defined) class

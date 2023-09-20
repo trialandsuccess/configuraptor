@@ -70,6 +70,12 @@ def __load_data(
     E.g. class Tool will be mapped to key tool.
     It also deals with nested keys (tool.extra -> {"tool": {"extra": ...}}
     """
+    if isinstance(data, bytes):
+        # instantly return, don't modify
+        # bytes as inputs -> bytes as output
+        # but since `T_data` is re-used, that's kind of hard to type for mypy.
+        return data  # type: ignore
+
     if isinstance(data, list):
         if not data:
             raise ValueError("Empty list passed!")
@@ -82,10 +88,12 @@ def __load_data(
 
     if isinstance(data, str):
         data = Path(data)
+
     if isinstance(data, Path):
         with data.open("rb") as f:
             loader = loaders.get(data.suffix or data.name)
             data = loader(f, data.resolve())
+
     if not data:
         return {}
 
@@ -353,7 +361,7 @@ def _split_init(init: T_init) -> tuple[T_init_list, T_init_dict]:
 
 def _load_into_recurse(
     cls: typing.Type[C],
-    data: dict[str, typing.Any],
+    data: dict[str, typing.Any] | bytes,
     init: T_init = None,
     strict: bool = True,
     convert_types: bool = False,
@@ -367,9 +375,12 @@ def _load_into_recurse(
     """
     init_args, init_kwargs = _split_init(init)
 
-    if issubclass(cls, BinaryConfig):
+    if isinstance(data, bytes) or issubclass(cls, BinaryConfig):
         if not isinstance(data, (bytes, dict)):  # pragma: no cover
             raise NotImplementedError("BinaryConfig can only deal with `bytes` or a dict of bytes as input.")
+        elif not issubclass(cls, BinaryConfig):  # pragma: no cover
+            raise NotImplementedError("Only BinaryConfig can be used with `bytes` (or a dict of bytes) as input.")
+
         inst = typing.cast(C, cls._parse_into(data))
     elif dc.is_dataclass(cls):
         to_load = check_and_convert_data(cls, data, init_kwargs.keys(), strict=strict, convert_types=convert_types)
