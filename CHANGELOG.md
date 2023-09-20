@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.19.0 (2023-09-20)
+### Feature
+* **core:** Allow loading from a URL like you would a local file ([`aca52a9`](https://github.com/trialandsuccess/configuraptor/commit/aca52a9345e0d6ba969815208fa214a7525d6f6f))
+
+### Documentation
+* Explained usage of URLs in `load` in readme ([`cb265a4`](https://github.com/trialandsuccess/configuraptor/commit/cb265a4e841130ef6fc9602046570337fe7977ca))
+
 ## v1.18.2 (2023-09-20)
 ### Fix
 * **mypy:** Load_into also accepts bytes so return value is fixed ([`db509f0`](https://github.com/trialandsuccess/configuraptor/commit/db509f07adc4e6f4cfca1f8eac702179fea5dc80))
