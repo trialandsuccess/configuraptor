@@ -45,6 +45,7 @@ dev = [
     "types-PyYAML",
     "pytest-mypy-testing",
     "xmltodict",
+    "types-requests",
 ]
 
 [project.urls]
