@@ -111,7 +111,7 @@ def from_url(url: str, _dummy: bool = False) -> tuple[io.BytesIO, str]:
     return io.BytesIO(data.encode()), filetype
 
 
-def __load_data(
+def _load_data(
     data: T_data,
     key: str = None,
     classname: str = None,
@@ -136,7 +136,7 @@ def __load_data(
 
         final_data: dict[str, typing.Any] = {}
         for source in data:
-            final_data |= _load_data(source, key=key, classname=classname, lower_keys=True, allow_types=allow_types)
+            final_data |= load_data(source, key=key, classname=classname, lower_keys=True, allow_types=allow_types)
 
         return final_data
 
@@ -180,7 +180,7 @@ def __load_data(
     return data
 
 
-def _load_data(
+def load_data(
     data: T_data,
     key: str = None,
     classname: str = None,
@@ -195,10 +195,10 @@ def _load_data(
         data = find_pyproject_toml()
 
     try:
-        return __load_data(data, key, classname, lower_keys=lower_keys, allow_types=allow_types)
+        return _load_data(data, key, classname, lower_keys=lower_keys, allow_types=allow_types)
     except Exception as e:
         if key != "":
-            return __load_data(data, "", classname, lower_keys=lower_keys, allow_types=allow_types)
+            return _load_data(data, "", classname, lower_keys=lower_keys, allow_types=allow_types)
         else:  # pragma: no cover
             warnings.warn(f"Data could not be loaded: {e}", source=e)
             # key already was "", just return data!
@@ -499,7 +499,7 @@ def load_into_class(
     Shortcut for _load_data + load_into_recurse.
     """
     allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
-    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
+    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
     return _load_into_recurse(cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
@@ -518,7 +518,7 @@ def load_into_instance(
     """
     cls = inst.__class__
     allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
-    to_load = _load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
+    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
     return _load_into_instance(inst, cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 

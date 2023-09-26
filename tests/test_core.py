@@ -42,17 +42,17 @@ def test_no_data():
 
     # data must be a dict:
     with pytest.raises(ValueError):
-        configuraptor.core._load_data(42, key=None)
+        configuraptor.core.load_data(42, key=None)
     with pytest.raises(ValueError):
-        configuraptor.core._load_data([], key=None)
+        configuraptor.core.load_data([], key=None)
 
     # but other than that, it should be fine:
-    configuraptor.core._load_data({}, key="")
-    configuraptor.core._load_data({}, key=None)
-    configuraptor.core._load_data({"-": 0, "+": None}, key="joe", classname="-.+")
-    configuraptor.core._load_data({"-": 0, "+": None}, key="+", classname="-.+")
-    configuraptor.core._load_data({"-": 0, "+": None}, key="", classname="-.+")
-    configuraptor.core._load_data({"-": 0, "+": None}, key=None, classname="-.+")
+    configuraptor.core.load_data({}, key="")
+    configuraptor.core.load_data({}, key=None)
+    configuraptor.core.load_data({"-": 0, "+": None}, key="joe", classname="-.+")
+    configuraptor.core.load_data({"-": 0, "+": None}, key="+", classname="-.+")
+    configuraptor.core.load_data({"-": 0, "+": None}, key="", classname="-.+")
+    configuraptor.core.load_data({"-": 0, "+": None}, key=None, classname="-.+")
 
 
 def test_str_to_none():
