@@ -2,6 +2,9 @@
 
 <!--next-version-placeholder-->
 
+## v1.19.1 (2023-09-26)
+
+
 ## v1.19.0 (2023-09-20)
 ### Feature
 * **core:** Allow loading from a URL like you would a local file ([`aca52a9`](https://github.com/trialandsuccess/configuraptor/commit/aca52a9345e0d6ba969815208fa214a7525d6f6f))
