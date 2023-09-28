@@ -1,12 +1,15 @@
 """
 Contains stand-alone helper functions.
 """
+import contextlib
 import dataclasses as dc
+import io
 import math
 import os
 import types
 import typing
 from collections import ChainMap
+from pathlib import Path
 
 import black.files
 from typeguard import TypeCheckError
@@ -160,3 +163,33 @@ def dataclass_field(cls: Type, key: str) -> typing.Optional[dc.Field[typing.Any]
     """
     fields = getattr(cls, "__dataclass_fields__", {})
     return fields.get(key)
+
+
+@contextlib.contextmanager
+def uncloseable(fd: typing.BinaryIO) -> typing.Generator[typing.BinaryIO, typing.Any, None]:
+    """
+    Context manager which turns the fd's close operation to no-op for the duration of the context.
+    """
+    close = fd.close
+    fd.close = lambda: None  # type: ignore
+    yield fd
+    fd.close = close  # type: ignore
+
+
+def as_binaryio(file: str | Path | typing.BinaryIO | None, mode: typing.Literal["rb", "wb"] = "rb") -> typing.BinaryIO:
+    """
+    Convert a number of possible 'file' descriptions into a single BinaryIO interface.
+    """
+    if isinstance(file, str):
+        file = Path(file)
+    if isinstance(file, Path):
+        file = file.open(mode)
+    if file is None:
+        file = io.BytesIO()
+    if isinstance(file, io.BytesIO):
+        # so .read() works after .write():
+        file.seek(0)
+        # so the with-statement doesn't close the in-memory file:
+        file = uncloseable(file)  # type: ignore
+
+    return file

@@ -1,12 +1,14 @@
 # not directly testable
 import math
-import sys
+import io
 import typing
+from pathlib import Path
 
 import pytest
 
 from src.configuraptor import all_annotations
 from src.configuraptor.core import is_optional
+from src.configuraptor.helpers import as_binaryio
 from src.configuraptor.type_converters import str_to_none
 
 
@@ -20,6 +22,26 @@ def test_invalid_extension():
 def test_is_optional_with_weird_inputs():
     assert is_optional(math.nan) is False
     assert is_optional(typing.Optional[dict[str, typing.Optional[str]]]) is True
+
+
+def test_as_binaryio():
+    path = Path("/tmp/pytest_asbinary_file")
+    path.touch()
+
+    with as_binaryio(str(path)) as f:
+        assert hasattr(f, "read")
+
+    with as_binaryio(path) as f:
+        assert hasattr(f, "read")
+
+    with as_binaryio(open(str(path), "rb")) as f:
+        assert hasattr(f, "read")
+
+    with as_binaryio(io.BytesIO()) as f:
+        assert hasattr(f, "read")
+
+    with as_binaryio(None) as f:
+        assert hasattr(f, "read")
 
 
 class Base:
