@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.20.0 (2023-09-28)
+### Feature
+* **helpers:** Add as_binaryio helper ([`20e4f29`](https://github.com/trialandsuccess/configuraptor/commit/20e4f29b15ca5b867f685ee5cb1bc2c03da576b0))
+
 ## v1.19.1 (2023-09-26)
 
 
