@@ -1,10 +1,12 @@
 """
 Contains the Abstract config class shared by TypedConfig and BinaryConfig.
 """
-
+import os
 import types
 import typing
 from pathlib import Path
+
+import dotenv
 
 # T is a reusable typevar
 T = typing.TypeVar("T")
@@ -22,7 +24,7 @@ Type_C = typing.Type[C]
 
 class AbstractTypedConfig:
     """
-    Logic shared by TypedConfig and BinaryConfig.
+    These functions only exist on the class, not on instances.
     """
 
     @classmethod
@@ -45,3 +47,39 @@ class AbstractTypedConfig:
         return load_into(
             cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
         )
+
+    @classmethod
+    def from_env(
+        cls: typing.Type[C],
+        load_dotenv: str | bool = False,
+        init: dict[str, typing.Any] = None,
+        strict: bool = True,
+        convert_types: bool = False,
+    ) -> C:
+        """
+        Create an instance of the typed config class by loading environment variables and initializing \
+            object attributes based on those values.
+
+        Args:
+            cls (typing.Type[C]): The class to create an instance of.
+            init (dict[str, typing.Any], optional): Additional initialization data to be used
+                in the object creation. Defaults to None.
+            strict (bool, optional): If True, raise an error if any required environment variable
+                is missing. Defaults to True.
+            convert_types (bool, optional): If True, attempt to convert environment variable values
+                to the appropriate Python types. Defaults to False.
+            load_dotenv (str | bool, optional): Path to a dotenv file or True to load the default
+                dotenv file. If False, no dotenv file will be loaded. Defaults to False.
+
+        Returns:
+            C: An instance of the class `C` with attributes initialized based on the environment variables.
+        """
+        from .core import load_into
+
+        if load_dotenv:
+            dotenv_path = load_dotenv if isinstance(load_dotenv, str) else None
+            dotenv.load_dotenv(dotenv_path)
+
+        data = {**os.environ}
+
+        return load_into(cls, data, lower_keys=True, init=init, strict=strict, convert_types=convert_types)

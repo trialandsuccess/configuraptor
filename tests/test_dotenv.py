@@ -1,3 +1,5 @@
+import os
+import tempfile
 import typing
 
 import pytest
@@ -62,3 +64,25 @@ def test_dotenv_basic():
             assert "from `<class 'str'>`" in str(e)
             assert "to `<class 'bool'>`" in str(e)
             raise e
+
+
+class EnvConfig(configuraptor.TypedConfig):
+    from_my_env: str
+
+
+def test_from_env():
+    os.environ["FROM_MY_ENV"] = "Example"
+
+    conf = EnvConfig.from_env()
+
+    assert conf.from_my_env == "Example"
+
+    del os.environ["FROM_MY_ENV"]
+
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(b"FROM_MY_ENV=SECOND")
+        f.seek(0)
+
+        conf = EnvConfig.from_env(f.name)
+
+        assert conf.from_my_env == "SECOND"
