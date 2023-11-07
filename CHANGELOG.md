@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.21.0 (2023-11-07)
+### Feature
+* **env:** Cls.from_env function to load config from env (os.environ or dotenv) ([`1b16350`](https://github.com/trialandsuccess/configuraptor/commit/1b16350841de0abbaaf688c257db18208bcc18f3))
+
 ## v1.20.0 (2023-09-28)
 ### Feature
 * **helpers:** Add as_binaryio helper ([`20e4f29`](https://github.com/trialandsuccess/configuraptor/commit/20e4f29b15ca5b867f685ee5cb1bc2c03da576b0))
