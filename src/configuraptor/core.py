@@ -177,7 +177,7 @@ def _load_data(
     if lower_keys and isinstance(data, dict):
         data = {k.lower(): v for k, v in data.items()}
 
-    return data
+    return typing.cast(dict[str, typing.Any], data)
 
 
 def load_data(
