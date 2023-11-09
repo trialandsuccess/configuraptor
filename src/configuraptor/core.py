@@ -269,7 +269,6 @@ def ensure_types(
     # custom object to use instead of None, since typing.Optional can be None!
     # cast to T to make mypy happy
     notfound = typing.cast(T, object())
-    postponed = Postponed()
 
     final: dict[str, T | None] = {}
     for key, _type in annotations.items():
@@ -281,7 +280,7 @@ def ensure_types(
             # skip!
             continue
 
-        if compare is postponed:
+        if isinstance(compare, Postponed):
             # don't do anything with this item!
             continue
 
