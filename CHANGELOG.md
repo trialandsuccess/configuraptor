@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.22.3 (2023-11-09)
+### Fix
+* **postponed:** Sometimes the two objects are not the same, so use type check instead of identity check ([`af9c1bb`](https://github.com/trialandsuccess/configuraptor/commit/af9c1bb454ba7c89bd7a6fa873dd70b1c03dcf61))
+
 ## v1.22.2 (2023-11-09)
 ### Fix
 * **env:** Default to converting types when loading from env ([`e939e48`](https://github.com/trialandsuccess/configuraptor/commit/e939e48f28892dfbbbc7b5dc312bcc50ad99bbe1))
