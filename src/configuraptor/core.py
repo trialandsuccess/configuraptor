@@ -14,6 +14,7 @@ import requests
 
 from . import loaders
 from .abs import C, T, T_data, Type_C
+from .alias import Alias
 from .binary_config import BinaryConfig
 from .errors import (
     ConfigErrorCouldNotConvert,
@@ -284,6 +285,12 @@ def ensure_types(
             # don't do anything with this item!
             continue
 
+        if isinstance(compare, Alias):
+            related_data = data.get(compare.to, notfound)
+            if related_data is not notfound:
+                # original key set, update alias
+                compare = related_data
+
         compare = check_and_convert_type(compare, _type, convert_types, key)
 
         final[key] = compare
@@ -303,6 +310,31 @@ def convert_config(items: dict[str, T]) -> dict[str, T]:
 
 AnyType: typing.TypeAlias = typing.Type[typing.Any]
 T_Type = typing.TypeVar("T_Type", bound=AnyType)
+
+
+def has_alias(cls: AnyType, key: str, data: dict[str, T]) -> typing.Optional[T]:
+    """
+    Get the value of any alias in the same config class that references `key`.
+
+    Example:
+        class Config:
+            key1: str
+            key2: str = alias('key1')
+
+    Config.load({'key2': 'something'})
+    # -> key1 will look up the value of key2 because it's configured as an alias for it.
+    """
+    # for field, value in cls.__dict__.items():
+    #     if isinstance(value, Alias) and value.to == key:
+    #         # yay!
+    #         return data.get(field)
+    #
+    # return None
+
+    return next(
+        (data.get(field) for field, value in cls.__dict__.items() if isinstance(value, Alias) and value.to == key),
+        None,
+    )
 
 
 def load_recursive(
@@ -364,9 +396,6 @@ def load_recursive(
                     for arg in arguments:
                         if is_custom_class(arg):
                             value = _load_into_recurse(arg, value, convert_types=convert_types)
-                        else:
-                            # print(_type, arg, value)
-                            ...
 
                 # todo: other parameterized/unions/typing.Optional
 
@@ -390,6 +419,9 @@ def load_recursive(
             # could have a default factory
             # todo: do something with field.default?
             value = field.default_factory()
+        elif value := has_alias(cls, _key, data):
+            # value updated by alias
+            ...
         else:
             raise ConfigErrorMissingKey(_key, cls, _type)
 
@@ -416,6 +448,7 @@ def check_and_convert_data(
 
     to_load = convert_config(data)
     to_load = load_recursive(cls, to_load, annotations, convert_types=convert_types)
+
     if strict:
         to_load = ensure_types(to_load, annotations, convert_types=convert_types)
 

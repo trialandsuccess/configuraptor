@@ -5,6 +5,7 @@ Exposes TypedConfig and load_into for this library.
 # SPDX-FileCopyrightText: 2023-present Robin van der Noord <robinvandernoord@gmail.com>
 #
 # SPDX-License-Identifier: MIT
+from .alias import Alias, alias
 from .binary_config import BinaryConfig, BinaryField
 from .cls import TypedConfig, TypedMapping, TypedMutableMapping, update
 from .core import (
@@ -57,4 +58,7 @@ __all__ = [
     # register
     "loader",
     "converter",
+    # alias
+    "alias",
+    "Alias",
 ]
