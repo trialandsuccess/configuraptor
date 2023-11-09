@@ -274,6 +274,7 @@ To load a bytestring (from struct.pack) into a config class, use `BinaryConfig` 
 ```python
 from configuraptor import BinaryConfig, BinaryField
 
+
 class MyBinaryConfig(BinaryConfig):
     # annotations not supported! (because mixing annotation and __dict__ lookup messes with the order,
     # which is important for struct.(un)pack
@@ -285,7 +286,8 @@ class MyBinaryConfig(BinaryConfig):
     boolean = BinaryField(bool)
 
 
-MyBinaryConfig.load(b'*\x00\x00\x00Hello\x00\x00\x00fff@\xab\xaa\xaa\xaa\xaa\xaa\n@Hi\x00\x00\x00\x00\x00\x00\x00\x00\x01')
+MyBinaryConfig.load(
+    b'*\x00\x00\x00Hello\x00\x00\x00fff@\xab\xaa\xaa\xaa\xaa\xaa\n@Hi\x00\x00\x00\x00\x00\x00\x00\x00\x01')
 ```
 
 If one of these fields contains complex info (e.g. JSON), you can link another (regular typedconfig) class:
@@ -293,6 +295,7 @@ If one of these fields contains complex info (e.g. JSON), you can link another (
 ```python
 from configuraptor import BinaryConfig, BinaryField
 import json, yaml, tomli_w
+
 
 class JsonField:
     name: str
@@ -305,6 +308,7 @@ class NestedBinaryConfig(BinaryConfig):
     data3 = BinaryField(JsonField, format="toml", length=32)
     other_data = "don't touch this"
 
+
 input_data1 = {"name": "Alex", "age": 42}
 input_data2 = {"name": "Sam", "age": 24}
 data1 = struct.pack("32s", json.dumps(input_data1).encode())
@@ -313,7 +317,8 @@ data3 = struct.pack("32s", tomli_w.dumps(input_data2).encode())
 
 inst = NestedBinaryConfig.load({'data2': data2, 'data1': data1, 'data3': data3})
 # or:
-inst = load_into(NestedBinaryConfig, b'{"name": "Alex", "age": 42}\x00\x00\x00\x00\x00age: 24\nname: Sam\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00name = "Sam"\nage = 24\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+inst = load_into(NestedBinaryConfig,
+                 b'{"name": "Alex", "age": 42}\x00\x00\x00\x00\x00age: 24\nname: Sam\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00name = "Sam"\nage = 24\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 ```
 
 Config can also be split up into multiple binary blocks:
@@ -321,6 +326,7 @@ Config can also be split up into multiple binary blocks:
 ```python
 import struct
 from configuraptor import BinaryConfig, BinaryField, asbytes
+
 
 class Version(BinaryConfig):
     major = BinaryField(int)
@@ -330,14 +336,14 @@ class Version(BinaryConfig):
 
 class Versions(BinaryConfig):
     first = BinaryField(Version)
-    second = BinaryField(Version, length=12) # length optional, can be calculated automatically.
+    second = BinaryField(Version, length=12)  # length optional, can be calculated automatically.
 
 
 v1 = struct.pack("i i i", 1, 12, 5)
 v2 = struct.pack("i i i", 0, 4, 2)
 obj = Versions.load(v1 + v2)
 
-print(obj.first.patch) # 5
+print(obj.first.patch)  # 5
 
 # and back into bytes:
 asbytes(obj)
@@ -458,6 +464,30 @@ config.update()  # fill in other_field some way or another
 print(config.other_field)  # works now!
 
 ```
+
+## Alias Fields
+
+Alias fields allow you to create alternative names for configuration keys, providing flexibility and the ability to
+refer to the same underlying configuration value by different names.
+
+```python
+from configuraptor import load_into, alias
+
+
+class Config:
+    key1: str
+    key2: str = alias('key1')
+
+
+conf = load_into(Config, {'key2': 'something'}) # or {key1: ...}
+# -> key1 will look up the value of key2 because it's configured as an alias for it.
+assert conf.key1 == conf.key2 == "something"
+```
+
+### Use Case:
+
+When you're unsure about the exact name a configuration key will have but have a set of possibilities, you can now
+create an alias. This enables you to access the same configuration value using different names within your code.
 
 ## Dumping
 

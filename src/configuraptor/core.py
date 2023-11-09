@@ -321,7 +321,7 @@ def has_alias(cls: AnyType, key: str, data: dict[str, T]) -> typing.Optional[T]:
             key1: str
             key2: str = alias('key1')
 
-    Config.load({'key2': 'something'})
+    load_into(Config, {'key2': 'something'})
     # -> key1 will look up the value of key2 because it's configured as an alias for it.
     """
     # for field, value in cls.__dict__.items():
