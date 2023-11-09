@@ -7,6 +7,7 @@ import typing
 from pathlib import Path
 
 import dotenv
+from dotenv import find_dotenv
 
 # T is a reusable typevar
 T = typing.TypeVar("T")
@@ -77,7 +78,7 @@ class AbstractTypedConfig:
         from .core import load_into
 
         if load_dotenv:
-            dotenv_path = load_dotenv if isinstance(load_dotenv, str) else None
+            dotenv_path = load_dotenv if isinstance(load_dotenv, str) else find_dotenv(usecwd=True)
             dotenv.load_dotenv(dotenv_path)
 
         data = {**os.environ}
