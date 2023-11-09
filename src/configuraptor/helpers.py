@@ -15,7 +15,7 @@ import black.files
 from typeguard import TypeCheckError
 from typeguard import check_type as _check_type
 
-from .abs import T_typelike
+# from .abs import T_typelike
 
 
 def camel_to_snake(s: str) -> str:
@@ -59,7 +59,10 @@ def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str
     return {k: v for k, v in _all.items() if k not in _except}
 
 
-def check_type(value: typing.Any, expected_type: T_typelike) -> bool:
+T = typing.TypeVar("T")
+
+
+def check_type(value: typing.Any, expected_type: typing.Type[T]) -> typing.TypeGuard[T]:
     """
     Given a variable, check if it matches 'expected_type' (which can be a Union, parameterized generic etc.).
 

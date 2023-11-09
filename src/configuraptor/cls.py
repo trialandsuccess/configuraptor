@@ -1,14 +1,19 @@
 """
 Logic for the TypedConfig inheritable class.
 """
-
+import copy
+import os
 import typing
 from collections.abc import Mapping, MutableMapping
 from typing import Any, Iterator
 
+from typing_extensions import Never, Self
+
 from .abs import AbstractTypedConfig
-from .errors import ConfigErrorExtraKey, ConfigErrorImmutable, ConfigErrorInvalidType
-from .helpers import all_annotations, check_type
+from .core import check_and_convert_type
+from .errors import ConfigErrorExtraKey, ConfigErrorImmutable
+from .helpers import all_annotations
+from .loaders.loaders_shared import _convert_key
 
 C = typing.TypeVar("C", bound=Any)
 
@@ -18,13 +23,30 @@ class TypedConfig(AbstractTypedConfig):
     Can be used instead of load_into.
     """
 
-    def _update(self, _strict: bool = True, _allow_none: bool = False, _overwrite: bool = True, **values: Any) -> None:
+    def _update(
+        self,
+        _strict: bool = True,
+        _allow_none: bool = False,
+        _overwrite: bool = True,
+        _ignore_extra: bool = False,
+        _lower_keys: bool = False,
+        _normalize_keys: bool = True,
+        _convert_types: bool = False,
+        **values: Any,
+    ) -> Self:
         """
         Underscore version can be used if .update is overwritten with another value in the config.
         """
         annotations = all_annotations(self.__class__)
 
         for key, value in values.items():
+            if _lower_keys:
+                key = key.lower()
+
+            if _normalize_keys:
+                # replace - with _
+                key = _convert_key(key)
+
             if value is None and not _allow_none:
                 continue
 
@@ -34,15 +56,31 @@ class TypedConfig(AbstractTypedConfig):
                 continue
 
             if _strict and key not in annotations:
-                raise ConfigErrorExtraKey(cls=self.__class__, key=key, value=value)
+                if _ignore_extra:
+                    continue
+                else:
+                    raise ConfigErrorExtraKey(cls=self.__class__, key=key, value=value)
 
-            if _strict and not check_type(value, annotations[key]) and not (value is None and _allow_none):
-                raise ConfigErrorInvalidType(expected_type=annotations[key], key=key, value=value)
+            # check_and_convert_type
+            if _strict and not (value is None and _allow_none):
+                value = check_and_convert_type(value, annotations[key], convert_types=_convert_types, key=key)
 
             self.__dict__[key] = value
             # setattr(self, key, value)
 
-    def update(self, _strict: bool = True, _allow_none: bool = False, _overwrite: bool = True, **values: Any) -> None:
+        return self
+
+    def update(
+        self,
+        _strict: bool = True,
+        _allow_none: bool = False,
+        _overwrite: bool = True,
+        _ignore_extra: bool = False,
+        _lower_keys: bool = False,
+        _normalize_keys: bool = True,
+        _convert_types: bool = False,
+        **values: Any,
+    ) -> Self:
         """
         Update values on this config.
 
@@ -50,11 +88,38 @@ class TypedConfig(AbstractTypedConfig):
             _strict: allow wrong types?
             _allow_none: allow None or skip those entries?
             _overwrite: also update not-None values?
+            _ignore_extra: skip additional keys that aren't in the object.
+            _lower_keys: set the keys to lowercase (useful for env)
+            _normalize_keys: change - to _
+            _convert_types: try to convert variables to the right type if they aren't yet
+
             **values: key: value pairs in the right types to update.
         """
-        return self._update(_strict=_strict, _allow_none=_allow_none, _overwrite=_overwrite, **values)
+        return self._update(
+            _strict=_strict, _allow_none=_allow_none, _overwrite=_overwrite, _ignore_extra=_ignore_extra, **values
+        )
 
-    def _fill(self, _strict: bool = True, **values: typing.Any) -> None:
+    def __or__(self, other: dict[str, Any]) -> Self:
+        """
+        Allows config |= {}.
+
+        Where {} is a dict of new data and optionally settings (starting with _)
+
+        Returns an updated clone of the original object, so this works too:
+        new_config = config | {...}
+        """
+        to_update = self._clone()
+        return to_update._update(**other)
+
+    def update_from_env(self) -> Self:
+        """
+        Update (in place) using the current environment variables, lowered etc.
+
+        Ignores extra env vars.
+        """
+        return self._update(_ignore_extra=True, _lower_keys=True, _convert_types=True, **os.environ)
+
+    def _fill(self, _strict: bool = True, **values: typing.Any) -> Self:
         """
         Alias for update without overwrite.
 
@@ -62,7 +127,7 @@ class TypedConfig(AbstractTypedConfig):
         """
         return self._update(_strict, _allow_none=False, _overwrite=False, **values)
 
-    def fill(self, _strict: bool = True, **values: typing.Any) -> None:
+    def fill(self, _strict: bool = True, **values: typing.Any) -> Self:
         """
         Alias for update without overwrite.
         """
@@ -93,6 +158,9 @@ class TypedConfig(AbstractTypedConfig):
         if key.startswith("_"):
             return super().__setattr__(key, value)
         self._update(**{key: value})
+
+    def _clone(self) -> Self:
+        return copy.deepcopy(self)
 
 
 K = typing.TypeVar("K", bound=str)
@@ -135,7 +203,7 @@ class TypedMapping(TypedMappingAbstract[K, V]):
     Note: this can't be used as a singleton!
     """
 
-    def _update(self, *_: Any, **__: Any) -> None:
+    def _update(self, *_: Any, **__: Any) -> Never:
         raise ConfigErrorImmutable(self.__class__)
 
 
@@ -162,15 +230,18 @@ class TypedMutableMapping(TypedMappingAbstract[K, V], MutableMapping[K, V]):
         """
         del self.__dict__[key]
 
-    def update(self, *args: Any, **kwargs: V) -> None:  # type: ignore
+    def update(self, *args: Any, **kwargs: V) -> Self:  # type: ignore
         """
         Ensure TypedConfig.update is used en not MutableMapping.update.
         """
         return TypedConfig._update(self, *args, **kwargs)
 
 
+T = typing.TypeVar("T", bound=TypedConfig)
+
+
 # also expose as separate function:
-def update(self: Any, _strict: bool = True, _allow_none: bool = False, **values: Any) -> None:
+def update(self: T, _strict: bool = True, _allow_none: bool = False, **values: Any) -> T:
     """
     Update values on a config.
 

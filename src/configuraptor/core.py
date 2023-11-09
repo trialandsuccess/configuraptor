@@ -8,6 +8,7 @@ import os
 import typing
 import warnings
 from pathlib import Path
+from typing import Any, Type
 
 import requests
 
@@ -197,6 +198,8 @@ def load_data(
     try:
         return _load_data(data, key, classname, lower_keys=lower_keys, allow_types=allow_types)
     except Exception as e:
+        # sourcery skip: remove-unnecessary-else, simplify-empty-collection-comparison, swap-if-else-branches
+        # @sourcery: `key != ""` is NOT the same as `not key`
         if key != "":
             return _load_data(data, "", classname, lower_keys=lower_keys, allow_types=allow_types)
         else:  # pragma: no cover
@@ -209,7 +212,7 @@ def load_data(
 F = typing.TypeVar("F")
 
 
-def convert_between(from_value: F, from_type: typing.Type[F], to_type: type[T]) -> T:
+def convert_between(from_value: F, from_type: Type[F], to_type: Type[T]) -> T:
     """
     Convert a value between types.
     """
@@ -218,6 +221,39 @@ def convert_between(from_value: F, from_type: typing.Type[F], to_type: type[T]) 
 
     # default: just convert type:
     return to_type(from_value)  # type: ignore
+
+
+def check_and_convert_type(value: Any, _type: Type[T], convert_types: bool, key: str = "variable") -> T:
+    """
+    Checks if the given value matches the specified type. If it does, the value is returned as is.
+
+    Args:
+        value (Any): The value to be checked and potentially converted.
+        _type (Type[T]): The expected type for the value.
+        convert_types (bool): If True, allows type conversion if the types do not match.
+        key (str, optional): The name or key associated with the variable (used in error messages).
+                             Defaults to "variable".
+
+    Returns:
+        T: The value, potentially converted to the expected type.
+
+    Raises:
+        ConfigErrorInvalidType: If the type does not match, and type conversion is not allowed.
+        ConfigErrorCouldNotConvert: If type conversion fails.
+    """
+    if check_type(value, _type):
+        # type matches
+        return value
+
+    if not convert_types:
+        # type does not match and should not be converted
+        raise ConfigErrorInvalidType(key, value=value, expected_type=_type)
+
+    # else: type does not match, try to convert it
+    try:
+        return convert_between(value, type(value), _type)
+    except (TypeError, ValueError) as e:
+        raise ConfigErrorCouldNotConvert(type(value), _type, value) from e
 
 
 def ensure_types(
@@ -249,14 +285,7 @@ def ensure_types(
             # don't do anything with this item!
             continue
 
-        if not check_type(compare, _type):
-            if convert_types:
-                try:
-                    compare = convert_between(compare, type(compare), _type)
-                except (TypeError, ValueError) as e:
-                    raise ConfigErrorCouldNotConvert(type(compare), _type, compare) from e
-            else:
-                raise ConfigErrorInvalidType(key, value=compare, expected_type=_type)
+        compare = check_and_convert_type(compare, _type, convert_types, key)
 
         final[key] = compare
 
@@ -273,12 +302,12 @@ def convert_config(items: dict[str, T]) -> dict[str, T]:
     return {k.replace("-", "_").replace(".", "_"): v for k, v in items.items() if v is not None}
 
 
-Type = typing.Type[typing.Any]
-T_Type = typing.TypeVar("T_Type", bound=Type)
+AnyType: typing.TypeAlias = typing.Type[typing.Any]
+T_Type = typing.TypeVar("T_Type", bound=AnyType)
 
 
 def load_recursive(
-    cls: Type, data: dict[str, T], annotations: dict[str, Type], convert_types: bool = False
+    cls: AnyType, data: dict[str, T], annotations: dict[str, AnyType], convert_types: bool = False
 ) -> dict[str, T]:
     """
     For all annotations (recursively gathered from parents with `all_annotations`), \

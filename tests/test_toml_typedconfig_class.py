@@ -1,5 +1,6 @@
 import datetime as dt
 import math
+import os
 import typing
 
 import pytest
@@ -144,6 +145,30 @@ def test_typedconfig_update():
     first.update(new_key="some value", _strict=False)
     assert first.new_key == "some value"
 
+    assert not first.some_boolean
+    second = first | {
+        "some_boolean": True
+    }
+
+    assert not first.some_boolean
+    assert second.some_boolean
+
+    with pytest.raises(ConfigErrorExtraKey):
+        first.update(some_boolean=True, other="extra")
+
+    with pytest.raises(ConfigErrorInvalidType):
+        first.update(some_boolean=123, other="extra")
+
+    first.update(some_boolean=False, other="extra", _ignore_extra=True)
+
+    assert not first.some_boolean
+
+    os.environ["SOME-BOOLEAN"] = "1"
+
+    first.update_from_env()
+
+    assert first.some_boolean
+
 
 class VeryOptional(configuraptor.TypedConfig):
     value1: str | None
@@ -189,7 +214,6 @@ def test_typedconfig_fill():
     assert config2.value1 == "one"
     assert config2.value2 == "2"
     assert config2.value3 == 0
-
 
 
 class MyConfig(configuraptor.TypedConfig):
@@ -242,6 +266,13 @@ def test_mapping():
 
     with pytest.raises(ConfigErrorInvalidType):
         tool["third"] = 123
+
+    tool2 = tool | {
+        "third": "after update"
+    }
+
+    assert tool["third"] != "after update"
+    assert tool2["third"] == "after update"
 
     del tool["third"]
 
