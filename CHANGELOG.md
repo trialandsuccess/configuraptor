@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.23.0 (2023-11-09)
+### Feature
+* **alias:** You can now define aliases for keys ([`5c72993`](https://github.com/trialandsuccess/configuraptor/commit/5c72993a47af3f955d8f9c4275c22b13736c7456))
+
+### Documentation
+* **alias:** Added to example readme ([`72efe8f`](https://github.com/trialandsuccess/configuraptor/commit/72efe8fbe266c8903409036ac43adfcd6aa3112e))
+
 ## v1.22.3 (2023-11-09)
 ### Fix
 * **postponed:** Sometimes the two objects are not the same, so use type check instead of identity check ([`af9c1bb`](https://github.com/trialandsuccess/configuraptor/commit/af9c1bb454ba7c89bd7a6fa873dd70b1c03dcf61))
