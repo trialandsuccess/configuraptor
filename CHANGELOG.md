@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.22.2 (2023-11-09)
+### Fix
+* **env:** Default to converting types when loading from env ([`e939e48`](https://github.com/trialandsuccess/configuraptor/commit/e939e48f28892dfbbbc7b5dc312bcc50ad99bbe1))
+
 ## v1.22.1 (2023-11-09)
 ### Fix
 * **.env:** Use cwd when looking for .env instead of package path ([`40df59d`](https://github.com/trialandsuccess/configuraptor/commit/40df59da1f693d3ace260f868d49ffe8aa60abd3))
