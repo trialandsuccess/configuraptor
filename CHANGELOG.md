@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.22.1 (2023-11-09)
+### Fix
+* **.env:** Use cwd when looking for .env instead of package path ([`40df59d`](https://github.com/trialandsuccess/configuraptor/commit/40df59da1f693d3ace260f868d49ffe8aa60abd3))
+
 ## v1.22.0 (2023-11-09)
 ### Feature
 * **update:** Improved updating via |= syntax and from env ([`b846ff4`](https://github.com/trialandsuccess/configuraptor/commit/b846ff4f62a65e0553aef3f921bbcc17de6caaaf))
