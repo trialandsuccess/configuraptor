@@ -9,8 +9,9 @@ from typing import Any, Iterator
 
 from typing_extensions import Never, Self
 
+from . import Alias
 from .abs import AbstractTypedConfig
-from .core import check_and_convert_type
+from .core import check_and_convert_type, has_aliases
 from .errors import ConfigErrorExtraKey, ConfigErrorImmutable
 from .helpers import all_annotations
 from .loaders.loaders_shared import _convert_key
@@ -32,6 +33,7 @@ class TypedConfig(AbstractTypedConfig):
         _lower_keys: bool = False,
         _normalize_keys: bool = True,
         _convert_types: bool = False,
+        _update_aliases: bool = True,
         **values: Any,
     ) -> Self:
         """
@@ -68,6 +70,15 @@ class TypedConfig(AbstractTypedConfig):
             self.__dict__[key] = value
             # setattr(self, key, value)
 
+            if _update_aliases:
+                cls = self.__class__
+                prop = cls.__dict__.get(key)
+                if isinstance(prop, Alias):
+                    self.__dict__[prop.to] = value
+                else:
+                    for alias in has_aliases(cls, key):
+                        self.__dict__[alias] = value
+
         return self
 
     def update(
@@ -79,6 +90,7 @@ class TypedConfig(AbstractTypedConfig):
         _lower_keys: bool = False,
         _normalize_keys: bool = True,
         _convert_types: bool = False,
+        _update_aliases: bool = True,
         **values: Any,
     ) -> Self:
         """
@@ -92,11 +104,20 @@ class TypedConfig(AbstractTypedConfig):
             _lower_keys: set the keys to lowercase (useful for env)
             _normalize_keys: change - to _
             _convert_types: try to convert variables to the right type if they aren't yet
+            _update_aliases: also update related fields?
 
             **values: key: value pairs in the right types to update.
         """
         return self._update(
-            _strict=_strict, _allow_none=_allow_none, _overwrite=_overwrite, _ignore_extra=_ignore_extra, **values
+            _strict=_strict,
+            _allow_none=_allow_none,
+            _overwrite=_overwrite,
+            _ignore_extra=_ignore_extra,
+            _lower_keys=_lower_keys,
+            _normalize_keys=_normalize_keys,
+            _convert_types=_convert_types,
+            _update_aliases=_update_aliases,
+            **values,
         )
 
     def __or__(self, other: dict[str, Any]) -> Self:

@@ -288,6 +288,10 @@ def ensure_types(
         if isinstance(compare, Alias):
             related_data = data.get(compare.to, notfound)
             if related_data is not notfound:
+                if isinstance(related_data, Postponed):
+                    # also continue alias for postponed items
+                    continue
+
                 # original key set, update alias
                 compare = related_data
 
@@ -312,6 +316,15 @@ AnyType: typing.TypeAlias = typing.Type[typing.Any]
 T_Type = typing.TypeVar("T_Type", bound=AnyType)
 
 
+def has_aliases(cls: AnyType, key: str) -> typing.Generator[str, None, None]:
+    """
+    Generate all aliases that point to 'key' in 'cls'.
+    """
+    for field, value in cls.__dict__.items():
+        if isinstance(value, Alias) and value.to == key:
+            yield field
+
+
 def has_alias(cls: AnyType, key: str, data: dict[str, T]) -> typing.Optional[T]:
     """
     Get the value of any alias in the same config class that references `key`.
@@ -323,6 +336,8 @@ def has_alias(cls: AnyType, key: str, data: dict[str, T]) -> typing.Optional[T]:
 
     load_into(Config, {'key2': 'something'})
     # -> key1 will look up the value of key2 because it's configured as an alias for it.
+
+    If multiple aliases point to the same base, they are all iterated until a valid value was found.
     """
     # for field, value in cls.__dict__.items():
     #     if isinstance(value, Alias) and value.to == key:
@@ -332,7 +347,7 @@ def has_alias(cls: AnyType, key: str, data: dict[str, T]) -> typing.Optional[T]:
     # return None
 
     return next(
-        (data.get(field) for field, value in cls.__dict__.items() if isinstance(value, Alias) and value.to == key),
+        (value for field in has_aliases(cls, key) if (value := data.get(field))),
         None,
     )
 
