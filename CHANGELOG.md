@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.22.0 (2023-11-09)
+### Feature
+* **update:** Improved updating via |= syntax and from env ([`b846ff4`](https://github.com/trialandsuccess/configuraptor/commit/b846ff4f62a65e0553aef3f921bbcc17de6caaaf))
+
 ## v1.21.0 (2023-11-07)
 ### Feature
 * **env:** Cls.from_env function to load config from env (os.environ or dotenv) ([`1b16350`](https://github.com/trialandsuccess/configuraptor/commit/1b16350841de0abbaaf688c257db18208bcc18f3))
