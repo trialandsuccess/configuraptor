@@ -32,6 +32,11 @@ def test_it():
 
     assert conf2.key_one == conf2.key_two == "two"
 
+    # normal one should have priority over alias field:
+    conf3 = load_into(MyConfig, {"key_one": "ONE", "key_two": "two"})
+
+    assert conf3.key_one == "ONE"
+
 
 def test_with_postpone():
     c = AliasWithPostponed.load(
