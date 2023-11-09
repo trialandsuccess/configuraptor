@@ -55,7 +55,7 @@ class AbstractTypedConfig:
         load_dotenv: str | bool = False,
         init: dict[str, typing.Any] = None,
         strict: bool = True,
-        convert_types: bool = False,
+        convert_types: bool = True,
     ) -> C:
         """
         Create an instance of the typed config class by loading environment variables and initializing \
