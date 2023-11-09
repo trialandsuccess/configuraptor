@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.23.1 (2023-11-09)
+### Fix
+* **alias:** Work with postpone and update ([`3dc2ada`](https://github.com/trialandsuccess/configuraptor/commit/3dc2ada06ee3a14ead7f4861aab518c644716568))
+
 ## v1.23.0 (2023-11-09)
 ### Feature
 * **alias:** You can now define aliases for keys ([`5c72993`](https://github.com/trialandsuccess/configuraptor/commit/5c72993a47af3f955d8f9c4275c22b13736c7456))
