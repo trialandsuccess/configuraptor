@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.23.2 (2023-11-15)
+### Fix
+* Require a reasonable modern version of typeguard ([`1f1cbee`](https://github.com/trialandsuccess/configuraptor/commit/1f1cbee121e0fb9a7a9576ab3e22d1d03ede0c11))
+
 ## v1.23.1 (2023-11-09)
 ### Fix
 * **alias:** Work with postpone and update ([`3dc2ada`](https://github.com/trialandsuccess/configuraptor/commit/3dc2ada06ee3a14ead7f4861aab518c644716568))
