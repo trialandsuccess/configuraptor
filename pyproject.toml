@@ -29,7 +29,7 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-    "typeguard",
+    "typeguard >= 4.0",
     "tomli", # Python 3.10 does not have tomllib and tomlkit has weird types
     "tomli_w", # tomllib does not support dumping :(
     "requests",
