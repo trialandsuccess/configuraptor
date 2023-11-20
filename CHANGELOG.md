@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.23.4 (2023-11-20)
+### Fix
+* **alias:** Freeze and set slots so it can be used in a dataclass ([`a382269`](https://github.com/trialandsuccess/configuraptor/commit/a38226932c67281667c34171e0b01a6fb98925c7))
+
 ## v1.23.3 (2023-11-20)
 ### Fix
 * If alias points to an Optional key and it is missing, don't throw an error but set the value to None ([`26ec586`](https://github.com/trialandsuccess/configuraptor/commit/26ec5869d24a53f081a844d63ad4fe93ec0ebeb5))
