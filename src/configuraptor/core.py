@@ -246,6 +246,13 @@ def check_and_convert_type(value: Any, _type: Type[T], convert_types: bool, key:
         # type matches
         return value
 
+    if isinstance(value, Alias):
+        if is_optional(_type):
+            return typing.cast(T, None)
+        else:
+            # unresolved alias, error should've already been thrown for parent but lets do it again:
+            raise ConfigErrorInvalidType(value.to, value=value, expected_type=_type)
+
     if not convert_types:
         # type does not match and should not be converted
         raise ConfigErrorInvalidType(key, value=value, expected_type=_type)

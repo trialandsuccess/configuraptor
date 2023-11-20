@@ -1,6 +1,9 @@
+from typing import Optional
+
 import pytest
 
 from src.configuraptor import TypedConfig, alias, load_into, postpone
+from src.configuraptor.core import check_and_convert_type
 from src.configuraptor.errors import ConfigError
 
 
@@ -16,11 +19,16 @@ class MyConfigInvalid(TypedConfig):
 
 class AliasWithPostponed(TypedConfig):
     first: str = postpone()
-    second: str = alias('first')
+    second: str = alias("first")
 
 
 class MyConfigInvalidTwo(TypedConfig):
     key_five: str = alias("key_five")
+
+
+class UnresolvedOptionalAlias(TypedConfig):
+    fro: Optional[str]
+    to: Optional[str] = alias("fro")
 
 
 def test_it():
@@ -37,11 +45,16 @@ def test_it():
 
     assert conf3.key_one == "ONE"
 
+    conf = UnresolvedOptionalAlias.load()
+
+    assert conf.fro is None
+    assert conf.to is None
+
+    assert check_and_convert_type(alias("something"), Optional[str], False) is None
+
 
 def test_with_postpone():
-    c = AliasWithPostponed.load(
-        {"first": "one"}
-    )
+    c = AliasWithPostponed.load({"first": "one"})
 
     assert c.first == c.second == "one"
 
