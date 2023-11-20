@@ -1,6 +1,6 @@
 # not directly testable
-import math
 import io
+import math
 import typing
 from pathlib import Path
 

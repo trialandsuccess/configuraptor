@@ -146,9 +146,7 @@ def test_typedconfig_update():
     assert first.new_key == "some value"
 
     assert not first.some_boolean
-    second = first | {
-        "some_boolean": True
-    }
+    second = first | {"some_boolean": True}
 
     assert not first.some_boolean
     assert second.some_boolean
@@ -267,9 +265,7 @@ def test_mapping():
     with pytest.raises(ConfigErrorInvalidType):
         tool["third"] = 123
 
-    tool2 = tool | {
-        "third": "after update"
-    }
+    tool2 = tool | {"third": "after update"}
 
     assert tool["third"] != "after update"
     assert tool2["third"] == "after update"

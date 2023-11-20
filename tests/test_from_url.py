@@ -10,15 +10,15 @@ class Configuration:
 
 
 def mock_request_one():
-    return {'color': 'green', 'width': 15}
+    return {"color": "green", "width": 15}
 
 
 def mock_request_two():
-    return {'color': 'green'}
+    return {"color": "green"}
 
 
 def mock_request_three():
-    return {'width': 15}
+    return {"width": 15}
 
 
 def mock_url(callback):
@@ -37,6 +37,7 @@ def test_from_url():
     # from content-type
     assert filetype == "json"
 
+
 def test_one_url():
     inst = load_into(Configuration, mock_url(mock_request_one))
 
@@ -52,7 +53,7 @@ def test_multiple_urls():
 
 
 def test_mixed():
-    inst = load_into(Configuration, [mock_url(mock_request_two), {'width': 15}])
+    inst = load_into(Configuration, [mock_url(mock_request_two), {"width": 15}])
 
     assert inst.color == "green"
     assert inst.width == 15

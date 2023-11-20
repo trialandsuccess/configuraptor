@@ -112,14 +112,12 @@ def test_multiple_files():
     public_file = str(PYTEST_EXAMPLES / "my_config.toml")
     private_file = str(PYTEST_EXAMPLES / "my_secrets.env")
 
-    config = configuraptor.load_into(MyConfig,
-                                     [public_file,  # toml
-                                      private_file,  # .env
-                                      {"extra": 3}  # raw dict
-                                      ],
-                                     key="my_config.custom"  # should work even if only relevant for toml file
-                                     # lower keys is automatically set to True
-                                     )
+    config = configuraptor.load_into(
+        MyConfig,
+        [public_file, private_file, {"extra": 3}],  # toml  # .env  # raw dict
+        key="my_config.custom"  # should work even if only relevant for toml file
+        # lower keys is automatically set to True
+    )
 
     assert config.public_key == "this is public"
     assert config.private_key == "THIS IS PRIVATE" != "<overwite me>"
@@ -227,7 +225,7 @@ class ProjectToml:
 
 def test_pyproject_toml():
     with chdir("pytest_examples/nested"):
-        config = configuraptor.load_into(ProjectToml, key='tool.configuraptor.test')
+        config = configuraptor.load_into(ProjectToml, key="tool.configuraptor.test")
 
     assert config.my_key == "my_value"
 

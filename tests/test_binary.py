@@ -5,8 +5,7 @@ import tomli_w
 import yaml
 
 from src import configuraptor
-from src.configuraptor import BinaryField, BinaryConfig
-from src.configuraptor import asbytes
+from src.configuraptor import BinaryConfig, BinaryField, asbytes
 
 
 class MyBinaryConfig(BinaryConfig):
@@ -38,9 +37,7 @@ class NestedBinaryConfig(BinaryConfig):
 
 def test_binary_config():
     binary = struct.pack("I 5s f d 10s b", 42, "Hello".encode(), 3.6, 10 / 3, b"Hi", True)
-    data = {
-        'binary': binary
-    }
+    data = {"binary": binary}
 
     inst = configuraptor.load_into(TopLevel, data).binary
     assert MyBinaryConfig.load(binary)
@@ -59,7 +56,7 @@ def test_nested_binary_config():
     data2 = struct.pack("32s", yaml.dump(input_data2).encode())
     data3 = struct.pack("32s", tomli_w.dumps(input_data2).encode())
 
-    inst = NestedBinaryConfig.load({'data2': data2, 'data1': data1, 'data3': data3})
+    inst = NestedBinaryConfig.load({"data2": data2, "data1": data1, "data3": data3})
 
     assert inst.data1.name != inst.data2.name
 

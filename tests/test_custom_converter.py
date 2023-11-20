@@ -37,10 +37,8 @@ def test_csv_converter():
         {
             # custom:
             "data": "this,is,csv",
-
             "numbers": "1,22,3",
             "strings": "1,22,3",  # same data, different annotation -> different output
-
             # builtin converters:
             "boolean": "false",
             "none": "",
