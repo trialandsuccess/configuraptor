@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.23.3 (2023-11-20)
+### Fix
+* If alias points to an Optional key and it is missing, don't throw an error but set the value to None ([`26ec586`](https://github.com/trialandsuccess/configuraptor/commit/26ec5869d24a53f081a844d63ad4fe93ec0ebeb5))
+
 ## v1.23.2 (2023-11-15)
 ### Fix
 * Require a reasonable modern version of typeguard ([`1f1cbee`](https://github.com/trialandsuccess/configuraptor/commit/1f1cbee121e0fb9a7a9576ab3e22d1d03ede0c11))
