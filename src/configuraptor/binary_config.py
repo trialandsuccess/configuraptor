@@ -134,7 +134,7 @@ class BinaryConfig(AbstractTypedConfig):
         return super().__setattr__(key, value)
 
 
-@dataclass
+@dataclass(slots=True)
 class _BinaryField:
     """
     Class that stores info to parse the value from a bytestring.
