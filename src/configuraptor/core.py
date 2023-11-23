@@ -430,7 +430,9 @@ def load_recursive(
                     value,
                     convert_types=convert_types,
                 )
-
+        elif value := has_alias(cls, _key, data):
+            # value updated by alias
+            ...
         elif _key in cls.__dict__:
             # property has default, use that instead.
             value = cls.__dict__[_key]
@@ -441,9 +443,6 @@ def load_recursive(
             # could have a default factory
             # todo: do something with field.default?
             value = field.default_factory()
-        elif value := has_alias(cls, _key, data):
-            # value updated by alias
-            ...
         else:
             raise ConfigErrorMissingKey(_key, cls, _type)
 
