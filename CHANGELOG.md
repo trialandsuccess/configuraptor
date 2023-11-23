@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.23.5 (2023-11-23)
+### Fix
+* **alias:** Alias not always detected (e.g. in the case of postponed) ([`041f82c`](https://github.com/trialandsuccess/configuraptor/commit/041f82c6750ef96c0fadf2fe7e803b0c9814d11b))
+
 ## v1.23.4 (2023-11-20)
 ### Fix
 * **alias:** Freeze and set slots so it can be used in a dataclass ([`a382269`](https://github.com/trialandsuccess/configuraptor/commit/a38226932c67281667c34171e0b01a6fb98925c7))
