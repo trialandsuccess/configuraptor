@@ -11,7 +11,8 @@ from typing_extensions import Never, Self
 
 from . import Alias
 from .abs import AbstractTypedConfig
-from .core import check_and_convert_type, has_aliases
+from .alias import has_aliases
+from .core import check_and_convert_type
 from .errors import ConfigErrorExtraKey, ConfigErrorImmutable
 from .helpers import all_annotations
 from .loaders.loaders_shared import _convert_key

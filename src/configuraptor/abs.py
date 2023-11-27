@@ -22,6 +22,9 @@ C = typing.TypeVar("C")
 # type c is a config class
 Type_C = typing.Type[C]
 
+AnyType: typing.TypeAlias = typing.Type[typing.Any]
+T_Type = typing.TypeVar("T_Type", bound=AnyType)
+
 
 class AbstractTypedConfig:
     """

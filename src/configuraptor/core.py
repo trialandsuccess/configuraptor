@@ -13,8 +13,8 @@ from typing import Any, Type
 import requests
 
 from . import loaders
-from .abs import C, T, T_data, Type_C
-from .alias import Alias
+from .abs import AnyType, C, T, T_data, Type_C
+from .alias import Alias, has_alias
 from .binary_config import BinaryConfig
 from .errors import (
     ConfigErrorCouldNotConvert,
@@ -317,46 +317,6 @@ def convert_config(items: dict[str, T]) -> dict[str, T]:
     2. replaces '-' and '.' in keys with '_' so it can be mapped to the Config properties.
     """
     return {k.replace("-", "_").replace(".", "_"): v for k, v in items.items() if v is not None}
-
-
-AnyType: typing.TypeAlias = typing.Type[typing.Any]
-T_Type = typing.TypeVar("T_Type", bound=AnyType)
-
-
-def has_aliases(cls: AnyType, key: str) -> typing.Generator[str, None, None]:
-    """
-    Generate all aliases that point to 'key' in 'cls'.
-    """
-    for field, value in cls.__dict__.items():
-        if isinstance(value, Alias) and value.to == key:
-            yield field
-
-
-def has_alias(cls: AnyType, key: str, data: dict[str, T]) -> typing.Optional[T]:
-    """
-    Get the value of any alias in the same config class that references `key`.
-
-    Example:
-        class Config:
-            key1: str
-            key2: str = alias('key1')
-
-    load_into(Config, {'key2': 'something'})
-    # -> key1 will look up the value of key2 because it's configured as an alias for it.
-
-    If multiple aliases point to the same base, they are all iterated until a valid value was found.
-    """
-    # for field, value in cls.__dict__.items():
-    #     if isinstance(value, Alias) and value.to == key:
-    #         # yay!
-    #         return data.get(field)
-    #
-    # return None
-
-    return next(
-        (value for field in has_aliases(cls, key) if (value := data.get(field))),
-        None,
-    )
 
 
 def load_recursive(

@@ -3,6 +3,7 @@ from typing import Optional
 import pytest
 
 from src.configuraptor import TypedConfig, alias, load_into, postpone
+from src.configuraptor.alias import is_alias
 from src.configuraptor.core import check_and_convert_type
 from src.configuraptor.errors import ConfigError
 
@@ -85,3 +86,8 @@ def test_invalid():
         load_into(MyConfigInvalidTwo, {})
 
     assert load_into(MyConfigInvalidTwo, {"key_five": "123"})
+
+
+def test_is_alias():
+    assert not is_alias(UnresolvedOptionalAlias, "fro")
+    assert is_alias(UnresolvedOptionalAlias, "to")
