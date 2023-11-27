@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.24.0 (2023-11-27)
+### Feature
+* **alias:** Move alias helpers to alias module + add is_alias helper ([`b19b89f`](https://github.com/trialandsuccess/configuraptor/commit/b19b89f46df7a0823303a83a165badb38ff88ad7))
+
 ## v1.23.5 (2023-11-23)
 ### Fix
 * **alias:** Alias not always detected (e.g. in the case of postponed) ([`041f82c`](https://github.com/trialandsuccess/configuraptor/commit/041f82c6750ef96c0fadf2fe7e803b0c9814d11b))
