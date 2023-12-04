@@ -23,7 +23,11 @@ def test_postponed_can_be_filled_later():
 
     # later.other_field should throw an error
     with pytest.raises(IsPostponedError):
-        print(later.other_field)
+        try:
+            print(later.other_field)
+        except IsPostponedError as e:
+            assert "Later.other_field" in str(e)
+            raise e
 
     later.update()
 

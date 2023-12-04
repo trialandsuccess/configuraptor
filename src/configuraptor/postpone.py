@@ -2,7 +2,7 @@
 File contains logic to do with the 'postpone' feature.
 """
 
-from typing import Any
+from typing import Any, Optional
 
 from typing_extensions import Never
 
@@ -15,6 +15,23 @@ class Postponed(Singleton):
     Class returned by `postpone` below.
     """
 
+    def __get_property_name__(self, instance: type[Any], owner: type[Any]) -> Optional[str]:
+        """
+        Internal method to get the property name of the class this descriptor is being used on.
+        """
+        if not instance:  # pragma: no cover
+            return None
+
+        # instance: the instance the descriptor is accessed from
+        # owner: the class that owns the descriptor
+        property_name = None
+        for attr_name, attr_value in owner.__dict__.items():
+            if attr_value is self:
+                property_name = attr_name
+                break
+        # return instance.__dict__.get(property_name, None)
+        return property_name
+
     def __get__(self, instance: type[Any], owner: type[Any]) -> Never:
         """
         This magic method is called when a property is accessed.
@@ -26,7 +43,12 @@ class Postponed(Singleton):
             instance: the class on which the postponed property is defined,
             owner: `SingletonMeta`
         """
-        raise IsPostponedError()
+        msg = f"Err: Using postponed property on {owner.__name__}"
+
+        if name := self.__get_property_name__(instance, owner):
+            msg += f".{name}"
+
+        raise IsPostponedError(msg)
 
 
 def postpone() -> Any:
