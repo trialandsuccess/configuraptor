@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.24.1 (2023-12-04)
+
+### Fix
+
+* Postpone() now gives a more descriptive error when being accessed ([`da69257`](https://github.com/trialandsuccess/configuraptor/commit/da6925786fc765262911235687686c98fda96518))
+
 ## v1.24.0 (2023-11-27)
 ### Feature
 * **alias:** Move alias helpers to alias module + add is_alias helper ([`b19b89f`](https://github.com/trialandsuccess/configuraptor/commit/b19b89f46df7a0823303a83a165badb38ff88ad7))
