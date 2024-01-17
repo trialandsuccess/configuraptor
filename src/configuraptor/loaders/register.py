@@ -86,7 +86,7 @@ def register_loader(*extension_args: str | T_loader) -> T_loader | T_WrappedLoad
 
 
 @typing.overload
-def register_dumper(*extension_args: str) -> AnyCallable:
+def register_dumper(*extension_args: str) -> typing.Callable[[typing.Callable[..., R]], typing.Callable[..., R]]:
     """
     Overload for case with parens.
 
@@ -113,7 +113,9 @@ def register_dumper(*extension_args: typing.Callable[..., R]) -> typing.Callable
     """
 
 
-def register_dumper(*extension_args: str | typing.Callable[..., R]) -> AnyCallable | typing.Callable[..., R]:
+def register_dumper(
+    *extension_args: str | typing.Callable[..., R]
+) -> typing.Callable[[typing.Callable[..., R]], typing.Callable[..., R]] | typing.Callable[..., R]:
     """
     Register a data dumper for a new filetype.
 
