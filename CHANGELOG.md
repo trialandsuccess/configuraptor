@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.24.2 (2024-01-17)
+
+### Fix
+
+* Allow excluding internal variables from asdict/asjson/etc ([`35af912`](https://github.com/trialandsuccess/configuraptor/commit/35af912e1949e6d0754976817b348c9a339db439))
+
 ## v1.24.1 (2023-12-04)
 
 ### Fix
