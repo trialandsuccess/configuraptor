@@ -14,15 +14,32 @@ from .loaders.register import register_dumper
 if typing.TYPE_CHECKING:  # pragma: no cover
     from .binary_config import BinaryConfig
 
+PUBLIC = 0  # class.variable
+PROTECTED = 1  # class._variable
+PRIVATE = 2  # class.__variable
+
+T_Scope = typing.Literal[0, 1, 2] | bool
+
 
 @register_dumper("dict")
-def asdict(inst: typing.Any, _level: int = 0, /, with_top_level_key: bool = True) -> dict[str, typing.Any]:
+def asdict(
+    inst: typing.Any, _level: int = 0, /, with_top_level_key: bool = True, exclude_internals: T_Scope = 0
+) -> dict[str, typing.Any]:
     """
     Dump a config instance to a dictionary (recursively).
     """
     data: dict[str, typing.Any] = {}
 
+    internals_prefix = f"_{inst.__class__.__name__}__"
     for key, value in inst.__dict__.items():
+        if exclude_internals == PROTECTED and key.startswith(internals_prefix):
+            # skip _ and __ on level 2
+            continue
+        elif exclude_internals == PRIVATE and key.startswith("_"):
+            # skip __ on level 1
+            continue
+        # else: skip nothing
+
         cls = value.__class__
         if is_custom_class(cls):
             value = asdict(value, _level + 1)
@@ -46,7 +63,11 @@ def astoml(inst: typing.Any, multiline_strings: bool = False, **kw: typing.Any) 
     """
     Dump a config instance to toml (recursively).
     """
-    data = asdict(inst, with_top_level_key=kw.pop("with_top_level_key", True))
+    data = asdict(
+        inst,
+        with_top_level_key=kw.pop("with_top_level_key", True),
+        exclude_internals=kw.pop("exclude_internals", False),
+    )
     return tomli_w.dumps(data, multiline_strings=multiline_strings)
 
 
@@ -55,7 +76,11 @@ def asjson(inst: typing.Any, **kw: typing.Any) -> str:
     """
     Dump a config instance to json (recursively).
     """
-    data = asdict(inst, with_top_level_key=kw.pop("with_top_level_key", True))
+    data = asdict(
+        inst,
+        with_top_level_key=kw.pop("with_top_level_key", True),
+        exclude_internals=kw.pop("exclude_internals", False),
+    )
     return json.dumps(data, **kw)
 
 
@@ -64,7 +89,11 @@ def asyaml(inst: typing.Any, **kw: typing.Any) -> str:
     """
     Dump a config instance to yaml (recursively).
     """
-    data = asdict(inst, with_top_level_key=kw.pop("with_top_level_key", True))
+    data = asdict(
+        inst,
+        with_top_level_key=kw.pop("with_top_level_key", True),
+        exclude_internals=kw.pop("exclude_internals", False),
+    )
     output = yaml.dump(data, encoding=None, **kw)
     # output is already a str but mypy doesn't know that
     return typing.cast(str, output)

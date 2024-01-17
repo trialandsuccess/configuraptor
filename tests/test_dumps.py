@@ -1,6 +1,7 @@
 import json
 import typing
 
+import pytest
 import tomli_w
 import yaml
 
@@ -49,6 +50,10 @@ class Complex(TypedConfig):
     dependencies: list[Dependency]
     extra: dict[str, Dependency]
 
+    def update_internals(self):
+        self._internal = "weird"
+        self.__callable = self.update_internals
+
 
 data_complex = {
     "complex": {
@@ -64,11 +69,21 @@ complex = Complex.load(data_complex)
 
 
 def test_asdict_complex():
+    complex.update_internals()
+
+    with pytest.raises(Exception):
+        # because cls.__callable is not json serializable
+        asjson(complex, exclude_internals=0)
+
     data_complex["complex"].pop("ignored")
     json_complex = json.dumps(data_complex)
+    assert asjson(complex, exclude_internals=2) == json_complex
 
-    assert asjson(complex) == json_complex
+    data_complex["complex"]["_internal"] = "weird"
+    json_complex = json.dumps(data_complex)
+
+    assert asjson(complex, exclude_internals=1) == json_complex
 
 
-def test_asdict_dataclass():
-    ...
+# def test_asdict_dataclass():
+#     ...
