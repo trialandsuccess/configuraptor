@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.24.3 (2024-01-17)
+
+### Fix
+
+* **mypy:** Proper return type for @register_dumper decorated functions like asjson ([`77a96ce`](https://github.com/trialandsuccess/configuraptor/commit/77a96ce2a8fd019dc41c8f6ee7258f6b1343ddbc))
+
 ## v1.24.2 (2024-01-17)
 
 ### Fix
