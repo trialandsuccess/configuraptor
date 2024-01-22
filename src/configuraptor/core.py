@@ -309,6 +309,13 @@ def ensure_types(
     return final
 
 
+def convert_key(key: str) -> str:
+    """
+    Replaces '-' and '.' in keys with '_' so it can be mapped to the Config properties.
+    """
+    return key.replace("-", "_").replace(".", "_")
+
+
 def convert_config(items: dict[str, T]) -> dict[str, T]:
     """
     Converts the config dict (from toml) or 'overwrites' dict in two ways.
@@ -316,7 +323,7 @@ def convert_config(items: dict[str, T]) -> dict[str, T]:
     1. removes any items where the value is None, since in that case the default should be used;
     2. replaces '-' and '.' in keys with '_' so it can be mapped to the Config properties.
     """
-    return {k.replace("-", "_").replace(".", "_"): v for k, v in items.items() if v is not None}
+    return {convert_key(k): v for k, v in items.items() if v is not None}
 
 
 def load_recursive(
