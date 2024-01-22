@@ -267,6 +267,33 @@ assert config.new_key == "some value"
 
 ```
 
+### `__repr__` and `__str__` via `@beautify`
+
+Since these magic methods can't be inherited,
+there is a `beautify` decorator which can set nice defaults.
+You can specify which of these functions you would like to 'patch'. If a custom function already exists on the class, it
+will not be overwritten.
+
+```python
+from configuraptor import beautify
+
+
+@beautify  # parentheses () are optional
+class MyConfig:  # inheriting from TypedConfig is optional
+    ...
+    # __repr__ and __str__ are set
+
+
+@beautify(repr=False, str=True)
+class MyOtherConfig:
+    def __str__(self):
+        return "..."
+
+    # __str__ is already set and repr is set to False,
+    # so nothing will be changed on this class
+
+```
+
 ## Binary Config
 
 To load a bytestring (from struct.pack) into a config class, use `BinaryConfig` with `BinaryField`:
@@ -479,7 +506,7 @@ class Config:
     key2: str = alias('key1')
 
 
-conf = load_into(Config, {'key2': 'something'}) # or {key1: ...}
+conf = load_into(Config, {'key2': 'something'})  # or {key1: ...}
 # -> key1 will look up the value of key2 because it's configured as an alias for it.
 assert conf.key1 == conf.key2 == "something"
 ```
