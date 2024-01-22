@@ -38,20 +38,21 @@ def patch(cls: typing.Type[T], patch_repr: bool, patch_str: bool) -> None:
         Custom __repr__ by configuraptor @beautify.
         """
         clsname = type(self).__name__
-        return f"<{clsname} {asdict(self)}>"
+        data = asdict(self, with_top_level_key=False, exclude_internals=2)
+        return f"<{clsname} {data}>"
+
+    def _str(self: T) -> str:
+        """
+        Custom __str__ by configuraptor @beautify.
+        """
+        return asjson(self, with_top_level_key=False, exclude_internals=2)
 
     # if magic method is already set, don't overwrite it!
     if patch_str and is_default(cls, "__str__"):
-        cls.__str__ = asjson  # type: ignore
+        cls.__str__ = _str  # type: ignore
 
     if patch_repr and is_default(cls, "__repr__"):
         cls.__repr__ = _repr  # type: ignore
-
-    print(
-        cls.__name__,
-        cls.__str__,
-        cls.__repr__,
-    )
 
 
 @typing.overload
@@ -92,12 +93,6 @@ def beautify(
     Returns:
         The beautified class or the beautify decorator.
     """
-    print(
-        maybe_cls,
-        repr,
-        str,
-    )
-
     if maybe_cls:
         patch(maybe_cls, patch_repr=repr, patch_str=str)
         return maybe_cls

@@ -11,6 +11,7 @@ from src.configuraptor.beautify import beautify
 class MyClass:
     string: str
     number: int
+    _internal: bool = False
 
 
 @beautify(repr=True, str=False)
@@ -55,6 +56,8 @@ def test_repr() -> None:
     assert "MyClass" in repr(test1)
     assert "string" in repr(test1)
     assert "123" in repr(test1)
+    assert "_internal" not in repr(test1)
+    assert "_internal" not in str(test1)
 
     assert "MyOtherClass" in repr(test2)
     assert "number" in repr(test2)
