@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.24.4 (2024-01-22)
+### Fix
+* Extracted `convert_key` to own function so it can be used elsewhere ([`d923802`](https://github.com/trialandsuccess/configuraptor/commit/d923802e7577f2075f5051a724b3ed9a8443b8ff))
+
 ## v1.24.3 (2024-01-17)
 
 ### Fix
