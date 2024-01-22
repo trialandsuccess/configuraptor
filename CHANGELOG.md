@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.25.1 (2024-01-22)
+### Fix
+* **beautify:** Minor tweaks and cleanup ([`fdfe1fe`](https://github.com/trialandsuccess/configuraptor/commit/fdfe1fe42f51d639076ff8515e90b86d84bcbd5b))
+
 ## v1.25.0 (2024-01-22)
 ### Feature
 * **beautify:** Added the @beautify decorator to automatically set a nice __repr__ and __str__ (since these don't inherit) ([`366a8b0`](https://github.com/trialandsuccess/configuraptor/commit/366a8b0cb8d80ae21a21073bf7f5a01389696af6))
