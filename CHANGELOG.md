@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.25.0 (2024-01-22)
+### Feature
+* **beautify:** Added the @beautify decorator to automatically set a nice __repr__ and __str__ (since these don't inherit) ([`366a8b0`](https://github.com/trialandsuccess/configuraptor/commit/366a8b0cb8d80ae21a21073bf7f5a01389696af6))
+
+### Documentation
+* **beautify:** Include an example for `@beautify` ([`b51d8d5`](https://github.com/trialandsuccess/configuraptor/commit/b51d8d508d8e94b12f99346e674d5ac5d08ae4c3))
+
 ## v1.24.4 (2024-01-22)
 ### Fix
 * Extracted `convert_key` to own function so it can be used elsewhere ([`d923802`](https://github.com/trialandsuccess/configuraptor/commit/d923802e7577f2075f5051a724b3ed9a8443b8ff))
