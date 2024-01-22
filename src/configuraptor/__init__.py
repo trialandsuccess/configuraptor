@@ -6,6 +6,7 @@ Exposes TypedConfig and load_into for this library.
 #
 # SPDX-License-Identifier: MIT
 from .alias import Alias, alias
+from .beautify import beautify
 from .binary_config import BinaryConfig, BinaryField
 from .cls import TypedConfig, TypedMapping, TypedMutableMapping, update
 from .core import (
@@ -25,6 +26,8 @@ from .singleton import Singleton, SingletonMeta
 from .type_converters import register_converter as converter
 
 __all__ = [
+    # beautify,
+    "beautify",
     # binary
     "BinaryConfig",
     "BinaryField",
