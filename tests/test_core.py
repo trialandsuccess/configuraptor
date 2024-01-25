@@ -23,6 +23,10 @@ def test_is_optional_with_weird_inputs():
     assert is_optional(math.nan) is False
     assert is_optional(typing.Optional[dict[str, typing.Optional[str]]]) is True
 
+    assert not is_optional("")
+    assert not is_optional("something")
+    assert not is_optional(object())
+
 
 def test_as_binaryio():
     path = Path("/tmp/pytest_asbinary_file")

@@ -14,10 +14,12 @@ from .abs import AbstractTypedConfig
 from .alias import has_aliases
 from .core import check_and_convert_type
 from .errors import ConfigErrorExtraKey, ConfigErrorImmutable
-from .helpers import all_annotations
+from .helpers import all_annotations, is_optional
 from .loaders.loaders_shared import _convert_key
 
 C = typing.TypeVar("C", bound=Any)
+
+NO_ANNOTATION = typing.NewType("NO_ANNOTATION", object)  # SentinelObject
 
 
 class TypedConfig(AbstractTypedConfig):
@@ -50,7 +52,9 @@ class TypedConfig(AbstractTypedConfig):
                 # replace - with _
                 key = _convert_key(key)
 
-            if value is None and not _allow_none:
+            annotation = annotations.get(key, NO_ANNOTATION)
+
+            if not is_optional(annotation) and value is None and not _allow_none:
                 continue
 
             existing_value = self.__dict__.get(key)
@@ -58,7 +62,7 @@ class TypedConfig(AbstractTypedConfig):
                 # fill mode, don't overwrite
                 continue
 
-            if _strict and key not in annotations:
+            if _strict and annotation is NO_ANNOTATION:
                 if _ignore_extra:
                     continue
                 else:
@@ -66,7 +70,7 @@ class TypedConfig(AbstractTypedConfig):
 
             # check_and_convert_type
             if _strict and not (value is None and _allow_none):
-                value = check_and_convert_type(value, annotations[key], convert_types=_convert_types, key=key)
+                value = check_and_convert_type(value, annotation, convert_types=_convert_types, key=key)
 
             self.__dict__[key] = value
             # setattr(self, key, value)

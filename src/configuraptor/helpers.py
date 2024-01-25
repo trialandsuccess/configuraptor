@@ -152,12 +152,16 @@ def is_optional(_type: Type | typing.Any) -> bool:
         # will crash issubclass to test it first here
         return False
 
-    return (
-        _type is None
-        or types.NoneType in typing.get_args(_type)  # union with Nonetype
-        or issubclass(types.NoneType, _type)
-        or issubclass(types.NoneType, type(_type))  # no type  # Nonetype
-    )
+    try:
+        return (
+            _type is None
+            or types.NoneType in typing.get_args(_type)  # union with Nonetype
+            or issubclass(types.NoneType, _type)
+            or issubclass(types.NoneType, type(_type))  # no type  # Nonetype
+        )
+    except TypeError:
+        # probably some weird input that's not a type
+        return False
 
 
 def dataclass_field(cls: Type, key: str) -> typing.Optional[dc.Field[typing.Any]]:
