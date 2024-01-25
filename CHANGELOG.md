@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.25.2 (2024-01-25)
+
+### Fix
+
+* Updating an optional field to None via _update or normal attribute was ignored ([`b9b8cec`](https://github.com/trialandsuccess/configuraptor/commit/b9b8cecd5935b0d626bc614a6fa04c7dfb559b77))
+
 ## v1.25.1 (2024-01-22)
 ### Fix
 * **beautify:** Minor tweaks and cleanup ([`fdfe1fe`](https://github.com/trialandsuccess/configuraptor/commit/fdfe1fe42f51d639076ff8515e90b86d84bcbd5b))
