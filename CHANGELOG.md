@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.26.0 (2024-01-29)
+### Feature
+* @beautify is now automatically applied to subclassses of TypedConfig, unless beautify=False is added. ([`ab72585`](https://github.com/trialandsuccess/configuraptor/commit/ab725858ea291aa87059e118026ec04fa3308a43))
+
 ## v1.25.2 (2024-01-25)
 
 ### Fix
