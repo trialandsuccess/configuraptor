@@ -294,6 +294,18 @@ class MyOtherConfig:
 
 ```
 
+When inheriting from `TypedConfig`, beautify is now automatically applied to patch repr and str.
+To disable this behavior, you can do the following:
+
+```python
+from configuraptor import TypedConfig
+
+
+class NonBeautifiedConfig(TypedConfig, beautify=False):
+    ...
+
+```
+
 ## Binary Config
 
 To load a bytestring (from struct.pack) into a config class, use `BinaryConfig` with `BinaryField`:

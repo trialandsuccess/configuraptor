@@ -3,7 +3,7 @@ import typing
 
 import pytest
 
-from src.configuraptor import load_into
+from src.configuraptor import load_into, TypedConfig
 from src.configuraptor.beautify import beautify
 
 
@@ -29,6 +29,16 @@ class CustomRepr:
 
     def __str__(self) -> str:
         return 'dont-touch-me-either'
+
+
+class FromTypedConfig(TypedConfig):
+    # should be auto-beautified
+    another: bool
+
+
+class NoBeautify(TypedConfig, beautify=False):
+    # should NOT be auto-beautified
+    beautiful: bool
 
 
 test1 = load_into(MyClass, {'string': '123', 'number': 123})
@@ -64,3 +74,31 @@ def test_repr() -> None:
     assert "True" in repr(test2)
 
     assert repr(test3) == "dont-touch-me"
+
+
+def test_from_typedconfig() -> None:
+    inst = FromTypedConfig.load({"another": True})
+
+    assert "<FromTypedConfig" in repr(inst)
+    assert "another" in repr(inst)
+    assert "True" in repr(inst)
+
+    assert "<FromTypedConfig" not in str(inst)
+    assert "another" in str(inst)
+    assert "true" in str(inst)
+    assert json.loads(str(inst))
+
+
+def test_nobeautify() -> None:
+    ugly = NoBeautify.load({"beautiful": False})
+
+    assert "<NoBeautify" not in repr(ugly)
+    assert "beautiful" not in repr(ugly)
+    assert "False" not in repr(ugly)
+
+    assert "<NoBeautify" not in str(ugly)
+    assert "beautiful" not in str(ugly)
+    assert "false" not in str(ugly)
+
+    with pytest.raises(json.JSONDecodeError):
+        assert not json.loads(str(ugly))

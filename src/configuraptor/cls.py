@@ -12,6 +12,7 @@ from typing_extensions import Never, Self
 from . import Alias
 from .abs import AbstractTypedConfig
 from .alias import has_aliases
+from .beautify import beautify as apply_beautify
 from .core import check_and_convert_type
 from .errors import ConfigErrorExtraKey, ConfigErrorImmutable
 from .helpers import all_annotations, is_optional
@@ -26,6 +27,17 @@ class TypedConfig(AbstractTypedConfig):
     """
     Can be used instead of load_into.
     """
+
+    def __init_subclass__(cls, beautify: bool = True, **_: typing.Any) -> None:
+        """
+        When inheriting from TypedConfig, automatically beautify the class.
+
+        To disable this behavior:
+        class MyConfig(TypedConfig, beautify=False):
+            ...
+        """
+        if beautify:
+            apply_beautify(cls)
 
     def _update(
         self,
