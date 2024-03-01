@@ -1,6 +1,7 @@
 """
 Logic for the TypedConfig inheritable class.
 """
+
 import copy
 import os
 import typing

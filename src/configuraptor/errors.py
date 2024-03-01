@@ -1,6 +1,7 @@
 """
 Contains module-specific custom errors.
 """
+
 import typing
 from dataclasses import dataclass
 

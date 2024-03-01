@@ -1,6 +1,7 @@
 """
 Add @beautify behavior to enhance configuraptor/TypedConfig classes automagically!
 """
+
 import functools
 import typing
 

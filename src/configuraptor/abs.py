@@ -1,6 +1,7 @@
 """
 Contains the Abstract config class shared by TypedConfig and BinaryConfig.
 """
+
 import os
 import types
 import typing

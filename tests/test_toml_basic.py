@@ -3,6 +3,7 @@ import math
 import typing
 
 import pytest
+from src.configuraptor.helpers import find_pyproject_toml
 
 from src import configuraptor
 from src.configuraptor.errors import (
@@ -225,10 +226,16 @@ class ProjectToml:
 
 def test_pyproject_toml():
     with chdir("pytest_examples/nested"):
+
+        assert find_pyproject_toml()
+
         config = configuraptor.load_into(ProjectToml, key="tool.configuraptor.test")
 
     assert config.my_key == "my_value"
 
+
+    with chdir("/"):
+        assert not find_pyproject_toml()
 
 class ShouldHaveListOfString:
     required: list[str]

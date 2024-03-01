@@ -1,17 +1,16 @@
 """
 Contains stand-alone helper functions.
 """
+
 import contextlib
 import dataclasses as dc
 import io
 import math
-import os
 import types
 import typing
 from collections import ChainMap
 from pathlib import Path
 
-import black.files
 from typeguard import TypeCheckError
 from typeguard import check_type as _check_type
 
@@ -28,11 +27,37 @@ def camel_to_snake(s: str) -> str:
     return "".join([f"_{c.lower()}" if c.isupper() else c for c in s]).lstrip("_")
 
 
-def find_pyproject_toml() -> typing.Optional[str]:
+# def find_pyproject_toml() -> typing.Optional[str]:
+#     """
+#     Find the project's config toml, looks up until it finds the project root (black's logic).
+#     """
+#     return black.files.find_pyproject_toml((os.getcwd(),))
+
+
+def find_pyproject_toml(start_dir: typing.Optional[Path | str] = None) -> Path | None:
     """
-    Find the project's config toml, looks up until it finds the project root (black's logic).
+    Search for pyproject.toml starting from the current working directory \
+     and moving upwards in the directory tree.
+
+    Args:
+        start_dir: Starting directory to begin the search.
+            If not provided, uses the current working directory.
+
+    Returns:
+        Path or None: Path object to the found pyproject.toml file, or None if not found.
     """
-    return black.files.find_pyproject_toml((os.getcwd(),))
+    start_dir = Path.cwd() if start_dir is None else Path(start_dir).resolve()
+
+    current_dir = start_dir
+
+    while str(current_dir) != str(current_dir.root):
+        pyproject_toml = current_dir / "pyproject.toml"
+        if pyproject_toml.is_file():
+            return pyproject_toml
+        current_dir = current_dir.parent
+
+    # If not found anywhere
+    return None
 
 
 Type = typing.Type[typing.Any]

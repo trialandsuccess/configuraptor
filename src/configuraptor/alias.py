@@ -1,6 +1,7 @@
 """
 Alias functionality so config keys can have multiple names.
 """
+
 import typing
 from dataclasses import dataclass
 from typing import Any

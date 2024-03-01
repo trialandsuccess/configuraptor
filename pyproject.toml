@@ -35,7 +35,6 @@ dependencies = [
     "requests",
     "PyYAML",
     "python-dotenv",
-    "black", # for find_project_root
     "typing-extensions",
 ]
 
@@ -109,7 +108,9 @@ exclude = ["venv", ".bak"]
 [tool.ruff]
 target-version = "py311"
 line-length = 120
+extend-exclude = ["*.bak/", "venv*/"]
 
+[tool.ruff.lint]
 select = [
     "F", # pyflake error
     "E", # pycodestyle error
@@ -128,7 +129,6 @@ unfixable = [
     # Don't touch unused imports
     "F401",
 ]
-extend-exclude = ["*.bak/", "venv*/"]
 
 ignore = ["RUF013"] # = implicit Optional
 
