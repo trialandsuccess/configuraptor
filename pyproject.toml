@@ -36,6 +36,7 @@ dependencies = [
     "PyYAML",
     "python-dotenv",
     "black", # for find_project_root
+    "typing-extensions",
 ]
 
 [project.optional-dependencies]
