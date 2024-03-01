@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.26.1 (2024-03-01)
+
+### Fix
+
+* Explicly add typing-extensions as a dependency ([`4bfba65`](https://github.com/trialandsuccess/configuraptor/commit/4bfba65df2993190ebca6c0e97c4da0731cffe5c))
+
 ## v1.26.0 (2024-01-29)
 ### Feature
 * @beautify is now automatically applied to subclassses of TypedConfig, unless beautify=False is added. ([`ab72585`](https://github.com/trialandsuccess/configuraptor/commit/ab725858ea291aa87059e118026ec04fa3308a43))
