@@ -44,6 +44,7 @@ class TypedConfig(AbstractTypedConfig):
         self,
         _strict: bool = True,
         _allow_none: bool = False,
+        _skip_none: bool = False,
         _overwrite: bool = True,
         _ignore_extra: bool = False,
         _lower_keys: bool = False,
@@ -67,7 +68,7 @@ class TypedConfig(AbstractTypedConfig):
 
             annotation = annotations.get(key, NO_ANNOTATION)
 
-            if not is_optional(annotation) and value is None and not _allow_none:
+            if value is None and ((not is_optional(annotation) and not _allow_none) or _skip_none):
                 continue
 
             existing_value = self.__dict__.get(key)
@@ -103,6 +104,7 @@ class TypedConfig(AbstractTypedConfig):
         self,
         _strict: bool = True,
         _allow_none: bool = False,
+        _skip_none: bool = False,
         _overwrite: bool = True,
         _ignore_extra: bool = False,
         _lower_keys: bool = False,
@@ -116,7 +118,8 @@ class TypedConfig(AbstractTypedConfig):
 
         Args:
             _strict: allow wrong types?
-            _allow_none: allow None or skip those entries?
+            _allow_none: allow None or skip those entries for required items?
+            _skip_none: skip none also for optional items?
             _overwrite: also update not-None values?
             _ignore_extra: skip additional keys that aren't in the object.
             _lower_keys: set the keys to lowercase (useful for env)
@@ -129,6 +132,7 @@ class TypedConfig(AbstractTypedConfig):
         return self._update(
             _strict=_strict,
             _allow_none=_allow_none,
+            _skip_none=_skip_none,
             _overwrite=_overwrite,
             _ignore_extra=_ignore_extra,
             _lower_keys=_lower_keys,
