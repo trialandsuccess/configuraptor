@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.26.2 (2024-03-20)
+
+### Fix
+
+* Add _skip_none to also skip None values for optional fields (set to False by default for backwards compat) ([`a2169a6`](https://github.com/trialandsuccess/configuraptor/commit/a2169a66ba85e4987c2d3b6b956e2c2421d086fd))
+* Improved pyproject.toml detection handling (swapped out black implementation by custom one) ([`85433ff`](https://github.com/trialandsuccess/configuraptor/commit/85433ff989cd3b3de3bd88109bd079056df8e6bf))
+
 ## v1.26.1 (2024-03-01)
 
 ### Fix
