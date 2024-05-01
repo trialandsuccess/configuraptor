@@ -499,6 +499,9 @@ def _load_into_recurse(
 
         # ensure mypy inst is an instance of the cls type (and not a fictuous `DataclassInstance`)
         inst = typing.cast(C, cls(**to_load))
+    elif isinstance(data, cls):
+        # already the right type! (e.g. Pathlib)
+        inst = typing.cast(C, data)
     else:
         inst = cls(*init_args, **init_kwargs)
         to_load = check_and_convert_data(cls, data, inst.__dict__.keys(), strict=strict, convert_types=convert_types)
