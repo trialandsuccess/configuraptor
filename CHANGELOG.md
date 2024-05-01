@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.27.0 (2024-05-01)
+
+### Feature
+
+* Support Path (and other already initialized class instances to be used as properties) ([`f500095`](https://github.com/trialandsuccess/configuraptor/commit/f500095285fbf9f7b4475ca29251a41ba9e5fd72))
+
 ## v1.26.2 (2024-03-20)
 
 ### Fix
