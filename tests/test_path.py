@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from src.configuraptor import postpone, load_into
+from src.configuraptor import load_into, postpone
 
 
 class PathConfig:
@@ -15,9 +15,12 @@ class PathConfigPostponed:
 
 
 def test_regular():
-    conf = load_into(PathConfig, {
-        "required": Path.home(),
-    })
+    conf = load_into(
+        PathConfig,
+        {
+            "required": Path.home(),
+        },
+    )
 
     assert conf.required == Path.home()
     assert isinstance(conf.required, Path)

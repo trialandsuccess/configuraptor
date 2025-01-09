@@ -72,8 +72,7 @@ class FruitDetails:
     shape: str
 
 
-class FruitVariety(AbsHasName):
-    ...
+class FruitVariety(AbsHasName): ...
 
 
 class Fruit(AbsHasName):

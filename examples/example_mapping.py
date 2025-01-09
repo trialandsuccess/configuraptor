@@ -1,5 +1,6 @@
-import configuraptor
 import contextlib
+
+import configuraptor
 from configuraptor.errors import ConfigErrorImmutable
 
 

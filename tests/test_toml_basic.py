@@ -3,7 +3,6 @@ import math
 import typing
 
 import pytest
-from src.configuraptor.helpers import find_pyproject_toml
 
 from src import configuraptor
 from src.configuraptor.errors import (
@@ -11,6 +10,7 @@ from src.configuraptor.errors import (
     ConfigErrorInvalidType,
     ConfigErrorMissingKey,
 )
+from src.configuraptor.helpers import find_pyproject_toml
 
 from .constants import EMPTY_FILE, EXAMPLE_FILE, PYTEST_EXAMPLES, _load_toml
 
@@ -69,8 +69,7 @@ class FruitDetails:
     shape: str
 
 
-class FruitVariety(AbsHasName):
-    ...
+class FruitVariety(AbsHasName): ...
 
 
 class Fruit(AbsHasName):
@@ -116,7 +115,7 @@ def test_multiple_files():
     config = configuraptor.load_into(
         MyConfig,
         [public_file, private_file, {"extra": 3}],  # toml  # .env  # raw dict
-        key="my_config.custom"  # should work even if only relevant for toml file
+        key="my_config.custom",  # should work even if only relevant for toml file
         # lower keys is automatically set to True
     )
 
@@ -226,16 +225,15 @@ class ProjectToml:
 
 def test_pyproject_toml():
     with chdir("pytest_examples/nested"):
-
         assert find_pyproject_toml()
 
         config = configuraptor.load_into(ProjectToml, key="tool.configuraptor.test")
 
     assert config.my_key == "my_value"
 
-
     with chdir("/"):
         assert not find_pyproject_toml()
+
 
 class ShouldHaveListOfString:
     required: list[str]

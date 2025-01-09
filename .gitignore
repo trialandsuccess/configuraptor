@@ -8,4 +8,6 @@ dist
 *.egg-info
 .coverage
 coverage.json
+coverage.xml
+
 .env

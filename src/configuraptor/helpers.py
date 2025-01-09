@@ -14,7 +14,10 @@ from pathlib import Path
 from typeguard import TypeCheckError
 from typeguard import check_type as _check_type
 
-# from .abs import T_typelike
+try:
+    import annotationlib
+except ImportError:  # pragma: no cover
+    annotationlib = None
 
 
 def camel_to_snake(s: str) -> str:
@@ -63,12 +66,30 @@ def find_pyproject_toml(start_dir: typing.Optional[Path | str] = None) -> Path |
 Type = typing.Type[typing.Any]
 
 
-def _all_annotations(cls: Type) -> ChainMap[str, Type]:
+def _cls_annotations(c: type) -> dict[str, type]:  # pragma: no cover
+    """
+    Functions to get the annotations of a class (excl inherited, use _all_annotations for that).
+
+    Uses `annotationlib` if available (since 3.14) and if so, resolves forward references immediately.
+    """
+    if annotationlib:
+        return typing.cast(
+            dict[str, type], annotationlib.get_annotations(c, format=annotationlib.Format.VALUE, eval_str=True)
+        )
+    else:
+        # note: idk why but this is not equivalent (the first doesn't work well):
+        # return getattr(c, "__annotations__", {})
+        return c.__dict__.get("__annotations__") or {}
+
+
+def _all_annotations(cls: type) -> ChainMap[str, type]:
     """
     Returns a dictionary-like ChainMap that includes annotations for all \
     attributes defined in cls or inherited from superclasses.
     """
-    return ChainMap(*(c.__annotations__ for c in getattr(cls, "__mro__", []) if "__annotations__" in c.__dict__))
+    # chainmap reverses the iterable, so reverse again beforehand to keep order normally:
+
+    return ChainMap(*(_cls_annotations(c) for c in getattr(cls, "__mro__", [])))
 
 
 def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str, type[object]]:
@@ -146,10 +167,10 @@ def is_custom_class(_type: Type) -> bool:
     Other logic in this module depends on knowing that.
     """
     return (
-        type(_type) is type
-        and not is_builtin_type(_type)
-        and not is_from_other_toml_supported_module(_type)
-        and not is_from_types_or_typing(_type)
+            type(_type) is type
+            and not is_builtin_type(_type)
+            and not is_from_other_toml_supported_module(_type)
+            and not is_from_types_or_typing(_type)
     )
 
 
@@ -179,10 +200,10 @@ def is_optional(_type: Type | typing.Any) -> bool:
 
     try:
         return (
-            _type is None
-            or types.NoneType in typing.get_args(_type)  # union with Nonetype
-            or issubclass(types.NoneType, _type)
-            or issubclass(types.NoneType, type(_type))  # no type  # Nonetype
+                _type is None
+                or types.NoneType in typing.get_args(_type)  # union with Nonetype
+                or issubclass(types.NoneType, _type)
+                or issubclass(types.NoneType, type(_type))  # no type  # Nonetype
         )
     except TypeError:
         # probably some weird input that's not a type

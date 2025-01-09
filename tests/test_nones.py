@@ -7,7 +7,7 @@ class ConfigWithNones(configuraptor.TypedConfig):
 
 
 def test_required():
-    config = configuraptor.load_into(ConfigWithNones, {'required': 'value', 'optional': 'value'})
+    config = configuraptor.load_into(ConfigWithNones, {"required": "value", "optional": "value"})
 
     config.update(required=None)
 
@@ -18,7 +18,7 @@ def test_required():
 
 
 def test_optional():
-    config = configuraptor.load_into(ConfigWithNones, {'required': 'value', 'optional': 'value'})
+    config = configuraptor.load_into(ConfigWithNones, {"required": "value", "optional": "value"})
 
     assert config.optional == "value"
 

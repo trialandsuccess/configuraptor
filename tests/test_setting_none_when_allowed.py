@@ -1,4 +1,4 @@
-from src.configuraptor import beautify, TypedConfig
+from src.configuraptor import TypedConfig, beautify
 
 
 @beautify
@@ -7,7 +7,7 @@ class MyClass(TypedConfig):
     optional: str | None
 
 
-config = MyClass.load({'required': "there"})
+config = MyClass.load({"required": "there"})
 
 
 def test_required():

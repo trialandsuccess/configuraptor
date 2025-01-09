@@ -1,6 +1,7 @@
 """
 Example with dataclasses
 """
+
 from dataclasses import dataclass, field
 
 from configuraptor import load_into

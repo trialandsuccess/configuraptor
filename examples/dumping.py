@@ -1,4 +1,4 @@
-from configuraptor import TypedConfig, astoml, asjson
+from configuraptor import TypedConfig, asjson, astoml
 
 
 class Dependency:

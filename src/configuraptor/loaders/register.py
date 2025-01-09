@@ -114,7 +114,7 @@ def register_dumper(*extension_args: typing.Callable[..., R]) -> typing.Callable
 
 
 def register_dumper(
-    *extension_args: str | typing.Callable[..., R]
+    *extension_args: str | typing.Callable[..., R],
 ) -> typing.Callable[[typing.Callable[..., R]], typing.Callable[..., R]] | typing.Callable[..., R]:
     """
     Register a data dumper for a new filetype.

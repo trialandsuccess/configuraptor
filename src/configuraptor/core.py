@@ -282,9 +282,7 @@ def ensure_types(
     for key, _type in annotations.items():
         compare = data.get(key, notfound)
         if compare is notfound:  # pragma: nocover
-            warnings.warn(
-                "This should not happen since " "`load_recursive` already fills `data` " "based on `annotations`"
-            )
+            warnings.warn("This should not happen since `load_recursive` already fills `data` based on `annotations`")
             # skip!
             continue
 

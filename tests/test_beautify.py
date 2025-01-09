@@ -3,7 +3,7 @@ import typing
 
 import pytest
 
-from src.configuraptor import load_into, TypedConfig
+from src.configuraptor import TypedConfig, load_into
 from src.configuraptor.beautify import beautify
 
 
@@ -28,7 +28,7 @@ class CustomRepr:
         return "dont-touch-me"
 
     def __str__(self) -> str:
-        return 'dont-touch-me-either'
+        return "dont-touch-me-either"
 
 
 class FromTypedConfig(TypedConfig):
@@ -41,8 +41,8 @@ class NoBeautify(TypedConfig, beautify=False):
     beautiful: bool
 
 
-test1 = load_into(MyClass, {'string': '123', 'number': 123})
-test2 = load_into(MyOtherClass, {'number': 12.3, 'boolean': True})
+test1 = load_into(MyClass, {"string": "123", "number": 123})
+test2 = load_into(MyOtherClass, {"number": 12.3, "boolean": True})
 test3 = load_into(CustomRepr, {"some": "value"})
 
 

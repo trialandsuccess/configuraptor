@@ -2,11 +2,10 @@ import typing
 
 import pytest
 
-from src.configuraptor import load_into, asjson, asdict
+from src.configuraptor import asdict, asjson, load_into
 
 
-class Test:
-    ...
+class Test: ...
 
 
 @pytest.mark.mypy_testing
