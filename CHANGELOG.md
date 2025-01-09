@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.27.1 (2025-01-09)
+
+### Fix
+
+* Prepare for Python 3.14's new annotation behavior ([`81da4e5`](https://github.com/trialandsuccess/configuraptor/commit/81da4e5316d86b97ef0a595054d1841cfadcd9f6))
+
 ## v1.27.0 (2024-05-01)
 
 ### Feature
