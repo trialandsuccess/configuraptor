@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.27.2 (2025-03-27)
+
+### Fix
+
+* Allow setting `SSL_VERIFY=0` for insecure connections ([`34a030f`](https://github.com/trialandsuccess/configuraptor/commit/34a030f67b7b9d221571723447e805209de0ca64))
+
 ## v1.27.1 (2025-01-09)
 
 ### Fix
