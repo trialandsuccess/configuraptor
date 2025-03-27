@@ -106,7 +106,9 @@ def from_url(url: str, _dummy: bool = False) -> tuple[io.BytesIO, str]:
         resp = None
         data = "{}"
     else:
-        resp = requests.get(url, timeout=10)
+        ssl_verify = os.getenv("SSL_VERIFY", "1") == "1"
+
+        resp = requests.get(url, timeout=10, verify=ssl_verify)
         data = resp.text
 
     filetype = guess_filetype_for_url(url, resp)

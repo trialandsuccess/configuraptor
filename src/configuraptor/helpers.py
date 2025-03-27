@@ -167,10 +167,10 @@ def is_custom_class(_type: Type) -> bool:
     Other logic in this module depends on knowing that.
     """
     return (
-            type(_type) is type
-            and not is_builtin_type(_type)
-            and not is_from_other_toml_supported_module(_type)
-            and not is_from_types_or_typing(_type)
+        type(_type) is type
+        and not is_builtin_type(_type)
+        and not is_from_other_toml_supported_module(_type)
+        and not is_from_types_or_typing(_type)
     )
 
 
@@ -200,10 +200,10 @@ def is_optional(_type: Type | typing.Any) -> bool:
 
     try:
         return (
-                _type is None
-                or types.NoneType in typing.get_args(_type)  # union with Nonetype
-                or issubclass(types.NoneType, _type)
-                or issubclass(types.NoneType, type(_type))  # no type  # Nonetype
+            _type is None
+            or types.NoneType in typing.get_args(_type)  # union with Nonetype
+            or issubclass(types.NoneType, _type)
+            or issubclass(types.NoneType, type(_type))  # no type  # Nonetype
         )
     except TypeError:
         # probably some weird input that's not a type
