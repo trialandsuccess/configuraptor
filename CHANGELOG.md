@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.28.1 (2025-05-22)
+
+### Fix
+
+* Also acknowledge `strict` if `data` is a list (of urls) ([`44f99f4`](https://github.com/trialandsuccess/configuraptor/commit/44f99f4aa1ed035cacd26a56431e98fa3b919be3))
+
 ## v1.28.0 (2025-05-22)
 
 ### Feature
