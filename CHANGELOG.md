@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.28.0 (2025-05-22)
+
+### Feature
+
+* New `FailedToLoad` exception if `load_data` fails (instead of whatever exception caused the failure) for more standardized exception handling. ([`6c475b6`](https://github.com/trialandsuccess/configuraptor/commit/6c475b622dbe653279baae029729ecc7816cf8bf))
+
 ## v1.27.2 (2025-03-27)
 
 ### Fix
