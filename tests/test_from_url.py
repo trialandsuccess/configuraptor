@@ -3,7 +3,7 @@ import json
 import pytest
 
 from src.configuraptor import load_into
-from src.configuraptor.core import from_url
+from src.configuraptor.core import from_url, load_data
 from src.configuraptor.errors import FailedToLoad
 
 
@@ -49,10 +49,6 @@ def test_from_url():
 
     _, filetype = from_url(url1)
 
-    import requests.exceptions
-
-    requests.exceptions.ConnectionError
-
     # from content-type
     assert filetype == "json"
 
@@ -65,6 +61,10 @@ def test_from_url():
 
     json_placeholder = load_into(JsonPlaceholder, url1)
     assert json_placeholder.id == 1
+
+    # two urls:
+    with pytest.raises(FailedToLoad):
+        load_data([url0, url1], strict=True)
 
 
 def test_one_url():

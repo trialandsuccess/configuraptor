@@ -122,6 +122,7 @@ def _load_data(
     classname: str = None,
     lower_keys: bool = False,
     allow_types: tuple[type, ...] = (dict,),
+    strict: bool = False,
 ) -> dict[str, typing.Any]:
     """
     Tries to load the right data from a filename/path or dict, based on a manual key or a classname.
@@ -141,7 +142,9 @@ def _load_data(
 
         final_data: dict[str, typing.Any] = {}
         for source in data:
-            final_data |= load_data(source, key=key, classname=classname, lower_keys=True, allow_types=allow_types)
+            final_data |= load_data(
+                source, key=key, classname=classname, lower_keys=True, allow_types=allow_types, strict=strict
+            )
 
         return final_data
 
@@ -201,7 +204,7 @@ def load_data(
         data = find_pyproject_toml()
 
     try:
-        return _load_data(data, key, classname, lower_keys=lower_keys, allow_types=allow_types)
+        return _load_data(data, key, classname, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
     except Exception as e:
         # sourcery skip: remove-unnecessary-else, simplify-empty-collection-comparison, swap-if-else-branches
         # @sourcery: `key != ""` is NOT the same as `not key`
