@@ -20,6 +20,7 @@ from .errors import (
     ConfigErrorCouldNotConvert,
     ConfigErrorInvalidType,
     ConfigErrorMissingKey,
+    FailedToLoad,
 )
 from .helpers import (
     all_annotations,
@@ -190,6 +191,7 @@ def load_data(
     classname: str = None,
     lower_keys: bool = False,
     allow_types: tuple[type, ...] = (dict,),
+    strict: bool = False,
 ) -> dict[str, typing.Any]:
     """
     Wrapper around __load_data that retries with key="" if anything goes wrong.
@@ -204,11 +206,13 @@ def load_data(
         # sourcery skip: remove-unnecessary-else, simplify-empty-collection-comparison, swap-if-else-branches
         # @sourcery: `key != ""` is NOT the same as `not key`
         if key != "":
-            return _load_data(data, "", classname, lower_keys=lower_keys, allow_types=allow_types)
-        else:  # pragma: no cover
-            warnings.warn(f"Data could not be loaded: {e}", source=e)
-            # key already was "", just return data!
-            # (will probably not happen but fallback)
+            # try again with key ""
+            return load_data(data, "", classname, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
+        elif strict:
+            raise FailedToLoad(data) from e
+        else:
+            # e.g. if settings are to be loaded via a URL that is unavailable or returns invalid json
+            warnings.warn(f"Data ('{data}') could not be loaded", source=e, category=UserWarning)
             return {}
 
 
@@ -551,7 +555,7 @@ def load_into_class(
     Shortcut for _load_data + load_into_recurse.
     """
     allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
-    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
+    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
     return _load_into_recurse(cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
@@ -570,7 +574,7 @@ def load_into_instance(
     """
     cls = inst.__class__
     allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
-    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types)
+    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
     return _load_into_instance(inst, cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
