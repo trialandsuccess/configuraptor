@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v1.28.1 (2025-05-22)
+
+### Fix
+
+* Also acknowledge `strict` if `data` is a list (of urls) ([`44f99f4`](https://github.com/trialandsuccess/configuraptor/commit/44f99f4aa1ed035cacd26a56431e98fa3b919be3))
+
+## v1.28.0 (2025-05-22)
+
+### Feature
+
+* New `FailedToLoad` exception if `load_data` fails (instead of whatever exception caused the failure) for more standardized exception handling. ([`6c475b6`](https://github.com/trialandsuccess/configuraptor/commit/6c475b622dbe653279baae029729ecc7816cf8bf))
+
+## v1.27.2 (2025-03-27)
+
+### Fix
+
+* Allow setting `SSL_VERIFY=0` for insecure connections ([`34a030f`](https://github.com/trialandsuccess/configuraptor/commit/34a030f67b7b9d221571723447e805209de0ca64))
+
 ## v1.27.1 (2025-01-09)
 
 ### Fix

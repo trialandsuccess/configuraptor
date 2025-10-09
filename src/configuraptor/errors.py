@@ -5,6 +5,8 @@ Contains module-specific custom errors.
 import typing
 from dataclasses import dataclass
 
+from .abs import T_data
+
 
 class ConfigError(Exception):
     """
@@ -158,3 +160,13 @@ class IsPostponedError(ConfigError):
     """
 
     message: str = "This postponed property has not been filled yet!"
+
+
+class FailedToLoad(ConfigError):
+    """
+    Exception raised when a configuration fails to load.
+
+    E.g. when `load_data` is called with `strict=True`
+    """
+
+    data: T_data

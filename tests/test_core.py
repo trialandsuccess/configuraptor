@@ -8,6 +8,7 @@ import pytest
 
 from src.configuraptor import all_annotations
 from src.configuraptor.core import is_optional
+from src.configuraptor.errors import FailedToLoad
 from src.configuraptor.helpers import as_binaryio
 from src.configuraptor.type_converters import str_to_none
 
@@ -67,10 +68,10 @@ def test_no_data():
     from src import configuraptor
 
     # data must be a dict:
-    with pytest.raises(ValueError):
-        configuraptor.core.load_data(42, key=None)
-    with pytest.raises(ValueError):
-        configuraptor.core.load_data([], key=None)
+    with pytest.raises(FailedToLoad):
+        configuraptor.core.load_data(42, key=None, strict=True)
+    with pytest.raises(FailedToLoad):
+        configuraptor.core.load_data([], key=None, strict=True)
 
     # but other than that, it should be fine:
     configuraptor.core.load_data({}, key="")
