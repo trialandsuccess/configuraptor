@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.28.2 (2025-10-09)
+
+### Fix
+
+* **metadata:** Mark python 3.14 as supported ([`cea1636`](https://github.com/trialandsuccess/configuraptor/commit/cea1636159f27ee544fe0e3aa77c47c647b25f3e))
+
 ## v1.28.1 (2025-05-22)
 
 ### Fix
