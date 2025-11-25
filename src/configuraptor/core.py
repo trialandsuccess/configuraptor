@@ -31,6 +31,7 @@ from .helpers import (
     is_custom_class,
     is_optional,
     is_parameterized,
+    is_union,
 )
 from .postpone import Postponed
 from .type_converters import CONVERTERS
@@ -251,6 +252,7 @@ def check_and_convert_type(value: Any, _type: Type[T], convert_types: bool, key:
         ConfigErrorInvalidType: If the type does not match, and type conversion is not allowed.
         ConfigErrorCouldNotConvert: If type conversion fails.
     """
+
     if check_type(value, _type):
         # type matches
         return value
@@ -388,15 +390,13 @@ def load_recursive(
                     }
                 # elif origin is dict:
                 # keep data the same
-                elif origin is typing.Union and arguments:
+                elif is_union(_type) and arguments:
                     for arg in arguments:
                         if is_custom_class(arg):
                             value = _load_into_recurse(arg, value, convert_types=convert_types)
 
-                # todo: other parameterized/unions/typing.Optional
-
             elif is_custom_class(_type):
-                # type must be C (custom class) at this point
+                # type must be C (custom class) at this point; includes dataclass but not optional[cls]
                 value = _load_into_recurse(
                     # make mypy and pycharm happy by telling it _type is of type C...
                     # actually just passing _type as first arg!
@@ -404,6 +404,9 @@ def load_recursive(
                     value,
                     convert_types=convert_types,
                 )
+
+            # else: normal value, don't change
+
         elif value := has_alias(cls, _key, data):
             # value updated by alias
             ...

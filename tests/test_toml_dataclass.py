@@ -6,7 +6,9 @@ from dataclasses import dataclass, field
 import pytest
 
 from src import configuraptor
+from src.configuraptor.dump import asdict
 from src.configuraptor.errors import ConfigError
+from src.configuraptor.helpers import is_union
 
 from .constants import EMPTY_FILE, EXAMPLE_FILE, _load_toml
 
@@ -124,3 +126,35 @@ def test_init_not_allowed():
 
     with pytest.raises(ValueError):
         tool = configuraptor.load_into(Tool, data, init={"extra": "data"})
+
+
+def test_optional_dataclass():
+    @dataclass
+    class Inner:
+        value: str
+
+    @dataclass
+    class Outer:
+        inner: Inner | None
+        second: typing.Optional[Inner]
+
+    filled_data = Outer(inner=Inner(value="some"), second=None)
+    empty_data = Outer(inner=None, second=Inner(value="second"))
+
+    filled_dict = asdict(filled_data)
+    empty_dict = asdict(empty_data)
+
+    filled_reloaded = configuraptor.load_into(Outer, filled_dict)
+    empty_reloaded = configuraptor.load_into(Outer, empty_dict)
+
+    assert filled_reloaded == filled_data
+    assert empty_reloaded == empty_data
+
+
+def test_is_union():
+    assert is_union(typing.Optional[dict[str, typing.Any]])
+    assert is_union(str | None)
+
+    assert not is_union(str)
+    assert not is_union(None)
+    assert not is_union(dict[str, None])

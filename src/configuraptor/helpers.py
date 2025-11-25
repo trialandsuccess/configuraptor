@@ -181,6 +181,22 @@ def instance_of_custom_class(var: typing.Any) -> bool:
     return is_custom_class(var.__class__)
 
 
+def is_union(sometype: typing.Type[typing.Any] | typing.Any) -> bool:
+    """
+    Determines if a given type is a Union type.
+
+    A Union type in Python is used to represent a type that can be one of multiple
+    types. This function checks whether the provided type object corresponds to a
+    Union type as defined in Python's type hints or annotations.
+
+    Returns:
+    bool
+        True if the provided type is a Union type, False otherwise.
+    """
+    origin = typing.get_origin(sometype)
+    return origin in (typing.Union, types.UnionType)
+
+
 def is_optional(_type: Type | typing.Any) -> bool:
     """
     Tries to guess if _type could be optional.

@@ -1,5 +1,3 @@
-import typing
-
 from src import configuraptor
 
 from .constants import PYTEST_EXAMPLES
