@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.29.0 (2025-11-25)
+
+### Feature
+
+* Improved support for optionals via `| None` syntax ([`6f46e0d`](https://github.com/trialandsuccess/configuraptor/commit/6f46e0d6f468470575ed2066e37e4d3813b28318))
+
 ## v1.28.2 (2025-10-09)
 
 ### Fix
