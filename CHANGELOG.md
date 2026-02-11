@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.0.0 (2026-02-11)
+
+### Feature
+
+* Support interpolating env variables into config (e.g. toml) ([`0368382`](https://github.com/trialandsuccess/configuraptor/commit/036838237d97bca199892240b59ae77fecaa9410))
+
 ## v1.29.0 (2025-11-25)
 
 ### Feature
