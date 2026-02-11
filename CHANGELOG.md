@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.0.1 (2026-02-11)
+
+### Fix
+
+* Support a bit more backwards compatible syntax ([`5f3e5ef`](https://github.com/trialandsuccess/configuraptor/commit/5f3e5ef42cdb81951daf55d9d828664fd6573024))
+
 ## v2.0.0 (2026-02-11)
 
 ### Feature
