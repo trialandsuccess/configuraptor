@@ -10,6 +10,7 @@ from dotenv import dotenv_values
 from src import configuraptor
 from src.configuraptor import asjson
 from src.configuraptor.errors import ConfigErrorCouldNotConvert
+from src.configuraptor.helpers import expand_env_vars_into_toml_values
 from tests.constants import PYTEST_EXAMPLES
 
 ENV_FILE = PYTEST_EXAMPLES / ".env"
@@ -148,3 +149,36 @@ def test_env_interpolation():
 
     assert interpolated_fallback.from_my_env == "nothing"
     assert interpolated_fallback.second == "from_env_again"
+
+
+def test_expand_env_vars():
+    # str
+    input_str = "${MYVALUE:default}"
+    data = {"myvar": input_str}
+    expand_env_vars_into_toml_values(data, {})
+    assert data["myvar"] == input_str
+
+    expand_env_vars_into_toml_values(data, {"unrelated": "data"})
+    assert data["myvar"] == "default"
+
+    data = {"myvar": input_str}
+    expand_env_vars_into_toml_values(data, {"myvalue": "123"})
+
+    assert data["myvar"] == "123"
+
+    # list
+    data = {"myvar": [input_str, input_str]}
+    expand_env_vars_into_toml_values(data, {"myvalue": "456"})
+
+    assert data["myvar"] == ["456", "456"]
+
+    # dict
+    data = {"myvar": {"value": input_str}}
+    expand_env_vars_into_toml_values(data, {"myvalue": "789"})
+    assert data["myvar"]["value"] == "789"
+
+    # other - non-str
+    data = {"myvar": None, "mynumber": 123}
+    expand_env_vars_into_toml_values(data, {"myvalue": "789"})
+    assert data["myvar"] is None
+    assert data["mynumber"] == 123

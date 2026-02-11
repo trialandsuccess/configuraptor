@@ -6,8 +6,10 @@ import contextlib
 import dataclasses as dc
 import io
 import math
+import re
 import types
 import typing
+import warnings
 from collections import ChainMap
 from pathlib import Path
 
@@ -266,6 +268,26 @@ def as_binaryio(file: str | Path | typing.BinaryIO | None, mode: typing.Literal[
     return file
 
 
+_LEGACY_ENV_DEFAULTS_RE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*):([^\-?=+][^}]*)}")
+
+
+def _normalize_legacy_env_defaults(value: str) -> str:
+    """
+    Rewrite legacy ${VAR:default} to ${VAR:-default} and warn once.
+    """
+    if not _LEGACY_ENV_DEFAULTS_RE.search(value):
+        return value
+
+    warnings.warn(
+        "Legacy ${VAR:default} syntax is deprecated; use ${VAR:-default}. "
+        "Support for the legacy form may be removed in a future release.",
+        DeprecationWarning,
+        stacklevel=3,
+    )
+
+    return _LEGACY_ENV_DEFAULTS_RE.sub(r"${\1:-\2}", value)
+
+
 def expand_posix_vars(posix_expr: str, context: dict[str, str]) -> str:
     """
     Replace case-insensitive POSIX and Docker Compose-like environment variables in a string with their values.
@@ -277,10 +299,16 @@ def expand_posix_vars(posix_expr: str, context: dict[str, str]) -> str:
     Returns:
         str: The string with replaced variable values.
     """
+    posix_expr = _normalize_legacy_env_defaults(posix_expr)
     return typing.cast(str, expand(posix_expr, environ=context))
 
 
-def expand_env_vars_into_toml_values(toml: dict[str, typing.Any], env: dict[str, typing.Any]) -> None:
+def expand_env_vars_into_toml_values(
+    toml: dict[str, typing.Any],
+    env: dict[str, typing.Any],
+    *,
+    case_insensitive: bool = True,
+) -> None:
     """
     Recursively expands POSIX/Docker Compose-like environment variables in a TOML dictionary.
 
@@ -291,6 +319,8 @@ def expand_env_vars_into_toml_values(toml: dict[str, typing.Any], env: dict[str,
     Args:
         toml (dict): A TOML dictionary with string values possibly containing environment variables.
         env (dict): A dictionary containing environment variable names and their respective values.
+        case_insensitive (bool): If True, treat environment keys as case-insensitive by adding
+            upper/lower variants for lookup. Defaults to True.
 
     Returns:
         None: The function modifies the 'toml' dictionary in place.
@@ -320,9 +350,20 @@ def expand_env_vars_into_toml_values(toml: dict[str, typing.Any], env: dict[str,
     if not toml or not env:  # pragma: no cover
         return
 
+    if case_insensitive:
+        env_case: dict[str, typing.Any] = dict(env)
+        for key, value in env.items():
+            upper = key.upper()
+            lower = key.lower()
+            if upper not in env_case:
+                env_case[upper] = value
+            if lower not in env_case:
+                env_case[lower] = value
+        env = env_case
+
     for key, var in toml.items():
         if isinstance(var, dict):
-            expand_env_vars_into_toml_values(var, env)
+            expand_env_vars_into_toml_values(var, env, case_insensitive=case_insensitive)
         elif isinstance(var, list):
             toml[key] = [expand_posix_vars(value, env) if isinstance(value, str) else value for value in var]
         elif isinstance(var, str):
