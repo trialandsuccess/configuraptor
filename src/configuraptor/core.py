@@ -11,9 +11,11 @@ from pathlib import Path
 from typing import Any, Type
 
 import requests
+from dotenv import dotenv_values as _dotenv_values
+from dotenv import find_dotenv
 
 from . import loaders
-from .abs import AnyType, C, T, T_data, Type_C
+from .abs import DEFAULT_ENV_SETTING, AnyType, C, T, T_data, Type_C, UseEnvSetting
 from .alias import Alias, has_alias
 from .binary_config import BinaryConfig
 from .errors import (
@@ -27,6 +29,7 @@ from .helpers import (
     camel_to_snake,
     check_type,
     dataclass_field,
+    expand_env_vars_into_toml_values,
     find_pyproject_toml,
     is_custom_class,
     is_optional,
@@ -117,6 +120,30 @@ def from_url(url: str, _dummy: bool = False) -> tuple[io.BytesIO, str]:
     return io.BytesIO(data.encode()), filetype
 
 
+def dotenv_values() -> dict[str, str | None]:
+    """Wrapper around dotenv.dotenv_values that uses .env in cwd."""
+    return _dotenv_values(dotenv_path=find_dotenv(usecwd=True))
+
+
+def apply_env(data: dict[str, typing.Any], use_env: UseEnvSetting) -> None:
+    """
+    Apply the desired env-setting logic on data.
+    """
+    match use_env:
+        case "yes":
+            env = dotenv_values() | os.environ
+        case "inverse":
+            env = os.environ | dotenv_values()
+        case "dotenv":
+            env = dotenv_values()
+        case "environ":
+            env = {**os.environ}
+        case _:  # pragma: no cover
+            return
+
+    expand_env_vars_into_toml_values(data, env)
+
+
 def _load_data(
     data: T_data,
     key: str = None,
@@ -124,6 +151,7 @@ def _load_data(
     lower_keys: bool = False,
     allow_types: tuple[type, ...] = (dict,),
     strict: bool = False,
+    use_env: UseEnvSetting = DEFAULT_ENV_SETTING,
 ) -> dict[str, typing.Any]:
     """
     Tries to load the right data from a filename/path or dict, based on a manual key or a classname.
@@ -144,7 +172,13 @@ def _load_data(
         final_data: dict[str, typing.Any] = {}
         for source in data:
             final_data |= load_data(
-                source, key=key, classname=classname, lower_keys=True, allow_types=allow_types, strict=strict
+                source,
+                key=key,
+                classname=classname,
+                lower_keys=True,
+                allow_types=allow_types,
+                strict=strict,
+                use_env=use_env,
             )
 
         return final_data
@@ -186,6 +220,9 @@ def _load_data(
     if lower_keys and isinstance(data, dict):
         data = {k.lower(): v for k, v in data.items()}
 
+    if use_env != "no" and isinstance(data, dict):
+        apply_env(data, use_env)
+
     return typing.cast(dict[str, typing.Any], data)
 
 
@@ -196,6 +233,7 @@ def load_data(
     lower_keys: bool = False,
     allow_types: tuple[type, ...] = (dict,),
     strict: bool = False,
+    use_env: UseEnvSetting = DEFAULT_ENV_SETTING,
 ) -> dict[str, typing.Any]:
     """
     Wrapper around __load_data that retries with key="" if anything goes wrong.
@@ -205,18 +243,34 @@ def load_data(
         data = find_pyproject_toml()
 
     try:
-        return _load_data(data, key, classname, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
+        return _load_data(
+            data,
+            key,
+            classname,
+            lower_keys=lower_keys,
+            allow_types=allow_types,
+            strict=strict,
+            use_env=use_env,
+        )
     except Exception as e:
         # sourcery skip: remove-unnecessary-else, simplify-empty-collection-comparison, swap-if-else-branches
         # @sourcery: `key != ""` is NOT the same as `not key`
         if key != "":
             # try again with key ""
-            return load_data(data, "", classname, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
+            return load_data(
+                data,
+                "",
+                classname,
+                lower_keys=lower_keys,
+                allow_types=allow_types,
+                strict=strict,
+                use_env=use_env,
+            )
         elif strict:
             raise FailedToLoad(data) from e
         else:
             # e.g. if settings are to be loaded via a URL that is unavailable or returns invalid json
-            warnings.warn(f"Data ('{data}') could not be loaded", source=e, category=UserWarning)
+            warnings.warn(f"Data ('{data!r}') could not be loaded", source=e, category=UserWarning)
             return {}
 
 
@@ -252,7 +306,6 @@ def check_and_convert_type(value: Any, _type: Type[T], convert_types: bool, key:
         ConfigErrorInvalidType: If the type does not match, and type conversion is not allowed.
         ConfigErrorCouldNotConvert: If type conversion fails.
     """
-
     if check_type(value, _type):
         # type matches
         return value
@@ -276,7 +329,9 @@ def check_and_convert_type(value: Any, _type: Type[T], convert_types: bool, key:
 
 
 def ensure_types(
-    data: dict[str, T], annotations: dict[str, type[T]], convert_types: bool = False
+    data: dict[str, T],
+    annotations: dict[str, type[T]],
+    convert_types: bool = False,
 ) -> dict[str, T | None]:
     """
     Make sure all values in 'data' are in line with the ones stored in 'annotations'.
@@ -336,7 +391,10 @@ def convert_config(items: dict[str, T]) -> dict[str, T]:
 
 
 def load_recursive(
-    cls: AnyType, data: dict[str, T], annotations: dict[str, AnyType], convert_types: bool = False
+    cls: AnyType,
+    data: dict[str, T],
+    annotations: dict[str, AnyType],
+    convert_types: bool = False,
 ) -> dict[str, T]:
     """
     For all annotations (recursively gathered from parents with `all_annotations`), \
@@ -539,7 +597,11 @@ def _load_into_instance(
     existing_data = inst.__dict__
 
     to_load = check_and_convert_data(
-        cls, data, _except=existing_data.keys(), strict=strict, convert_types=convert_types
+        cls,
+        data,
+        _except=existing_data.keys(),
+        strict=strict,
+        convert_types=convert_types,
     )
 
     inst.__dict__.update(**to_load)
@@ -556,12 +618,21 @@ def load_into_class(
     strict: bool = True,
     lower_keys: bool = False,
     convert_types: bool = False,
+    use_env: UseEnvSetting = DEFAULT_ENV_SETTING,
 ) -> C:
     """
     Shortcut for _load_data + load_into_recurse.
     """
     allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
-    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
+    to_load = load_data(
+        data,
+        key,
+        cls.__name__,
+        lower_keys=lower_keys,
+        allow_types=allow_types,
+        strict=strict,
+        use_env=use_env,
+    )
     return _load_into_recurse(cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
@@ -574,13 +645,22 @@ def load_into_instance(
     strict: bool = True,
     lower_keys: bool = False,
     convert_types: bool = False,
+    use_env: UseEnvSetting = DEFAULT_ENV_SETTING,
 ) -> C:
     """
     Shortcut for _load_data + load_into_existing.
     """
     cls = inst.__class__
     allow_types = (dict, bytes) if issubclass(cls, BinaryConfig) else (dict,)
-    to_load = load_data(data, key, cls.__name__, lower_keys=lower_keys, allow_types=allow_types, strict=strict)
+    to_load = load_data(
+        data,
+        key,
+        cls.__name__,
+        lower_keys=lower_keys,
+        allow_types=allow_types,
+        strict=strict,
+        use_env=use_env,
+    )
     return _load_into_instance(inst, cls, to_load, init=init, strict=strict, convert_types=convert_types)
 
 
@@ -593,6 +673,7 @@ def load_into(
     strict: bool = True,
     lower_keys: bool = False,
     convert_types: bool = False,
+    use_env: UseEnvSetting = DEFAULT_ENV_SETTING,
 ) -> C:
     """
     Load your config into a class (instance).
@@ -608,16 +689,37 @@ def load_into(
         strict: enable type checks or allow anything?
         lower_keys: should the config keys be lowercased? (for .env)
         convert_types: should the types be converted to the annotated type if not yet matching? (for .env)
+        use_env: Controls how ${VAR} placeholders are resolved.
+            Determines which sources are consulted and in what order:
 
+            - "yes" (default): OS environment → .env
+            - "inverse": .env → OS environment
+            - "dotenv": .env only
+            - "environ": OS environment only
+            - "no": no interpolation
     """
     if not isinstance(cls, type):
         # would not be supported according to mypy, but you can still load_into(instance)
         return load_into_instance(
-            cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
+            cls,
+            data,
+            key=key,
+            init=init,
+            strict=strict,
+            lower_keys=lower_keys,
+            convert_types=convert_types,
+            use_env=use_env,
         )
 
     # make mypy and pycharm happy by telling it cls is of type C and not just 'type'
     # _cls = typing.cast(typing.Type[C], cls)
     return load_into_class(
-        cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
+        cls,
+        data,
+        key=key,
+        init=init,
+        strict=strict,
+        lower_keys=lower_keys,
+        convert_types=convert_types,
+        use_env=use_env,
     )

@@ -26,6 +26,9 @@ Type_C = typing.Type[C]
 AnyType: typing.TypeAlias = typing.Type[typing.Any]
 T_Type = typing.TypeVar("T_Type", bound=AnyType)
 
+UseEnvSetting = typing.Literal["yes", "inverse", "dotenv", "environ", "no"]
+DEFAULT_ENV_SETTING: UseEnvSetting = "yes"
+
 
 class AbstractTypedConfig:
     """
@@ -41,6 +44,7 @@ class AbstractTypedConfig:
         strict: bool = True,
         lower_keys: bool = False,
         convert_types: bool = False,
+        use_env: UseEnvSetting = DEFAULT_ENV_SETTING,
     ) -> C:
         """
         Load a class' config values from the config file.
@@ -50,7 +54,14 @@ class AbstractTypedConfig:
         from .core import load_into
 
         return load_into(
-            cls, data, key=key, init=init, strict=strict, lower_keys=lower_keys, convert_types=convert_types
+            cls,
+            data,
+            key=key,
+            init=init,
+            strict=strict,
+            lower_keys=lower_keys,
+            convert_types=convert_types,
+            use_env=use_env,
         )
 
     @classmethod

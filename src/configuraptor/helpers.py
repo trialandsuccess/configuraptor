@@ -11,6 +11,7 @@ import typing
 from collections import ChainMap
 from pathlib import Path
 
+from expandvars import expand
 from typeguard import TypeCheckError
 from typeguard import check_type as _check_type
 
@@ -74,7 +75,8 @@ def _cls_annotations(c: type) -> dict[str, type]:  # pragma: no cover
     """
     if annotationlib:
         return typing.cast(
-            dict[str, type], annotationlib.get_annotations(c, format=annotationlib.Format.VALUE, eval_str=True)
+            dict[str, type],
+            annotationlib.get_annotations(c, format=annotationlib.Format.VALUE, eval_str=True),
         )
     else:
         # note: idk why but this is not equivalent (the first doesn't work well):
@@ -262,3 +264,69 @@ def as_binaryio(file: str | Path | typing.BinaryIO | None, mode: typing.Literal[
         file = uncloseable(file)  # type: ignore
 
     return file
+
+
+def expand_posix_vars(posix_expr: str, context: dict[str, str]) -> str:
+    """
+    Replace case-insensitive POSIX and Docker Compose-like environment variables in a string with their values.
+
+    Args:
+        posix_expr (str): The input string containing case-insensitive POSIX or Docker Compose-like variables.
+        context (dict): A dictionary containing variable names and their respective values.
+
+    Returns:
+        str: The string with replaced variable values.
+    """
+    return typing.cast(str, expand(posix_expr, environ=context))
+
+
+def expand_env_vars_into_toml_values(toml: dict[str, typing.Any], env: dict[str, typing.Any]) -> None:
+    """
+    Recursively expands POSIX/Docker Compose-like environment variables in a TOML dictionary.
+
+    This function traverses a TOML dictionary and expands POSIX/Docker Compose-like
+    environment variables (${VAR:default}) using values provided in the 'env' dictionary.
+    It performs in-place modification of the 'toml' dictionary.
+
+    Args:
+        toml (dict): A TOML dictionary with string values possibly containing environment variables.
+        env (dict): A dictionary containing environment variable names and their respective values.
+
+    Returns:
+        None: The function modifies the 'toml' dictionary in place.
+
+    Notes:
+        The function recursively traverses the 'toml' dictionary. If a value is a string or a list of strings,
+        it attempts to substitute any environment variables found within those strings using the 'env' dictionary.
+
+    Example:
+        toml_data = {
+            'key1': 'This has ${ENV_VAR:default}',
+            'key2': ['String with ${ANOTHER_VAR}', 'Another ${YET_ANOTHER_VAR}']
+        }
+        environment = {
+            'ENV_VAR': 'replaced_value',
+            'ANOTHER_VAR': 'value_1',
+            'YET_ANOTHER_VAR': 'value_2'
+        }
+
+        expand_env_vars_into_toml_values(toml_data, environment)
+        # 'toml_data' will be modified in place:
+        # {
+        #     'key1': 'This has replaced_value',
+        #     'key2': ['String with value_1', 'Another value_2']
+        # }
+    """
+    if not toml or not env:  # pragma: no cover
+        return
+
+    for key, var in toml.items():
+        if isinstance(var, dict):
+            expand_env_vars_into_toml_values(var, env)
+        elif isinstance(var, list):
+            toml[key] = [expand_posix_vars(value, env) if isinstance(value, str) else value for value in var]
+        elif isinstance(var, str):
+            toml[key] = expand_posix_vars(var, env)
+        else:
+            # nothing to substitute
+            continue
