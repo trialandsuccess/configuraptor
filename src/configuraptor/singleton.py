@@ -4,6 +4,8 @@ Singleton mixin/metaclass.
 
 import typing
 
+T = typing.TypeVar("T")
+
 
 class SingletonMeta(type):
     """
@@ -16,16 +18,16 @@ class SingletonMeta(type):
     Source: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
     """
 
-    _instances: typing.ClassVar[dict[typing.Type[typing.Any], typing.Type[typing.Any]]] = {}
+    _instances: typing.ClassVar[dict[type[typing.Any], typing.Any]] = {}
 
-    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Type[typing.Any]:
+    def __call__(self: type[T], *args: typing.Any, **kwargs: typing.Any) -> T:
         """
         When a class is instantiated (e.g. `AbstractConfig()`), __call__ is called. This overrides the default behavior.
         """
-        if self not in self._instances:
-            self._instances[self] = super(SingletonMeta, self).__call__(*args, **kwargs)
+        if self not in SingletonMeta._instances:
+            SingletonMeta._instances[self] = type.__call__(self, *args, **kwargs)
 
-        return self._instances[self]
+        return typing.cast(T, SingletonMeta._instances[self])
 
     @staticmethod
     def clear(instance: "Singleton" = None) -> None:
