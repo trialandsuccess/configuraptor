@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.0.2 (2026-04-21)
+
+### Fix
+
+* Singleton typing was seen as 'type' instead of the actual cls ([`d88f603`](https://github.com/trialandsuccess/configuraptor/commit/d88f603678d3c3aaf46419e1aa7693acf928f3bd))
+
 ## v2.0.1 (2026-02-11)
 
 ### Fix
