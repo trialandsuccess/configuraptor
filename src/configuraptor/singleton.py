@@ -29,16 +29,20 @@ class SingletonMeta(type):
 
         return typing.cast(T, SingletonMeta._instances[self])
 
-    @staticmethod
-    def clear(instance: "Singleton" = None) -> None:
+    def clear(cls, instance: "Singleton | type[Singleton] | None" = None) -> None:
         """
         Use to remove old instances.
 
         (otherwise e.g. pytest will crash)
         """
         if instance:
-            SingletonMeta._instances.pop(instance.__class__, None)
+            # Singleton.clear(SomeSingleton) or Singleton.clear(some_instance)
+            SingletonMeta._instances.pop(instance if isinstance(instance, SingletonMeta) else instance.__class__, None)
+        elif isinstance(cls, SingletonMeta) and issubclass(cls, Singleton) and cls is not Singleton:
+            # SomeSingleton.clear()
+            SingletonMeta._instances.pop(cls, None)
         else:
+            # Singleton.clear()
             SingletonMeta._instances.clear()
 
 
