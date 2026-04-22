@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.1.0 (2026-04-22)
+
+### Feature
+
+* More fine-grained singleton clear support (smarter lookup to prevent clearing all singeltons too often) ([`40c0744`](https://github.com/trialandsuccess/configuraptor/commit/40c07441ff6ae98cb882c30e637c698aa66bc18a))
+
 ## v2.0.2 (2026-04-21)
 
 ### Fix
