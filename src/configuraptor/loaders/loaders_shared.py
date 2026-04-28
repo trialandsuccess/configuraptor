@@ -3,12 +3,12 @@ File loaders that work regardless of Python version.
 """
 
 import configparser
-import json as json_lib
 import typing
 from collections import defaultdict
 from pathlib import Path
 from typing import BinaryIO
 
+import pyjson5 as json_lib
 import tomli
 import yaml as yaml_lib
 from dotenv import dotenv_values
@@ -17,12 +17,12 @@ from ._types import T_config, as_tconfig
 from .register import register_loader
 
 
-@register_loader
+@register_loader(".json", ".json5")
 def json(f: BinaryIO, _: typing.Optional[Path]) -> T_config:
     """
     Load a JSON file.
     """
-    data = json_lib.load(f)
+    data = json_lib.load(f)  # type: ignore
     return as_tconfig(data)
 
 

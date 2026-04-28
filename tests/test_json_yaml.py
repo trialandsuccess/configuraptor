@@ -16,6 +16,8 @@ class Config:
 def test_basic_json_and_yaml():
     toml = load_into(Config, PYTEST_EXAMPLES / "example.toml")
     json = load_into(Config, PYTEST_EXAMPLES / "example.json")
+    json5 = load_into(Config, PYTEST_EXAMPLES / "example.json5")
     yaml = load_into(Config, PYTEST_EXAMPLES / "example.yaml")
 
-    assert toml.reference.numbers and toml.reference.numbers == json.reference.numbers == yaml.reference.numbers
+    assert toml.reference.numbers and toml.reference.numbers == json.reference.numbers == json5.reference.numbers == yaml.reference.numbers
+

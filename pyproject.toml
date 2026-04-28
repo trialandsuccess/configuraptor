@@ -33,6 +33,7 @@ dependencies = [
     "expandvars",
     "PyYAML",
     "python-dotenv",
+    "pyjson5",
     "requests",
     "tomli", # Python 3.10 does not have tomllib and tomlkit has weird types
     "tomli_w", # tomllib does not support dumping :(
