@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.0 (2026-04-28)
+
+### Feature
+
+* Add json5 support ([`cdf55bd`](https://github.com/trialandsuccess/configuraptor/commit/cdf55bd69f88193a5d9f54b328b58127d368addb))
+
 ## v2.1.0 (2026-04-22)
 
 ### Feature
