@@ -18,6 +18,7 @@ def test_example_is_valid_toml():
 
     assert data
 
+
 @dataclass
 class First:
     string: str
@@ -129,8 +130,8 @@ def test_is_union():
     assert not is_union(None)
     assert not is_union(dict[str, None])
 
-def test_post_init():
 
+def test_post_init():
     @dataclass()
     class Counter:
         value: int
@@ -138,8 +139,6 @@ def test_post_init():
         def __post_init__(self):
             self.value += 1
 
-
     counter = configuraptor.load_into(Counter, {"value": 1})
 
     assert counter.value == 2
-

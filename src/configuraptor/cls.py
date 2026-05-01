@@ -6,9 +6,7 @@ import copy
 import os
 import typing
 from collections.abc import Mapping, MutableMapping
-from typing import Any, Iterator
-
-from typing_extensions import Never, Self
+from typing import Any, Iterator, Never, Self
 
 from . import Alias
 from .abs import AbstractTypedConfig

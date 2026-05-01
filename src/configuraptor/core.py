@@ -478,6 +478,8 @@ def load_recursive(
             # could have a default factory
             # todo: do something with field.default?
             value = field.default_factory()
+        elif is_custom_class(_type) and isinstance(_type, type) and issubclass(_type, Defaultable):
+            value = _type.default()
         else:
             raise ConfigErrorMissingKey(_key, cls, _type)
 
@@ -730,3 +732,16 @@ def load_into(
         post_init()
 
     return result
+
+
+class Defaultable:
+    """
+    Explicit opt-in for classes that can construct a default instance.
+    """
+
+    @classmethod
+    def default(cls) -> typing.Self:
+        """
+        Return a default instance of `cls`.
+        """
+        return load_into(cls, {})

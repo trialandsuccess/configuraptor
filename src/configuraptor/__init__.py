@@ -10,6 +10,7 @@ from .beautify import beautify
 from .binary_config import BinaryConfig, BinaryField
 from .cls import TypedConfig, TypedMapping, TypedMutableMapping, update
 from .core import (
+    Defaultable,
     check_and_convert_data,
     convert_config,
     ensure_types,
@@ -47,6 +48,7 @@ __all__ = [
     "load_into",
     "load_into_class",
     "load_into_instance",
+    "Defaultable",
     # helpers
     "all_annotations",
     "check_type",

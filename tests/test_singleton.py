@@ -20,8 +20,8 @@ def test_singleton():
     Singleton.clear(inst1)
     assert inst2 is not MySingletonState()
 
-def test_singleton_clear():
 
+def test_singleton_clear():
     class SingletonOne(Singleton):
         key: str = ""
 

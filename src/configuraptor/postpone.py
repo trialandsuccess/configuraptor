@@ -2,9 +2,7 @@
 File contains logic to do with the 'postpone' feature.
 """
 
-from typing import Any, Optional
-
-from typing_extensions import Never
+from typing import Any, Never, Optional
 
 from .errors import IsPostponedError
 from .singleton import Singleton

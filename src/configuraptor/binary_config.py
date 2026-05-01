@@ -8,8 +8,7 @@ import typing
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
-
-from typing_extensions import Self
+from typing import Self
 
 from . import loaders
 from .abs import AbstractTypedConfig
