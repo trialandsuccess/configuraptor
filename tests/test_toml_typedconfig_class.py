@@ -300,3 +300,30 @@ def test_allow_setting_internals():
 
     conf._new_key = "allowed"
     conf._new_key = 123
+
+
+def test_equality():
+    first = VeryOptional.load({
+        "value1": "uno",
+        "value2": "dos",
+        "value3": 3,
+    })
+    second = VeryOptional.load({
+        "value1": "uno",
+        "value2": "dos",
+        "value3": 3,
+    })
+    third = VeryOptional.load({
+        "value1": "uno",
+        "value2": "dos",
+    })
+
+    assert first != {
+        "value1": "uno",
+        "value2": "dos",
+        "value3": 3,
+    }
+
+    assert first == second and second != third
+
+    assert first is not second and second is not third

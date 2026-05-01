@@ -205,6 +205,17 @@ class TypedConfig(AbstractTypedConfig):
     def _clone(self) -> Self:
         return copy.deepcopy(self)
 
+    def __eq__(self, other: typing.Any) -> bool:
+        """
+        Two instances are equal if they are of the same type and have equal internal data.
+        """
+        if type(self) is not type(other):
+            # only comparisons between the same classes are allowed
+            return False
+
+        # == should always return bool already but otherwise mypy gets confused:
+        return bool(self.__dict__ == other.__dict__)
+
 
 K = typing.TypeVar("K", bound=str)
 V = typing.TypeVar("V", bound=Any)
