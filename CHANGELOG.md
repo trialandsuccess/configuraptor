@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.3.0 (2026-05-01)
+
+### Feature
+
+* **TypedConfig:** Add equality check (`__eq__`) for TypedConfig subclass instances ([`c32c7d9`](https://github.com/trialandsuccess/configuraptor/commit/c32c7d90c6171b2ab842ecd2d433f4c2afd2550c))
+
 ## v2.2.0 (2026-04-28)
 
 ### Feature
