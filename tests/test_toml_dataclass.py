@@ -18,36 +18,6 @@ def test_example_is_valid_toml():
 
     assert data
 
-
-# @dataclass
-# class FirstExtraName:
-#     first: str
-#     last: str
-#
-#
-# @dataclass
-# class FirstExtraPoint:
-#     x: int
-#     y: int
-#
-#
-# @dataclass
-# class FirstExtraAnimalType:
-#     name: str
-#
-#
-# @dataclass
-# class FirstExtraAnimal:
-#     type: FirstExtraAnimalType
-#
-#
-# @dataclass
-# class FirstExtra:
-#     name: FirstExtraName
-#     point: FirstExtraPoint
-#     animal: FirstExtraAnimal
-
-
 @dataclass
 class First:
     string: str
@@ -158,3 +128,18 @@ def test_is_union():
     assert not is_union(str)
     assert not is_union(None)
     assert not is_union(dict[str, None])
+
+def test_post_init():
+
+    @dataclass()
+    class Counter:
+        value: int
+
+        def __post_init__(self):
+            self.value += 1
+
+
+    counter = configuraptor.load_into(Counter, {"value": 1})
+
+    assert counter.value == 2
+

@@ -726,7 +726,7 @@ def load_into(
         )
 
     post_init = getattr(result, "__post_init__", None)
-    if callable(post_init):
+    if callable(post_init) and not dc.is_dataclass(result):
         post_init()
 
     return result
