@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.5.2 (2026-05-01)
+
+### Fix
+
+* Unwrap `typing.Annotated[T, ""] -> T` from type annotations ([`df3f6a4`](https://github.com/trialandsuccess/configuraptor/commit/df3f6a4352b19cfecf28ccc9046aa3438394071b))
+
 ## v2.5.1 (2026-05-01)
 
 ### Fix
