@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.5.1 (2026-05-01)
+
+### Fix
+
+* Don't crash asdict() on unsupported types ; propagate `exclude_internals` ([`365f027`](https://github.com/trialandsuccess/configuraptor/commit/365f027d15a13a39e6214e4782cc69024a782fa5))
+
 ## v2.5.0 (2026-05-01)
 
 ### Feature
