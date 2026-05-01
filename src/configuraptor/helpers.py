@@ -69,6 +69,18 @@ def find_pyproject_toml(start_dir: typing.Optional[Path | str] = None) -> Path |
 Type = typing.Type[typing.Any]
 
 
+def strip_annotated(_type: type) -> type:
+    """
+    Unwrap typing.Annotated[T, ...] to T.
+    """
+    while typing.get_origin(_type) is typing.Annotated:
+        args = typing.get_args(_type)
+        if not args:  # pragma: no cover
+            break
+        _type = typing.cast(type, args[0])
+    return _type
+
+
 def _cls_annotations(c: type) -> dict[str, type]:  # pragma: no cover
     """
     Functions to get the annotations of a class (excl inherited, use _all_annotations for that).
@@ -106,7 +118,7 @@ def all_annotations(cls: Type, _except: typing.Iterable[str] = None) -> dict[str
         _except = set()
 
     _all = _all_annotations(cls)
-    return {k: v for k, v in _all.items() if k not in _except}
+    return {k: strip_annotated(v) for k, v in _all.items() if k not in _except}
 
 
 T = typing.TypeVar("T")

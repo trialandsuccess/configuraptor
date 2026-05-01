@@ -1,11 +1,13 @@
+import typing as t
+
 import pytest
 
-from src.configuraptor import Defaultable, load_into, postpone
+from configuraptor.helpers import strip_annotated
+from src.configuraptor import Defaultable, all_annotations, load_into, postpone
 from src.configuraptor.errors import ConfigErrorMissingKey
 
-
 class SomethingWithDefault(Defaultable):
-    value: str
+    value: t.Annotated[str, "test"]
 
     @classmethod
     def default(cls):
@@ -20,7 +22,7 @@ class SomethingElse(Defaultable):
 
 
 class SomeConfig(Defaultable):
-    something: SomethingWithDefault
+    something: t.Annotated[SomethingWithDefault, "Something"]
     other: SomethingElse
 
 
@@ -42,3 +44,4 @@ class SomeConfigWithoutDefault(Defaultable):
 def test_default_requires_defaultable_base():
     with pytest.raises(ConfigErrorMissingKey):
         load_into(SomeConfigWithoutDefault, {})
+
