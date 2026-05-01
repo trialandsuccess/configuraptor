@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.4.1 (2026-05-01)
+
+### Fix
+
+* **dataclass:** Prevent __post_init__ from running twice ([`22e6242`](https://github.com/trialandsuccess/configuraptor/commit/22e6242c3d3d101b236f9eeba1ba3e8b65a0f69e))
+
 ## v2.4.0 (2026-05-01)
 
 ### Feature
