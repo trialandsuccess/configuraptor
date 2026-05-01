@@ -12,6 +12,10 @@ class PathConfig:
 class PathConfigPostponed:
     required: Path = postpone()
     optional: Optional[Path] = postpone()
+    instant: str = postpone()
+
+    def __post_init__(self):
+        self.instant = "set"
 
 
 def test_regular():
@@ -30,6 +34,7 @@ def test_postponed():
     conf = load_into(PathConfigPostponed, {})
 
     assert conf
+    assert conf.instant == "set"
 
     conf.required = Path.home()
 

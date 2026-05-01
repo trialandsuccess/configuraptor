@@ -698,9 +698,23 @@ def load_into(
             - "environ": OS environment only
             - "no": no interpolation
     """
+    result: C
+
     if not isinstance(cls, type):
         # would not be supported according to mypy, but you can still load_into(instance)
-        return load_into_instance(
+        result = load_into_instance(
+            cls,
+            data,
+            key=key,
+            init=init,
+            strict=strict,
+            lower_keys=lower_keys,
+            convert_types=convert_types,
+            use_env=use_env,
+        )
+    else:
+        # get instance of cls()
+        result = load_into_class(
             cls,
             data,
             key=key,
@@ -711,15 +725,8 @@ def load_into(
             use_env=use_env,
         )
 
-    # make mypy and pycharm happy by telling it cls is of type C and not just 'type'
-    # _cls = typing.cast(typing.Type[C], cls)
-    return load_into_class(
-        cls,
-        data,
-        key=key,
-        init=init,
-        strict=strict,
-        lower_keys=lower_keys,
-        convert_types=convert_types,
-        use_env=use_env,
-    )
+    post_init = getattr(result, "__post_init__", None)
+    if callable(post_init):
+        post_init()
+
+    return result
