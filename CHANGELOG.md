@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.5.0 (2026-05-01)
+
+### Feature
+
+* **default:** Add Defaultable default hook for absent nested config values ([`fc5a92a`](https://github.com/trialandsuccess/configuraptor/commit/fc5a92adeeaccffc045161ced436319c3c4446af))
+
 ## v2.4.1 (2026-05-01)
 
 ### Fix
