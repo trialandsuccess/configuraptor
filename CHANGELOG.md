@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.4.0 (2026-05-01)
+
+### Feature
+
+* **load_into:** Support `__post_init__` ([`8a34cfa`](https://github.com/trialandsuccess/configuraptor/commit/8a34cfad0d50966a56a3f07c1b5bb9a500be9d42))
+
 ## v2.3.0 (2026-05-01)
 
 ### Feature
