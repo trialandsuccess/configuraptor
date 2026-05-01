@@ -30,6 +30,10 @@ def asdict(
     """
     data: dict[str, typing.Any] = {}
 
+    if not hasattr(inst, "__dict__"):
+        # weird type - skip
+        return {}
+
     internals_prefix = f"_{inst.__class__.__name__}__"
     for key, value in inst.__dict__.items():
         if exclude_internals == PROTECTED and key.startswith(internals_prefix):
@@ -42,11 +46,17 @@ def asdict(
 
         cls = value.__class__
         if is_custom_class(cls):
-            value = asdict(value, _level + 1)
+            value = asdict(value, _level + 1, exclude_internals=exclude_internals)
         elif isinstance(value, list):
-            value = [asdict(_, _level + 1) if instance_of_custom_class(_) else _ for _ in value]
+            value = [
+                asdict(_, _level + 1, exclude_internals=exclude_internals) if instance_of_custom_class(_) else _
+                for _ in value
+            ]
         elif isinstance(value, dict):
-            value = {k: asdict(v, _level + 1) if instance_of_custom_class(v) else v for k, v in value.items()}
+            value = {
+                k: asdict(v, _level + 1, exclude_internals=exclude_internals) if instance_of_custom_class(v) else v
+                for k, v in value.items()
+            }
 
         data[key] = value
 
