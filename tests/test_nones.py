@@ -39,14 +39,21 @@ def test_falsey_into_none():
     class Maybe:
         value: int
 
+    class IsDefaultable(configuraptor.Defaultable):
+        key: str = "default"
+
     class ContainsNone:
         maybe_none: Optional[Maybe]
+        maybe_none_defaultable: IsDefaultable | None
 
 
     happy = {
         "contains_none": {
             "maybe_none": {
                 "value": 123
+            },
+            "maybe_none_defaultable": {
+                "key": "custom"
             }
         }
     }
@@ -57,6 +64,22 @@ def test_falsey_into_none():
         }
     }
 
+    sadder = {
+        "contains_none": {
+            "maybe_none": False,
+            "maybe_none_defaultable": False,
+        }
+    }
 
-    assert configuraptor.load_into(ContainsNone, happy, convert_types=True).maybe_none
-    assert configuraptor.load_into(ContainsNone, sad, convert_types=True).maybe_none is None
+    first = configuraptor.load_into(ContainsNone, happy, convert_types=True)
+    second = configuraptor.load_into(ContainsNone, sad, convert_types=True)
+
+    assert first.maybe_none
+    assert second.maybe_none is None
+
+    assert first.maybe_none_defaultable.key == "custom"
+    assert second.maybe_none_defaultable.key == "default"
+
+    third = configuraptor.load_into(ContainsNone, sadder, convert_types=True)
+
+    assert third.maybe_none_defaultable is None

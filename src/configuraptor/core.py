@@ -430,6 +430,10 @@ def load_recursive(
     updated = {}
 
     for _key, _type in annotations.items():
+        # fixme:
+        # if defaultable or optional[defaultable] and key is not in data: return Default()
+        # if defaultable or optional[defaultable] and key is in data but falsey: return None
+
         if _key in data:
             value: typing.Any = data[_key]  # value can change so define it as any instead of T
             if is_parameterized(_type):
@@ -477,6 +481,8 @@ def load_recursive(
         elif _key in cls.__dict__:
             # property has default, use that instead.
             value = cls.__dict__[_key]
+        elif (defaultable := is_defaultable(_type, with_optional=True)) is not None:
+            value = defaultable.default()
         elif is_optional(_type):
             # type is optional and not found in __dict__ -> default is None
             value = None
@@ -484,8 +490,6 @@ def load_recursive(
             # could have a default factory
             # todo: do something with field.default?
             value = field.default_factory()
-        elif is_custom_class(_type) and isinstance(_type, type) and issubclass(_type, Defaultable):
-            value = _type.default()
         else:
             raise ConfigErrorMissingKey(_key, cls, _type)
 
@@ -751,3 +755,20 @@ class Defaultable:
         Return a default instance of `cls`.
         """
         return load_into(cls, {})
+
+
+def is_defaultable(_type: type | typing.Any, with_optional: bool = False) -> type[Defaultable] | None:
+    """
+    Return the Defaultable class for `_type`, if present.
+
+    If `with_optional` is enabled and `_type` is a union (e.g. `MyDefaultable | None`),
+    the first `Defaultable` branch is returned.
+    """
+    if with_optional and is_optional(_type):
+        # unpack union and return first branch that is Defaultable
+        return next(
+            (arg for arg in typing.get_args(_type) if is_custom_class(arg) and issubclass(arg, Defaultable)),
+            None,
+        )
+    else:
+        return _type if is_custom_class(_type) and issubclass(_type, Defaultable) else None
