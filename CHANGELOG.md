@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.5.3 (2026-05-14)
+
+### Fix
+
+* **loader:** Treat falsey Optional nested values as None ([`6fd6299`](https://github.com/trialandsuccess/configuraptor/commit/6fd629907d2782cfbba6e9400468da247fa859ab))
+
 ## v2.5.2 (2026-05-01)
 
 ### Fix
