@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.5.4 (2026-05-14)
+
+### Fix
+
+* **defaultable:** Support `SomeDefaultable | None` which will result in ``SomeDefaultable` if the key is missing and in None if the key is explicitly falsey ([`00057bb`](https://github.com/trialandsuccess/configuraptor/commit/00057bb3a9312f7c7c9fc749f5c7a02eaaf928e6))
+
 ## v2.5.3 (2026-05-14)
 
 ### Fix
