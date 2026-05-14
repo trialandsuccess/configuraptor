@@ -5,6 +5,7 @@ Contains most of the loading logic.
 import dataclasses as dc
 import io
 import os
+import types
 import typing
 import warnings
 from pathlib import Path
@@ -449,8 +450,13 @@ def load_recursive(
                 # elif origin is dict:
                 # keep data the same
                 elif is_union(_type) and arguments:
+                    if convert_types and types.NoneType in arguments and not value:
+                        value = None
+                        updated[_key] = value
+                        continue
+
                     for arg in arguments:
-                        if is_custom_class(arg):
+                        if is_custom_class(arg) and isinstance(value, (dict, arg)):
                             value = _load_into_recurse(arg, value, convert_types=convert_types)
 
             elif is_custom_class(_type):
