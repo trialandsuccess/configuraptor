@@ -12,7 +12,7 @@ src-layout = true
 name = "configuraptor"
 description = 'Load toml/yaml/json config files into classes for a typed config (type hinting etc.)'
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "MIT"
 keywords = []
 authors = [
