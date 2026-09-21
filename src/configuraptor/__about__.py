@@ -5,4 +5,6 @@ This file contains the module version.
 # SPDX-FileCopyrightText: 2023-present Robin van der Noord <robinvandernoord@gmail.com>
 #
 # SPDX-License-Identifier: MIT
-__version__ = "2.5.4"
+from importlib.metadata import version
+
+__version__ = version("configuraptor")
